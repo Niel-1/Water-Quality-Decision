@@ -1,0 +1,6 @@
+sample_code,sample_id,ph,Hardness,Turbidity,Solids,Chloramines,Conductivity,fuzzy_quality_score,Potability,potability_label
+S1,WQP-M01,3.5,240.0,4.75,28450.0,8.2,510.0,44.0476,0,Not Potable
+S2,WQP-M02,10.5,240.0,4.75,26120.0,7.85,485.0,44.0476,0,Not Potable
+S3,WQP-M03,7.0,180.0,3.5,21500.0,7.1,420.0,50.0,0,Not Potable
+S4,WQP-M04,7.0,120.0,2.25,16800.0,6.8,365.0,55.9524,1,Potable
+S5,WQP-M05,7.0,90.0,1.625,14200.0,6.5,340.0,64.6739,1,Potable
