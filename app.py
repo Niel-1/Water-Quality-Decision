@@ -33,7 +33,7 @@ def _init_session_state(df_default) -> None:
         st.session_state["active_dataset"] = df_default.copy()
     if "dataset_source_name" not in st.session_state:
         st.session_state["dataset_source_name"] = (
-            "Kaggle Water Potability Clean Dataset (600 Pengamatan)"
+            "Kaggle Water Potability Clean Dataset (600 Samples)"
         )
     if "manual_input" not in st.session_state or "ph" not in st.session_state["manual_input"]:
         st.session_state["manual_input"] = dict(DEFAULT_MANUAL_INPUT)
@@ -48,7 +48,7 @@ def _render_sidebar(df_active) -> str:
         page_labels = {item[0]: f"{item[1]} · {item[2]}" for item in NAV_PAGES}
 
         selected_page = st.radio(
-            "Navigasi Workspace",
+            "Navigation",
             options=page_ids,
             format_func=lambda pid: page_labels[pid],
         )

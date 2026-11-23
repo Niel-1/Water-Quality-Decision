@@ -139,5 +139,5 @@ def process_uploaded_csv(uploaded_file) -> Tuple[pd.DataFrame, str]:
 
     df_up["potability_label"] = df_up["Potability"].map({0: "Not Potable", 1: "Potable"})
 
-    source_label = f"Uploaded CSV ({uploaded_file.name} · {len(df_up)} baris)"
+    source_label = f"Uploaded CSV ({uploaded_file.name} · {len(df_up)} rows)"
     return df_up, source_label

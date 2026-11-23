@@ -11,11 +11,11 @@ from src.ui.data import get_cached_evaluation
 
 
 def render_results(df_active: pd.DataFrame) -> None:
-    """Render Page 4 (Hasil Pengolahan & Klasifikasi Kelayakan)."""
+    """Render Page 4 (Classification Results & Ranking)."""
     render_page_header(
-        title="Hasil Pengolahan & Klasifikasi Kelayakan",
-        subtitle="Pemeringkatan kualitas fisikokimia air dan prediksi kelayakan konsumsi (Potable vs Not Potable) seluruh dataset menggunakan Fuzzy-Enhanced KNN (Model B).",
-        chip_text=f"Model B · {len(df_active)} Sampel",
+        title="Classification Results & Ranking",
+        subtitle="Ranking kualitas air dan hasil prediksi Potable vs Not Potable untuk seluruh dataset menggunakan Fuzzy-Enhanced KNN (Model B).",
+        chip_text=f"Model B · {len(df_active)} Samples",
     )
 
     eval_res = get_cached_evaluation(df_active, "minmax", "stratified_ordered")
@@ -26,23 +26,23 @@ def render_results(df_active: pd.DataFrame) -> None:
     y_tr = tr_df["potability_label"].values
 
     with st.container(border=True):
-        st.markdown("#### Filter & Pengaturan Klasifikasi Batch")
+        st.markdown("#### Batch Classification Filters")
         f0, f1, f2 = st.columns([1.0, 1.4, 1.5], gap="medium")
         with f0:
             k_sel = st.selectbox(
-                "Jumlah Tetangga KNN (K)",
+                "KNN Neighbors (K)",
                 options=[3, 5, 7, 9, 11],
                 index=1,
             )
         with f1:
             filter_cls = st.multiselect(
-                "Filter Kelas Kelayakan",
+                "Filter Predicted Class",
                 options=CLASS_ORDER,
                 default=CLASS_ORDER,
             )
         with f2:
             min_score = st.slider(
-                "Batas Minimum Skor Kualitas Fuzzy (0-100)",
+                "Min. Fuzzy Quality Score (0-100)",
                 min_value=0.0,
                 max_value=100.0,
                 value=0.0,
@@ -76,15 +76,15 @@ def render_results(df_active: pd.DataFrame) -> None:
 
     render_kpi_grid(
         [
-            {"label": "Sampel Terfilter", "value": f"{n_total}", "meta": f"dari {len(df_active)} total baris", "tone": "cobalt"},
-            {"label": "Prediksi Potable", "value": f"{n_pot}", "meta": "Layak Minum (Model B)", "tone": "potable"},
-            {"label": "Prediksi Not Potable", "value": f"{n_not}", "meta": "Tidak Layak Minum", "tone": "poor"},
-            {"label": "Rata-rata Skor Fuzzy", "value": f"{avg_score:.4f}", "meta": f"Evaluasi pada K = {k_sel}", "tone": "muted"},
+            {"label": "Filtered Samples", "value": f"{n_total}", "meta": f"dari {len(df_active)} total rows", "tone": "cobalt"},
+            {"label": "Predicted Potable", "value": f"{n_pot}", "meta": "Layak Minum (Model B)", "tone": "potable"},
+            {"label": "Predicted Not Potable", "value": f"{n_not}", "meta": "Tidak Layak Minum", "tone": "poor"},
+            {"label": "Avg. Fuzzy Score", "value": f"{avg_score:.4f}", "meta": f"Evaluasi pada K = {k_sel}", "tone": "muted"},
         ]
     )
 
     if df_filtered.empty:
-        st.info("Tidak ada sampel yang memenuhi kombinasi filter saat ini. Turunkan batas minimum skor atau pilih kelas kelayakan lain.")
+        st.info("Belum ada sampel yang cocok dengan filter ini. Coba turunkan minimum Fuzzy Score atau pilih kelas lain.")
         return
 
     display_cols = [
@@ -122,7 +122,7 @@ def render_results(df_active: pd.DataFrame) -> None:
 
     csv_bytes = df_filtered.to_csv(index=False).encode("utf-8")
     st.download_button(
-        label="Unduh Tabel Hasil Klasifikasi (CSV)",
+        label="Download Results (CSV)",
         data=csv_bytes,
         file_name="hasil_kelayakan_air_fuzzy_knn_kelompok1.csv",
         mime="text/csv",

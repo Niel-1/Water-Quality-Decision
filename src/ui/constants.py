@@ -58,12 +58,12 @@ PLOTLY_FONT_FAMILY = "Public Sans, -apple-system, BlinkMacSystemFont, Segoe UI, 
 PLOTLY_MONO_FAMILY = "JetBrains Mono, ui-monospace, SFMono-Regular, monospace"
 
 NAV_PAGES = [
-    ("dashboard", "01", "Halaman Utama"),
-    ("input", "02", "Input & Eksplorasi Dataset"),
-    ("whitebox", "03", "Proses White-Box"),
-    ("results", "04", "Hasil & Klasifikasi"),
-    ("evaluation", "05", "Evaluasi Model A vs B"),
-    ("docs", "06", "Informasi & Panduan"),
+    ("dashboard", "01", "Dashboard"),
+    ("input", "02", "Input & Dataset"),
+    ("whitebox", "03", "Step-by-Step Process"),
+    ("results", "04", "Classification Results"),
+    ("evaluation", "05", "Model Evaluation"),
+    ("docs", "06", "Docs & Guide"),
 ]
 
 DEFAULT_MANUAL_INPUT = {
@@ -75,18 +75,18 @@ DEFAULT_MANUAL_INPUT = {
 }
 
 REFERENCE_MODES = {
-    "manual_5": "5 Sampel Referensi Ringkas (S1-S5, K<=5)",
-    "kaggle_480": "Dataset Latih Penuh Kaggle (480 Data Latih)",
+    "manual_5": "5 Manual Reference Samples (S1-S5, K<=5)",
+    "kaggle_480": "Full Kaggle Train Set (480 Samples)",
 }
 
 SAMPLE_PRESETS = {
-    "Sampel Uji Q* : Air Agak Asam & Jernih (pH 5.25, Hardness 150.0, Turbidity 2.250)": (5.25, 150.0, 2.250),
-    "Sampel S1 : Not Potable / Asam Sadah Keruh (pH 3.50, Hardness 240.0, Turbidity 4.750)": (3.50, 240.0, 4.750),
-    "Sampel S2 : Not Potable / Basa Sadah Keruh (pH 10.50, Hardness 240.0, Turbidity 4.750)": (10.50, 240.0, 4.750),
-    "Sampel S3 : Not Potable / Ambang Transisi (pH 7.00, Hardness 180.0, Turbidity 3.500)": (7.00, 180.0, 3.500),
-    "Sampel S4 : Potable / Layak Minum Ideal (pH 7.00, Hardness 120.0, Turbidity 2.250)": (7.00, 120.0, 2.250),
-    "Sampel S5 : Potable / Kualitas Sangat Baik (pH 7.00, Hardness 90.0, Turbidity 1.625)": (7.00, 90.0, 1.625),
-    "Kustomisasi Bebas (Input Manual)": None,
+    "Sample Q* : Agak Asam & Jernih (pH 5.25, Hardness 150.0, Turbidity 2.250)": (5.25, 150.0, 2.250),
+    "Sample S1 : Not Potable / Asam Sadah Keruh (pH 3.50, Hardness 240.0, Turbidity 4.750)": (3.50, 240.0, 4.750),
+    "Sample S2 : Not Potable / Basa Sadah Keruh (pH 10.50, Hardness 240.0, Turbidity 4.750)": (10.50, 240.0, 4.750),
+    "Sample S3 : Not Potable / Borderline (pH 7.00, Hardness 180.0, Turbidity 3.500)": (7.00, 180.0, 3.500),
+    "Sample S4 : Potable / Layak Minum Ideal (pH 7.00, Hardness 120.0, Turbidity 2.250)": (7.00, 120.0, 2.250),
+    "Sample S5 : Potable / Kualitas Sangat Baik (pH 7.00, Hardness 90.0, Turbidity 1.625)": (7.00, 90.0, 1.625),
+    "Custom Input (Manual)": None,
 }
 
 TEAM_MEMBERS = [

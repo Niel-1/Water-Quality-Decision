@@ -18,19 +18,19 @@ from src.ui.data import get_cached_evaluation
 
 
 def render_evaluation(df_active: pd.DataFrame) -> None:
-    """Render Page 5 (Evaluasi Sistem: Model A vs Model B)."""
+    """Render Page 5 (Model Evaluation: Model A vs Model B)."""
     render_page_header(
-        title="Evaluasi Sistem: Model A vs Model B",
-        subtitle="Pengujian kuantitatif pengaruh fitur Fuzzy Water Quality Score pada klasifikasi KNN: Model A (3 Fitur Baseline) vs Model B (4 Fitur Fuzzy-Enhanced).",
+        title="Model Evaluation: Model A vs Model B",
+        subtitle="Perbandingan performa Model A (Baseline KNN 3 fitur) vs Model B (Fuzzy-Enhanced KNN 4 fitur) untuk mengukur efek fitur Fuzzy Quality Score.",
         chip_text="Leakage-Free 80:20 Split",
     )
 
     with st.container(border=True):
-        st.markdown("#### Konfigurasi Skenario Evaluasi")
+        st.markdown("#### Evaluation Settings")
         c1, c2, c3 = st.columns(3, gap="medium")
         with c1:
             split_strat = st.selectbox(
-                "Strategi Pembagian Data (Train-Test Split)",
+                "Train-Test Split Strategy",
                 options=["stratified_ordered", "stratified_class"],
                 format_func=lambda x: (
                     "Stratified Ordered 80:20 (Default)"
@@ -40,7 +40,7 @@ def render_evaluation(df_active: pd.DataFrame) -> None:
             )
         with c2:
             scaler_choice = st.selectbox(
-                "Metode Feature Scaling (Fit pada Train)",
+                "Feature Scaling (Fit on Train)",
                 options=["minmax", "zscore"],
                 format_func=lambda x: (
                     "Min-Max Scaling [0, 1] (Default)"
@@ -50,7 +50,7 @@ def render_evaluation(df_active: pd.DataFrame) -> None:
             )
         with c3:
             k_focus = st.selectbox(
-                "Nilai K Fokus untuk Confusion Matrix",
+                "Focus K (Confusion Matrix)",
                 options=[3, 5, 7, 9, 11],
                 index=1,
             )
@@ -65,25 +65,25 @@ def render_evaluation(df_active: pd.DataFrame) -> None:
     render_kpi_grid(
         [
             {
-                "label": f"Accuracy Model A (K={k_focus})",
+                "label": f"Model A Accuracy (K={k_focus})",
                 "value": f"{ma_sel['accuracy']*100:.2f}%",
-                "meta": f"Macro-F1: {ma_sel['f1_macro']*100:.2f}% (3 Fitur)",
+                "meta": f"Macro-F1: {ma_sel['f1_macro']*100:.2f}% (3 Features)",
                 "tone": "muted",
             },
             {
-                "label": f"Accuracy Model B (K={k_focus})",
+                "label": f"Model B Accuracy (K={k_focus})",
                 "value": f"{mb_sel['accuracy']*100:.2f}%",
-                "meta": f"Macro-F1: {mb_sel['f1_macro']*100:.2f}% (4 Fitur)",
+                "meta": f"Macro-F1: {mb_sel['f1_macro']*100:.2f}% (4 Features)",
                 "tone": "cobalt",
             },
             {
-                "label": "Peningkatan Δ Accuracy (B - A)",
+                "label": "Δ Accuracy Gain (B - A)",
                 "value": f"{delta_sel:+.2f}%",
                 "meta": f"Δ Macro-F1: {rk_sel['delta_f1_macro']*100:+.2f}%",
                 "tone": "potable" if delta_sel > 0 else ("poor" if delta_sel < 0 else "muted"),
             },
             {
-                "label": "Kesesuaian vs Scikit-Learn",
+                "label": "Match vs Scikit-Learn",
                 "value": f"{rk_sel['sklearn_agreement_b']*100:.2f}%",
                 "meta": f"{eval_data['train_size']} Train · {eval_data['test_size']} Test",
                 "tone": "moderate",
@@ -92,7 +92,7 @@ def render_evaluation(df_active: pd.DataFrame) -> None:
     )
 
     # 1. Summary Table across K = 3, 5, 7, 9, 11
-    st.subheader("1. Perbandingan Metrik Evaluasi pada Variasi Nilai K (3, 5, 7, 9, 11)")
+    st.subheader("1. Metrics Comparison across K (3, 5, 7, 9, 11)")
     eval_rows = []
     for k, rk in res_by_k.items():
         ma = rk["model_a"]
@@ -120,7 +120,7 @@ def render_evaluation(df_active: pd.DataFrame) -> None:
 
     render_table(
         headers=[
-            ("Nilai K", False),
+            ("K Value", False),
             ("Acc A", True),
             ("Acc B", True),
             ("Δ Acc (B-A)", True),
@@ -156,7 +156,7 @@ def render_evaluation(df_active: pd.DataFrame) -> None:
 
     # 2. Confusion Matrices & Per-Class Breakdown
     st.divider()
-    st.subheader(f"2. Confusion Matrix & Metrik Per Kelas pada K = {k_focus}")
+    st.subheader(f"2. Confusion Matrix & Per-Class Metrics (K = {k_focus})")
     cm_a = np.array(ma_sel["confusion_matrix"])
     cm_b = np.array(mb_sel["confusion_matrix"])
 
@@ -204,7 +204,7 @@ def render_evaluation(df_active: pd.DataFrame) -> None:
 
     render_table(
         headers=[
-            ("Kelas Kelayakan Air", False),
+            ("Water Class", False),
             ("Support", True),
             ("Precision A", True),
             ("Precision B", True),
@@ -218,29 +218,29 @@ def render_evaluation(df_active: pd.DataFrame) -> None:
 
     # 3. Analytical Synthesis
     st.divider()
-    st.subheader("3. Analisis Kontribusi Fitur Fuzzy Mamdani & Keterbatasan")
+    st.subheader("3. Key Takeaways & Limitations")
     render_html(
         """
         <div class="atlas-card">
             <div class="stage-tray">
                 <div class="stage-tray-head">
-                    <span class="stage-num">ANALISIS</span>
-                    <span class="stage-title">Mengapa Model B Konsisten Mengungguli Baseline KNN?</span>
+                    <span class="stage-num">INSIGHT</span>
+                    <span class="stage-title">Kenapa Model B Lebih Baik dari Baseline KNN?</span>
                 </div>
                 <ol style="margin: 0.35rem 0 0 0; padding-left: 1.2rem; font-size: 0.86rem;">
-                    <li><strong>Sifat Non-Monotonik Simetris pH:</strong> Pada Model A (3 fitur), jarak Euclidean memperlakukan <code>ph</code> secara linear, padahal titik optimal berada di tengah (<code>pH = 7.0</code>) sementara deviasi ke kiri (<code>Acidic</code>) dan ke kanan (<code>Alkaline</code>) sama-sama menurunkan kelayakan.</li>
-                    <li><strong>Pemetaan Interaksi Pakar 27 Aturan:</strong> Fitur <code>fuzzy_quality_score</code> merangkum interaksi non-linear antara pH, Hardness, dan Turbidity sehingga sampel di dekat batas keputusan (<em>decision boundary</em>) terpisah lebih tajam.</li>
-                    <li><strong>Keunggulan Konsisten di Semua Nilai K:</strong> Pada 120 data uji default, Model B unggul di seluruh <code>K = 3, 5, 7, 9, 11</code> hingga mencapai <strong>97.50%</strong> pada <code>K = 11</code> (+4.17% vs Model A).</li>
+                    <li><strong>Sifat Non-Monotonik pH:</strong> Di Model A (3 fitur), jarak Euclidean membaca <code>ph</code> secara linear. Padahal nilai idealnya ada di tengah (<code>pH = 7.0</code>), sedangkan terlalu asam (<code>Acidic</code>) atau terlalu basa (<code>Alkaline</code>) sama-sama menurunkan kelayakan air.</li>
+                    <li><strong>Interaksi 27 Rule Base:</strong> Fitur <code>fuzzy_quality_score</code> merangkum hubungan non-linear antara pH, Hardness, dan Turbidity, jadi sampel di area batas keputusan (<em>decision boundary</em>) bisa terpisah lebih jelas.</li>
+                    <li><strong>Stabil di Semua Nilai K:</strong> Di 120 test data default, Model B konsisten unggul di semua <code>K = 3, 5, 7, 9, 11</code> dengan akurasi tertinggi <strong>97.50%</strong> pada <code>K = 11</code> (+4.17% dibanding Model A).</li>
                 </ol>
             </div>
             <div class="stage-tray">
                 <div class="stage-tray-head">
-                    <span class="stage-num">CATATAN</span>
-                    <span class="stage-title">Keterbatasan Penelitian & Arah Pengembangan</span>
+                    <span class="stage-num">LIMITATIONS</span>
+                    <span class="stage-title">Batasan Sistem & Pengembangan Selanjutnya</span>
                 </div>
                 <ul style="margin: 0.35rem 0 0 0; padding-left: 1.2rem; font-size: 0.86rem;">
-                    <li>Inferensi Fuzzy Mamdani difokuskan pada 3 parameter fisikokimia utama agar basis 27 aturan tetap <em>interpretable</em> dan bebas dari ledakan kombinatorial (<em>curse of dimensionality</em>).</li>
-                    <li>Pengembangan lanjutan dapat menambahkan parameter mikrobiologis (bakteri <em>E. coli</em> / total koliform) serta logam berat untuk uji kelayakan air minum lapangan menyeluruh.</li>
+                    <li>Fuzzy Mamdani dibatasi pada 3 parameter utama supaya 27 rule tetap mudah dibaca dan dianalisis tanpa ledakan jumlah aturan (<em>rule explosion</em>).</li>
+                    <li>Untuk implementasi uji air minum nyata di lapangan, model bisa dikembangkan dengan menambah parameter mikrobiologi (seperti <em>E. coli</em> / coliform) dan kandungan logam berat.</li>
                 </ul>
             </div>
         </div>

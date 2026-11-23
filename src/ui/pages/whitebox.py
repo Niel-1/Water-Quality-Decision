@@ -41,8 +41,8 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
     z_star = fuzzy_res["water_quality_score"]
 
     render_page_header(
-        title="Proses Pengolahan White-Box (Step-by-Step)",
-        subtitle="Audit matematis transparan presisi 4 desimal (0.0000) dari fuzzifikasi segitiga simetris, 27 aturan Mamdani, integral Centroid eksak, hingga jarak Euclidean KNN.",
+        title="Step-by-Step Process (White-Box)",
+        subtitle="Trace perhitungan lengkap 4 desimal (0.0000) dari fuzzifikasi segitiga simetris, 27 rules Mamdani, integral Centroid analitik, sampai Euclidean Distance KNN.",
         chip_text=f"K={k_eff} · {REFERENCE_MODES.get(ref_mode, ref_mode)}",
     )
 
@@ -50,24 +50,24 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
         """
         <div class="stepper-grid">
             <div class="step-card">
-                <div class="step-code">TAHAP 01</div>
-                <div class="step-title">Fuzzifikasi Segitiga</div>
+                <div class="step-code">STEP 01</div>
+                <div class="step-title">Fuzzification</div>
                 <p class="step-desc">Memetakan pH, Hardness, dan Turbidity ke derajat keanggotaan &mu; &isin; [0, 1] dengan &Sigma;&mu; = 1.</p>
             </div>
             <div class="step-card">
-                <div class="step-code">TAHAP 02-03</div>
-                <div class="step-title">27 Rule & Implikasi MIN</div>
-                <p class="step-desc">Menghitung kekuatan tembak &alpha; = min(&mu;1, &mu;2, &mu;3) dan memotong tinggi himpunan output.</p>
+                <div class="step-code">STEP 02-03</div>
+                <div class="step-title">27 Rules & Implication</div>
+                <p class="step-desc">Menghitung firing strength &alpha; = min(&mu;1, &mu;2, &mu;3) dan memotong tinggi kurva output (MIN).</p>
             </div>
             <div class="step-card">
-                <div class="step-code">TAHAP 04-05</div>
-                <div class="step-title">Agregasi MAX & Centroid</div>
-                <p class="step-desc">Menggabungkan kurva output lalu menghitung titik pusat massa z* = &Sigma;M / &Sigma;A secara analitik.</p>
+                <div class="step-code">STEP 04-05</div>
+                <div class="step-title">Aggregation & Centroid</div>
+                <p class="step-desc">Menggabungkan output (MAX) lalu menghitung titik pusat massa z* = &Sigma;M / &Sigma;A secara analitik.</p>
             </div>
             <div class="step-card">
-                <div class="step-code">TAHAP 06</div>
-                <div class="step-title">Min-Max & Jarak KNN</div>
-                <p class="step-desc">Menormalisasi vektor 4D ke [0, 1], menghitung jarak Euclidean, dan melakukan majority voting.</p>
+                <div class="step-code">STEP 06</div>
+                <div class="step-title">Min-Max & KNN Distance</div>
+                <p class="step-desc">Normalisasi vektor 4D ke [0, 1], hitung jarak Euclidean, dan tentukan kelas lewat majority voting.</p>
             </div>
         </div>
         """
@@ -75,52 +75,52 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
 
     render_physicochemical_strip(x1, x2, x3)
 
-    # Tahap 1: 4 Membership Function Charts
-    st.subheader("Tahap 1: Kurva Fungsi Keanggotaan (Membership Functions)")
+    # Step 1: 4 Membership Function Charts
+    st.subheader("Step 1: Membership Function Curves")
     g1, g2 = st.columns(2, gap="medium")
     with g1:
         st.plotly_chart(
-            plot_membership_functions("ph", "Input 1: pH Air (X1 · Domain 0-14)", "pH Air", x1),
+            plot_membership_functions("ph", "Input 1: pH (X1 · Domain 0-14)", "pH", x1),
             width="stretch",
         )
         st.plotly_chart(
-            plot_membership_functions("Turbidity", "Input 3: Turbidity (X3 · Domain 1-6 NTU)", "Turbidity (NTU)", x3),
+            plot_membership_functions("Turbidity", "Input 3: Turbidity (X3 · 1-6 NTU)", "Turbidity (NTU)", x3),
             width="stretch",
         )
     with g2:
         st.plotly_chart(
-            plot_membership_functions("Hardness", "Input 2: Hardness (X2 · Domain 60-300 mg/L)", "Hardness (mg/L)", x2),
+            plot_membership_functions("Hardness", "Input 2: Hardness (X2 · 60-300 mg/L)", "Hardness (mg/L)", x2),
             width="stretch",
         )
         st.plotly_chart(
             plot_membership_functions(
                 "water_quality_score",
-                "Output: Fuzzy Water Quality Score (Y · Domain 0-100)",
+                "Output: Fuzzy Quality Score (Y · 0-100)",
                 "Water Quality Score (0-100)",
                 z_star,
             ),
             width="stretch",
         )
 
-    # Tahap 2: Fuzzification Table
+    # Step 2: Fuzzification Table
     st.divider()
-    st.subheader("Tahap 2: Tabel Fuzzifikasi Input (Derajat Keanggotaan μ)")
+    st.subheader("Step 2: Input Fuzzification Table (μ)")
     fuz = fuzzy_res["fuzzified"]
     render_table(
         headers=[
-            ("Variabel Input", False),
-            ("Nilai Crisp", True),
-            ("Himpunan 1", False),
+            ("Input Variable", False),
+            ("Crisp Value", True),
+            ("Set 1", False),
             ("μ1", True),
-            ("Himpunan 2", False),
+            ("Set 2", False),
             ("μ2", True),
-            ("Himpunan 3", False),
+            ("Set 3", False),
             ("μ3", True),
         ],
         rows=[
             (
                 [
-                    "<strong>X1: pH Air (0-14)</strong>",
+                    "<strong>X1: pH (0-14)</strong>",
                     f"{x1:.4f}",
                     status_badge("Acidic [0, 0, 7]", "poor"),
                     f"{fuz['ph']['Acidic']:.4f}",
@@ -160,11 +160,11 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
         ],
     )
 
-    # Tahap 3: 27 Rule Base Evaluation with Inline Firing-Strength Bars
+    # Step 3: 27 Rule Base Evaluation with Inline Firing-Strength Bars
     st.divider()
-    st.subheader("Tahap 3: Evaluasi 27 Rule Base & Kekuatan Tembak α-Predikat")
+    st.subheader("Step 3: 27 Rule Base Evaluation & Firing Strength (α)")
     only_active = st.checkbox(
-        "Tampilkan hanya aturan yang aktif (α-predikat > 0.0000)",
+        "Tampilkan hanya active rules (α > 0.0000)",
         value=True,
     )
     rules_list = fuzzy_res["active_rules"] if only_active else fuzzy_res["rules"]
@@ -184,7 +184,7 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
                     f"{r['mu_turbidity']:.4f}",
                     render_alpha_bar(r["alpha"], r["water_quality_score"]),
                     status_badge(r["water_quality_score"]),
-                    status_badge("AKTIF" if r["is_active"] else "Non-Aktif"),
+                    status_badge("Active" if r["is_active"] else "Inactive", "potable" if r["is_active"] else "neutral"),
                 ],
                 row_cls,
             )
@@ -211,15 +211,15 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
     lbl_mod = f"α_Moderate = {agg['Moderate']:.4f}"
     lbl_good = f"α_Good = {agg['Good']:.4f}"
     render_notice(
-        "<strong>Hasil Agregasi Antar-Aturan (Komposisi MAX per Output):</strong> &nbsp; "
+        "<strong>MAX Aggregation per Output Set:</strong> &nbsp; "
         f"{status_badge(lbl_poor, 'poor')} &nbsp; "
         f"{status_badge(lbl_mod, 'moderate')} &nbsp; "
         f"{status_badge(lbl_good, 'potable')}"
     )
 
-    # Tahap 4 & 5: Aggregated Curve & Analytic Integral Segments
+    # Step 4 & 5: Aggregated Curve & Analytic Integral Segments
     st.divider()
-    st.subheader("Tahap 4 & 5: Implikasi (MIN), Agregasi (MAX) & Defuzzifikasi Centroid Analitik")
+    st.subheader("Step 4 & 5: Implication (MIN), Aggregation (MAX) & Analytic Centroid")
     st.plotly_chart(plot_aggregated_centroid(fuzzy_res), width="stretch")
 
     tot_a = fuzzy_res["analytic"]["total_area"]
@@ -229,7 +229,7 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
     seg_rows = [
         (
             [
-                f"<strong>Segmen {s['segment_id']}</strong>",
+                f"<strong>Segment {s['segment_id']}</strong>",
                 f"[{s['z_start']:.4f}, {s['z_end']:.4f}]",
                 f"<code>{s['equation']}</code>",
                 f"{s['mu_start']:.4f}",
@@ -258,23 +258,23 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
 
     render_table(
         headers=[
-            ("Segmen", False),
+            ("Segment", False),
             ("Interval [z0, z1]", True),
-            ("Persamaan μ_agg(z)", False),
+            ("Equation μ_agg(z)", False),
             ("μ(z0)", True),
             ("μ(z1)", True),
-            ("Luas A_i", True),
-            ("Momen M_i", True),
+            ("Area A_i", True),
+            ("Moment M_i", True),
         ],
         rows=seg_rows,
     )
 
     render_kpi_grid(
         [
-            {"label": "Total Momen (∑ M_i)", "value": f"{tot_m:.4f}", "meta": "Integral Numerator", "tone": "muted"},
-            {"label": "Total Luas Area (∑ A_i)", "value": f"{tot_a:.4f}", "meta": "Integral Denominator", "tone": "muted"},
-            {"label": "Centroid Analitik Eksak (z*)", "value": f"{z_star:.4f}", "meta": "0.0000 Galat Manual", "tone": "cobalt"},
-            {"label": "Centroid Diskrit (1001 Titik)", "value": f"{z_disc:.4f}", "meta": f"Selisih: {abs(z_star - z_disc):.4f}", "tone": "moderate"},
+            {"label": "Total Moment (∑ M_i)", "value": f"{tot_m:.4f}", "meta": "Integral Numerator", "tone": "muted"},
+            {"label": "Total Area (∑ A_i)", "value": f"{tot_a:.4f}", "meta": "Integral Denominator", "tone": "muted"},
+            {"label": "Analytic Centroid (z*)", "value": f"{z_star:.4f}", "meta": "0.0000 Diff vs Manual", "tone": "cobalt"},
+            {"label": "Discrete Centroid (1001 pts)", "value": f"{z_disc:.4f}", "meta": f"Diff: {abs(z_star - z_disc):.4f}", "tone": "moderate"},
         ]
     )
 
@@ -282,26 +282,26 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
         rf"z^* = \frac{{\int_{{0}}^{{100}} z \cdot \mu_{{\text{{agg}}}}(z)\,dz}}{{\int_{{0}}^{{100}} \mu_{{\text{{agg}}}}(z)\,dz}} = \frac{{\sum M_i}}{{\sum A_i}} = \frac{{{tot_m:.4f}}}{{{tot_a:.4f}}} = {z_star:.4f}"
     )
 
-    # Tahap 6: Min-Max Normalization & Euclidean KNN Distances
+    # Step 6: Min-Max Normalization & Euclidean KNN Distances
     st.divider()
-    st.subheader("Tahap 6: Normalisasi Min-Max, Jarak Euclidean KNN & Keputusan Akhir")
+    st.subheader("Step 6: Min-Max Scaling, Euclidean Distance & Majority Voting")
     scaler = sim["scaler"]
     q_raw = sim["query_raw"]
     q_sc = sim["query_scaled"]
 
     render_table(
         headers=[
-            ("Parameter Vektor Fitur", False),
+            ("Feature Vector", False),
             ("X1: pH", True),
             ("X2: Hardness (mg/L)", True),
             ("X3: Turbidity (NTU)", True),
             ("Y: Fuzzy Score", True),
         ],
         rows=[
-            (["<strong>Min Data Latih (X_min)</strong>", f"{scaler.min_[0]:.4f}", f"{scaler.min_[1]:.4f}", f"{scaler.min_[2]:.4f}", f"{scaler.min_[3]:.4f}"], ""),
-            (["<strong>Max Data Latih (X_max)</strong>", f"{scaler.max_[0]:.4f}", f"{scaler.max_[1]:.4f}", f"{scaler.max_[2]:.4f}", f"{scaler.max_[3]:.4f}"], ""),
-            (["<strong>Vektor Uji Mentah (Q*)</strong>", f"{q_raw[0]:.4f}", f"{q_raw[1]:.4f}", f"{q_raw[2]:.4f}", f"{q_raw[3]:.4f}"], ""),
-            (["<strong>Vektor Uji Ternormalisasi (Q'*)</strong>", f"<strong>{q_sc[0]:.4f}</strong>", f"<strong>{q_sc[1]:.4f}</strong>", f"<strong>{q_sc[2]:.4f}</strong>", f"<strong>{q_sc[3]:.4f}</strong>"], "row-highlight"),
+            (["<strong>Train Min (X_min)</strong>", f"{scaler.min_[0]:.4f}", f"{scaler.min_[1]:.4f}", f"{scaler.min_[2]:.4f}", f"{scaler.min_[3]:.4f}"], ""),
+            (["<strong>Train Max (X_max)</strong>", f"{scaler.max_[0]:.4f}", f"{scaler.max_[1]:.4f}", f"{scaler.max_[2]:.4f}", f"{scaler.max_[3]:.4f}"], ""),
+            (["<strong>Raw Query Vector (Q*)</strong>", f"{q_raw[0]:.4f}", f"{q_raw[1]:.4f}", f"{q_raw[2]:.4f}", f"{q_raw[3]:.4f}"], ""),
+            (["<strong>Normalized Query (Q'*)</strong>", f"<strong>{q_sc[0]:.4f}</strong>", f"<strong>{q_sc[1]:.4f}</strong>", f"<strong>{q_sc[2]:.4f}</strong>", f"<strong>{q_sc[3]:.4f}</strong>"], "row-highlight"),
         ],
     )
 
@@ -321,7 +321,7 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
                     f"{sq[0]:.4f} + {sq[1]:.4f} + {sq[2]:.4f} + {sq[3]:.4f} = {n['sum_sq_diff']:.4f}",
                     f"<strong>{n['distance']:.4f}</strong>",
                     status_badge(n["label"]),
-                    status_badge(f"Top-{k_eff}", "cobalt") if is_topk else status_badge("Di Luar K", "neutral"),
+                    status_badge(f"Top-{k_eff}", "cobalt") if is_topk else status_badge("Outside K", "neutral"),
                 ],
                 "row-highlight" if is_topk else "",
             )
@@ -330,20 +330,20 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
     render_table(
         headers=[
             ("Rank", True),
-            ("ID Sampel", False),
-            ("Mentah [X1, X2, X3, Y]", True),
-            ("Normalisasi [X'1, X'2, X'3, Y']", True),
-            ("Jumlah Kuadrat Selisih", True),
-            ("Jarak d(Q*, S_i)", True),
-            ("Kelas Tetangga", False),
+            ("Sample ID", False),
+            ("Raw [X1, X2, X3, Y]", True),
+            ("Scaled [X'1, X'2, X'3, Y']", True),
+            ("Squared Diff Sum", True),
+            ("Distance d(Q*, S_i)", True),
+            ("Label", False),
             ("Voting", False),
         ],
         rows=knn_rows,
     )
 
     render_notice(
-        f"<strong>Keputusan Akhir Majority Voting (K = {k_eff}):</strong> "
-        f"Distribusi Suara = <code>{escape(str(knn_det['vote_counts']))}</code> &rarr; "
-        f"Status Kelayakan Air Minum = {status_badge(knn_det['predicted_class'])}",
+        f"<strong>Final Majority Voting (K = {k_eff}):</strong> "
+        f"Votes = <code>{escape(str(knn_det['vote_counts']))}</code> &rarr; "
+        f"Predicted Class = {status_badge(knn_det['predicted_class'])}",
         accent=True,
     )

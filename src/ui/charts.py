@@ -82,15 +82,15 @@ def plot_class_distribution(df: pd.DataFrame) -> go.Figure:
     cls_counts = (
         df["potability_label"].value_counts().reindex(CLASS_ORDER, fill_value=0).reset_index()
     )
-    cls_counts.columns = ["Kelas Kelayakan Air", "Jumlah Sampel"]
+    cls_counts.columns = ["Potability Class", "Samples"]
 
     fig = px.bar(
         cls_counts,
-        x="Kelas Kelayakan Air",
-        y="Jumlah Sampel",
-        color="Kelas Kelayakan Air",
+        x="Potability Class",
+        y="Samples",
+        color="Potability Class",
         color_discrete_map=POTABILITY_COLOR_MAP,
-        text="Jumlah Sampel",
+        text="Samples",
     )
     fig.update_traces(
         textposition="outside",
@@ -101,13 +101,13 @@ def plot_class_distribution(df: pd.DataFrame) -> go.Figure:
     )
     apply_atlas_layout(
         fig,
-        title=f"Distribusi Kelas Air ({len(df)} Sampel)",
+        title=f"Class Distribution ({len(df)} Samples)",
         height=280,
         show_legend=False,
-        xaxis_title="Kelas Kelayakan Air",
-        yaxis_title="Jumlah Sampel",
+        xaxis_title="Potability Class",
+        yaxis_title="Samples",
     )
-    max_y = max(int(cls_counts["Jumlah Sampel"].max()), 1)
+    max_y = max(int(cls_counts["Samples"].max()), 1)
     fig.update_yaxes(range=[0, max_y * 1.2])
     return fig
 
@@ -126,11 +126,11 @@ def plot_fuzzy_score_boxplot(df: pd.DataFrame) -> go.Figure:
     fig.update_traces(line_width=2)
     apply_atlas_layout(
         fig,
-        title="Sebaran Skor Fuzzy per Kelas Aktual",
+        title="Fuzzy Score Spread by Actual Class",
         height=285,
         show_legend=False,
-        xaxis_title="Kelas Kelayakan Aktual",
-        yaxis_title="Fuzzy Water Quality Score (0-100)",
+        xaxis_title="Actual Class",
+        yaxis_title="Fuzzy Quality Score (0-100)",
     )
     fig.update_yaxes(range=[0, 102])
     return fig
@@ -139,7 +139,7 @@ def plot_fuzzy_score_boxplot(df: pd.DataFrame) -> go.Figure:
 def plot_membership_functions(
     var_key: str, title: str, x_label: str, current_val: Optional[float] = None
 ) -> go.Figure:
-    """Plot Ruspini triangular membership functions with an optional live crisp input marker."""
+    """Plot symmetric triangular membership functions with an optional live crisp input marker."""
     info = MF_PARAMS[var_key]
     lo, hi = info["domain"]
     x_grid = np.linspace(lo, hi, 400)
@@ -182,7 +182,7 @@ def plot_membership_functions(
         height=295,
         show_legend=True,
         xaxis_title=x_label,
-        yaxis_title="Derajat Keanggotaan (μ)",
+        yaxis_title="Membership Degree (μ)",
     )
     fig.update_yaxes(range=[-0.04, 1.15])
     return fig
@@ -217,7 +217,7 @@ def plot_aggregated_centroid(fuzzy_res: Dict[str, Any]) -> go.Figure:
             x=z_grid,
             y=mu_grid,
             mode="lines",
-            name="Kurva Agregasi MAX μ_agg(z)",
+            name="MAX Aggregation μ_agg(z)",
             line=dict(color=PALETTE["cobalt_bright"], width=3),
             fill="tozeroy",
             fillcolor="rgba(59, 130, 246, 0.24)",
@@ -239,11 +239,11 @@ def plot_aggregated_centroid(fuzzy_res: Dict[str, Any]) -> go.Figure:
 
     apply_atlas_layout(
         fig,
-        title="Kurva Agregasi MAX & Centroid (z*)",
+        title="MAX Aggregation Curve & Centroid (z*)",
         height=355,
         show_legend=True,
-        xaxis_title="Domain Output Water Quality Score (z ∈ [0, 100])",
-        yaxis_title="Derajat Keanggotaan μ_agg(z)",
+        xaxis_title="Output Domain: Water Quality Score (z ∈ [0, 100])",
+        yaxis_title="Aggregated μ_agg(z)",
     )
     fig.update_yaxes(range=[-0.04, 1.15])
     return fig
@@ -263,11 +263,11 @@ def plot_results_histogram(df_filtered: pd.DataFrame) -> go.Figure:
     )
     apply_atlas_layout(
         fig,
-        title="Skor Fuzzy per Kelas Prediksi KNN",
+        title="Fuzzy Score by Predicted Class",
         height=350,
         show_legend=True,
-        xaxis_title="Fuzzy Water Quality Score (0-100)",
-        yaxis_title="Frekuensi Sampel",
+        xaxis_title="Fuzzy Quality Score (0-100)",
+        yaxis_title="Count",
     )
     return fig
 
@@ -288,11 +288,11 @@ def plot_physicochemical_scatter(df_filtered: pd.DataFrame) -> go.Figure:
     fig.update_traces(marker=dict(line=dict(width=0.6, color="#0d111a")))
     apply_atlas_layout(
         fig,
-        title="Peta Fisikokimia (pH vs Hardness)",
+        title="pH vs Hardness (Size = Turbidity)",
         height=350,
         show_legend=True,
-        xaxis_title="pH (Tingkat Keasaman Air)",
-        yaxis_title="Hardness / Kesadahan (mg/L)",
+        xaxis_title="pH",
+        yaxis_title="Hardness (mg/L)",
     )
     return fig
 
@@ -311,7 +311,7 @@ def plot_k_sensitivity(
             x=k_list,
             y=vals_a,
             mode="lines+markers",
-            name="Model A (Baseline KNN · 3 Fitur)",
+            name="Model A (Baseline KNN · 3 Features)",
             line=dict(color="#94a3b8", width=2.2, dash="dash"),
             marker=dict(size=7, color="#94a3b8"),
             hovertemplate="K=%{x}<br>Model A: %{y:.2f}%<extra></extra>",
@@ -322,7 +322,7 @@ def plot_k_sensitivity(
             x=k_list,
             y=vals_b,
             mode="lines+markers",
-            name="Model B (Fuzzy-Enhanced KNN · 4 Fitur)",
+            name="Model B (Fuzzy-Enhanced KNN · 4 Features)",
             line=dict(color=color_b, width=3.2),
             marker=dict(size=9, color=color_b, line=dict(width=1.5, color="#0d111a")),
             hovertemplate="K=%{x}<br>Model B: %{y:.2f}%<extra></extra>",
@@ -330,10 +330,10 @@ def plot_k_sensitivity(
     )
     apply_atlas_layout(
         fig,
-        title=f"Sensitivitas Nilai K terhadap {metric_label} (%)",
+        title=f"K Sensitivity: {metric_label} (%)",
         height=340,
         show_legend=True,
-        xaxis_title="Nilai Parameter K",
+        xaxis_title="K Neighbors",
         yaxis_title=f"{metric_label} (%)",
     )
     fig.update_xaxes(tickmode="array", tickvals=k_list)
@@ -360,19 +360,19 @@ def plot_confusion_matrix(
         x=CLASS_ORDER,
         y=CLASS_ORDER,
         color_continuous_scale=colorscale,
-        labels=dict(x="Kelas Prediksi", y="Kelas Aktual", color="Jumlah"),
+        labels=dict(x="Predicted", y="Actual", color="Count"),
     )
     fig.update_traces(
         textfont=dict(family=PLOTLY_MONO_FAMILY, size=18, color="#f8fafc"),
-        hovertemplate="Aktual: %{y}<br>Prediksi: %{x}<br>Jumlah: %{z}<extra></extra>",
+        hovertemplate="Actual: %{y}<br>Predicted: %{x}<br>Count: %{z}<extra></extra>",
     )
     apply_atlas_layout(
         fig,
         title=f"{model_title} · Acc {accuracy_pct:.2f}%",
         height=335,
         show_legend=False,
-        xaxis_title="Kelas Prediksi",
-        yaxis_title="Kelas Aktual",
+        xaxis_title="Predicted Class",
+        yaxis_title="Actual Class",
     )
     fig.update_coloraxes(showscale=False)
     fig.update_xaxes(showgrid=False)

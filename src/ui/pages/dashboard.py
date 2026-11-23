@@ -32,87 +32,87 @@ def render_dashboard(df_active: pd.DataFrame, dataset_source_name: str) -> None:
 
     render_page_header(
         title="Water Quality & Potability Decision Support System",
-        subtitle="Sistem Cerdas Penentuan Kualitas dan Kelayakan Air Minum Berbasis Fuzzy Mamdani (27 Aturan) dan Fuzzy-Enhanced KNN",
-        chip_text=f"Dataset Aktif: {len(df_active)} Sampel",
+        subtitle="Sistem penentuan kualitas dan kelayakan air minum menggunakan Fuzzy Mamdani (27 Rules) dan Fuzzy-Enhanced KNN",
+        chip_text=f"Active Dataset: {len(df_active)} Samples",
     )
 
     render_kpi_grid(
         [
             {
-                "label": "Total Pengamatan Bersih",
+                "label": "Clean Dataset",
                 "value": f"{len(df_active)}",
                 "meta": f"{n_pot} Potable · {n_not} Not Potable",
                 "tone": "cobalt",
             },
             {
-                "label": "Rata-rata Skor Kualitas Fuzzy",
+                "label": "Avg. Fuzzy Score",
                 "value": f"{mean_score:.4f}",
-                "meta": "Defuzzifikasi Centroid Analitik [0-100]",
+                "meta": "Analytic Centroid [0-100]",
                 "tone": "muted",
             },
             {
-                "label": "Akurasi Model B (K=11)",
+                "label": "Model B Accuracy (K=11)",
                 "value": f"{acc_b_k11:.2f}%",
-                "meta": f"K=3: {acc_b_k3:.2f}% · {min_delta:+.2f}% s.d. {max_delta:+.2f}% vs A",
+                "meta": f"K=3: {acc_b_k3:.2f}% · {min_delta:+.2f}% to {max_delta:+.2f}% vs A",
                 "tone": "potable",
             },
             {
-                "label": "Validasi White-Box vs Sklearn",
+                "label": "Scratch vs Sklearn Match",
                 "value": "100.00%",
-                "meta": "Selisih Perhitungan Manual 0.0000",
+                "meta": "Diff vs Manual Calc: 0.0000",
                 "tone": "potable",
             },
         ]
     )
 
     render_notice(
-        f"<strong>Konteks Dataset & Standar Mutu ({escape(dataset_source_name)}):</strong> "
-        "Sistem mengevaluasi kualitas fisikokimia air serta memprediksi kelayakan konsumsi "
-        f"({status_badge('Potable')} vs {status_badge('Not Potable')}) mengacu pada standar baku mutu WHO / Permenkes. "
-        "Validasi algoritma menggunakan dataset publik <strong>Kaggle: Water Quality and Potability</strong> "
-        "(<code>adityakadiwal/water-potability</code>, 3.276 baris mentah dengan 10 kolom bahasa Inggris).",
+        f"<strong>Dataset & Standard ({escape(dataset_source_name)}):</strong> "
+        "Sistem mengevaluasi kualitas air dan memprediksi kelayakan minum "
+        f"({status_badge('Potable')} vs {status_badge('Not Potable')}) mengacu pada standar WHO / Permenkes. "
+        "Data diambil dari <strong>Kaggle: Water Quality and Potability</strong> "
+        "(<code>adityakadiwal/water-potability</code>, 3.276 raw rows, 10 columns).",
         accent=True,
     )
 
     col_left, col_right = st.columns([1.18, 1], gap="large")
 
     with col_left:
-        st.subheader("Arsitektur Hibrida Dua Tahap (Fuzzy Mamdani + KNN)")
+        st.subheader("Two-Stage Pipeline (Fuzzy Mamdani + KNN)")
         render_html(
             f"""
             <div class="atlas-card">
                 <div class="stage-tray">
                     <div class="stage-tray-head">
-                        <span class="stage-num">TAHAP 01</span>
-                        <span class="stage-title">Inferensi Fuzzy Mamdani (White-Box Physicochemical Scoring)</span>
+                        <span class="stage-num">STAGE 01</span>
+                        <span class="stage-title">Fuzzy Mamdani Inference (Quality Scoring)</span>
                     </div>
                     <p class="stage-desc">
-                        Mengolah tiga parameter fisikokimia utama: <strong>pH (X1 &isin; [0, 14])</strong>,
-                        <strong>Hardness / Kesadahan (X2 &isin; [60, 300] mg/L)</strong>, dan
-                        <strong>Turbidity / Kekeruhan (X3 &isin; [1, 6] NTU)</strong>.
-                        Kurva segitiga simetris (&Sigma;&mu; = 1), <strong>27 Basis Aturan (3 &times; 3 &times; 3)</strong>,
+                        Mengolah 3 parameter utama air: <strong>pH (X1 &isin; [0, 14])</strong>,
+                        <strong>Hardness (X2 &isin; [60, 300] mg/L)</strong>, dan
+                        <strong>Turbidity (X3 &isin; [1, 6] NTU)</strong>.
+                        Menggunakan kurva segitiga simetris (&Sigma;&mu; = 1), <strong>27 Rules (3 &times; 3 &times; 3)</strong>,
                         operator <code>AND = MIN</code>, implikasi <code>MIN</code>, agregasi <code>MAX</code>, dan
-                        <strong>Centroid Analitik Per Segmen</strong> menghasilkan fitur kontinu
+                        <strong>Analytic Centroid</strong> untuk menghasilkan fitur kontinu
                         <code>fuzzy_quality_score &isin; [0, 100]</code>.
                     </p>
                 </div>
                 <div class="stage-tray">
                     <div class="stage-tray-head">
-                        <span class="stage-num">TAHAP 02</span>
-                        <span class="stage-title">Klasifikasi Fuzzy-Enhanced K-Nearest Neighbor (Model B)</span>
+                        <span class="stage-num">STAGE 02</span>
+                        <span class="stage-title">Fuzzy-Enhanced KNN Classification (Model B)</span>
                     </div>
                     <p class="stage-desc">
-                        Menggabungkan ketiga variabel fisikokimia dengan skor Mamdani menjadi vektor 4 dimensi
+                        Menggabungkan 3 parameter awal dengan skor Mamdani menjadi vektor 4 fitur
                         <code>[ph, Hardness, Turbidity, fuzzy_quality_score]</code>. Normalisasi <strong>Min-Max Scaling</strong>
-                        di-fit murni pada 480 data latih (bebas <em>data leakage</em>), lalu jarak <strong>Euclidean</strong>
-                        ke <em>K</em> tetangga terdekat menentukan status {status_badge('Potable')} atau {status_badge('Not Potable')}.
+                        di-fit hanya pada 480 data latih (<em>leakage-free</em>), lalu <strong>Euclidean Distance</strong>
+                        ke <em>K</em> tetangga terdekat menentukan kelas {status_badge('Potable')} atau {status_badge('Not Potable')}.
                     </p>
                 </div>
             </div>
             """
         )
 
-        st.subheader("Tim Pengembang Kelompok 1 · Teknologi Logika Fuzzy")
+        st.subheader("Kelompok 1 · Teknologi Logika Fuzzy")
         team_rows = [
             (
                 [
@@ -130,12 +130,12 @@ def render_dashboard(df_active: pd.DataFrame, dataset_source_name: str) -> None:
                 ("No", True),
                 ("Nama Mahasiswa", False),
                 ("NIM", True),
-                ("Peran Utama", False),
+                ("Role", False),
             ],
             rows=team_rows,
         )
 
     with col_right:
-        st.subheader("Distribusi Kelas & Sebaran Skor Kualitas Air")
+        st.subheader("Class Distribution & Fuzzy Score Spread")
         st.plotly_chart(plot_class_distribution(df_active), width="stretch")
         st.plotly_chart(plot_fuzzy_score_boxplot(df_active), width="stretch")

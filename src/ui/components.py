@@ -68,15 +68,15 @@ def render_sidebar_telemetry(
         f"""
         <div class="sb-tray">
             <div class="sb-tray-head">
-                <span class="sb-tray-title">Sampel Simulasi Aktif</span>
+                <span class="sb-tray-title">Active Sample</span>
                 {status_badge(quality_label)}
             </div>
-            <div class="sb-kv"><span class="k">pH Air (X1)</span><span class="v">{ph:.2f}</span></div>
+            <div class="sb-kv"><span class="k">pH (X1)</span><span class="v">{ph:.2f}</span></div>
             <div class="sb-kv"><span class="k">Hardness (X2)</span><span class="v">{hardness:.1f} mg/L</span></div>
             <div class="sb-kv"><span class="k">Turbidity (X3)</span><span class="v">{turbidity:.3f} NTU</span></div>
             <div class="sb-kv"><span class="k">Centroid (z*)</span><span class="v">{z_star:.4f}</span></div>
-            <div class="sb-kv"><span class="k">Tetangga KNN</span><span class="v">K = {k_neighbors}</span></div>
-            <div class="sb-kv"><span class="k">Dataset Aktif</span><span class="v">{dataset_rows} baris</span></div>
+            <div class="sb-kv"><span class="k">KNN Neighbors</span><span class="v">K = {k_neighbors}</span></div>
+            <div class="sb-kv"><span class="k">Active Dataset</span><span class="v">{dataset_rows} rows</span></div>
         </div>
         """
     )
@@ -123,34 +123,34 @@ def render_physicochemical_strip(ph: float, hardness: float, turbidity: float) -
     """Render the signature live physicochemical WHO/Permenkes range-compliance strip."""
     ph_pct = max(0.0, min(100.0, (ph / 14.0) * 100.0))
     if 6.5 <= ph <= 8.5:
-        ph_color, ph_note = PALETTE["potable"], "Ideal WHO (6.5-8.5)"
+        ph_color, ph_note = PALETTE["potable"], "WHO Ideal (6.5-8.5)"
     elif 5.0 <= ph <= 9.5:
-        ph_color, ph_note = PALETTE["moderate"], "Transisi pH"
+        ph_color, ph_note = PALETTE["moderate"], "Borderline pH"
     else:
-        ph_color, ph_note = PALETTE["poor"], "Ekstrem Asam/Basa"
+        ph_color, ph_note = PALETTE["poor"], "Extreme Acidic/Alkaline"
 
     h_pct = max(0.0, min(100.0, ((hardness - 60.0) / 240.0) * 100.0))
     if hardness <= 150.0:
-        h_color, h_note = PALETTE["potable"], "Lunak / Soft"
+        h_color, h_note = PALETTE["potable"], "Soft"
     elif hardness <= 210.0:
-        h_color, h_note = PALETTE["moderate"], "Sedang / Moderate"
+        h_color, h_note = PALETTE["moderate"], "Moderate"
     else:
-        h_color, h_note = PALETTE["poor"], "Sadah / Hard"
+        h_color, h_note = PALETTE["poor"], "Hard"
 
     t_pct = max(0.0, min(100.0, ((turbidity - 1.0) / 5.0) * 100.0))
     if turbidity <= 2.5:
-        t_color, t_note = PALETTE["potable"], "Jernih / Clear"
+        t_color, t_note = PALETTE["potable"], "Clear"
     elif turbidity <= 4.0:
-        t_color, t_note = PALETTE["moderate"], "Agak Keruh"
+        t_color, t_note = PALETTE["moderate"], "Slightly Turbid"
     else:
-        t_color, t_note = PALETTE["poor"], "Keruh / Turbid"
+        t_color, t_note = PALETTE["poor"], "Turbid"
 
     render_html(
         f"""
         <div class="spectrum-grid">
             <div class="spectrum-card">
                 <div class="spectrum-top">
-                    <span class="spectrum-name">pH Air (X1)</span>
+                    <span class="spectrum-name">pH (X1)</span>
                     <span class="spectrum-val">{ph:.2f}</span>
                 </div>
                 <div class="spectrum-track">
@@ -160,7 +160,7 @@ def render_physicochemical_strip(ph: float, hardness: float, turbidity: float) -
             </div>
             <div class="spectrum-card">
                 <div class="spectrum-top">
-                    <span class="spectrum-name">Hardness / Kesadahan (X2)</span>
+                    <span class="spectrum-name">Hardness (X2)</span>
                     <span class="spectrum-val">{hardness:.1f} mg/L</span>
                 </div>
                 <div class="spectrum-track">
@@ -170,7 +170,7 @@ def render_physicochemical_strip(ph: float, hardness: float, turbidity: float) -
             </div>
             <div class="spectrum-card">
                 <div class="spectrum-top">
-                    <span class="spectrum-name">Turbidity / Kekeruhan (X3)</span>
+                    <span class="spectrum-name">Turbidity (X3)</span>
                     <span class="spectrum-val">{turbidity:.3f} NTU</span>
                 </div>
                 <div class="spectrum-track">
