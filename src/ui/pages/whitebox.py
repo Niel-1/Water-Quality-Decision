@@ -42,7 +42,7 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
 
     render_page_header(
         title="Proses Pengolahan White-Box (Step-by-Step)",
-        subtitle="Audit matematis transparan presisi 4 desimal (0.0000) dari fuzzifikasi Ruspini, 27 aturan Mamdani, integral Centroid eksak, hingga jarak Euclidean KNN.",
+        subtitle="Audit matematis transparan presisi 4 desimal (0.0000) dari fuzzifikasi segitiga simetris, 27 aturan Mamdani, integral Centroid eksak, hingga jarak Euclidean KNN.",
         chip_text=f"K={k_eff} · {REFERENCE_MODES.get(ref_mode, ref_mode)}",
     )
 
@@ -51,7 +51,7 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
         <div class="stepper-grid">
             <div class="step-card">
                 <div class="step-code">TAHAP 01</div>
-                <div class="step-title">Fuzzifikasi Ruspini</div>
+                <div class="step-title">Fuzzifikasi Segitiga</div>
                 <p class="step-desc">Memetakan pH, Hardness, dan Turbidity ke derajat keanggotaan &mu; &isin; [0, 1] dengan &Sigma;&mu; = 1.</p>
             </div>
             <div class="step-card">

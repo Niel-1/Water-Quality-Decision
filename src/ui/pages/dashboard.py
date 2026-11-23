@@ -90,7 +90,7 @@ def render_dashboard(df_active: pd.DataFrame, dataset_source_name: str) -> None:
                         Mengolah tiga parameter fisikokimia utama: <strong>pH (X1 &isin; [0, 14])</strong>,
                         <strong>Hardness / Kesadahan (X2 &isin; [60, 300] mg/L)</strong>, dan
                         <strong>Turbidity / Kekeruhan (X3 &isin; [1, 6] NTU)</strong>.
-                        Partisi segitiga simetris Ruspini (&Sigma;&mu; = 1), <strong>27 Basis Aturan (3 &times; 3 &times; 3)</strong>,
+                        Kurva segitiga simetris (&Sigma;&mu; = 1), <strong>27 Basis Aturan (3 &times; 3 &times; 3)</strong>,
                         operator <code>AND = MIN</code>, implikasi <code>MIN</code>, agregasi <code>MAX</code>, dan
                         <strong>Centroid Analitik Per Segmen</strong> menghasilkan fitur kontinu
                         <code>fuzzy_quality_score &isin; [0, 100]</code>.

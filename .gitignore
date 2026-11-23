@@ -1,0 +1,21 @@
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# macOS system files
+.DS_Store
+
+# AI Agent & Local IDE tool folders (do not push to GitHub)
+.agent/
+.agents/
+.claude/
+.gemini/
+.impeccable/
+
+# Root-level markdown notes (keep local, do not push to GitHub)
+/*.md

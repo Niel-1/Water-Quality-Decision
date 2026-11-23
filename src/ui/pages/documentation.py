@@ -21,7 +21,7 @@ def render_documentation() -> None:
             st.subheader("1. Formulasi Matematis Fuzzy Mamdani")
             st.markdown(
                 """
-                **a. Fungsi Keanggotaan Segitiga Ruspini (Triangular MF):**
+                **a. Fungsi Keanggotaan Segitiga Simetris (Triangular MF):**
                 $$\\mu(x; a, b, c) = \\max\\left(0, \\min\\left(\\frac{x - a}{b - a}, \\frac{c - x}{c - b}\\right)\\right)$$
                 dengan penanganan bahu kiri ($a = b$) dan bahu kanan ($b = c$) sehingga $\\sum \\mu(x) = 1$.
 
