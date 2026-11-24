@@ -10,13 +10,13 @@ env/
 # macOS system files
 .DS_Store
 
-# AI Agent & Local IDE tool folders (do not push to GitHub)
+# AI Agent & Local IDE tool folders 
 .agent/
 .agents/
 .claude/
 .gemini/
 .impeccable/
 
-# Root-level markdown notes (keep local, do not push to GitHub)
+# Root-level markdown notes 
 /*.md
 
