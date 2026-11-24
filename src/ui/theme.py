@@ -763,6 +763,16 @@ div[data-testid="stMarkdownContainer"] .page-title,
     border-top: 1px solid var(--border);
 }
 
+.atlas-table thead th .math-sym {
+    text-transform: none !important;
+}
+
+.atlas-table td code.nowrap-code {
+    white-space: nowrap !important;
+    display: inline-block;
+    margin: 0.1rem 0.25rem 0.1rem 0;
+}
+
 /* Inline firing-strength bar inside white-box rule table */
 .alpha-cell {
     display: flex;
@@ -799,6 +809,7 @@ div[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
 }
 
 div[data-testid="stButton"] button,
+div[data-testid="stFormSubmitButton"] button,
 div[data-testid="stDownloadButton"] button {
     border-radius: var(--radius-sm);
     font-weight: 600;
@@ -808,17 +819,114 @@ div[data-testid="stDownloadButton"] button {
     transition: background-color 150ms ease, border-color 150ms ease;
 }
 
+div[data-testid="stButton"] button[kind="primary"],
+div[data-testid="stButton"] button[data-testid="stBaseButton-primary"],
+div[data-testid="stFormSubmitButton"] button[kind="primary"],
+div[data-testid="stFormSubmitButton"] button[data-testid="stBaseButton-primaryFormSubmit"] {
+    background-color: var(--cobalt);
+    border-color: var(--cobalt-bright);
+    color: #ffffff;
+}
+
 div[data-testid="stButton"] button:hover,
+div[data-testid="stFormSubmitButton"] button:hover,
 div[data-testid="stDownloadButton"] button:hover {
     background-color: #1e3a8a;
     border-color: var(--cobalt-bright);
     color: #ffffff;
 }
 
+div[data-testid="stButton"] button[kind="primary"]:hover,
+div[data-testid="stButton"] button[data-testid="stBaseButton-primary"]:hover,
+div[data-testid="stFormSubmitButton"] button[kind="primary"]:hover,
+div[data-testid="stFormSubmitButton"] button[data-testid="stBaseButton-primaryFormSubmit"]:hover {
+    background-color: #2563eb;
+    border-color: #93c5fd;
+    color: #ffffff;
+}
+
 div[data-testid="stButton"] button:focus-visible,
+div[data-testid="stFormSubmitButton"] button:focus-visible,
 div[data-testid="stDownloadButton"] button:focus-visible {
     outline: 2px solid var(--cobalt);
     outline-offset: 2px;
+}
+
+/* Presentation focus cue & active sample summary ribbon */
+.focus-cue {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    background-color: var(--bg-recessed);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.7rem 1rem;
+    margin-bottom: 1.1rem;
+    font-size: 0.86rem;
+    color: #cbd5e1;
+    line-height: 1.52;
+}
+
+.focus-cue-tag {
+    font-family: var(--font-mono);
+    font-size: 0.71rem;
+    font-weight: 700;
+    color: #93c5fd;
+    background-color: var(--cobalt-surface);
+    border: 1px solid #2563eb;
+    padding: 0.14rem 0.5rem;
+    border-radius: 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.focus-cue strong {
+    color: var(--text-primary);
+}
+
+.sample-ribbon {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.8rem 1.05rem;
+    margin-bottom: 1rem;
+}
+
+.sample-ribbon-items {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.15rem;
+    font-size: 0.84rem;
+}
+
+.sample-ribbon-kv {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+}
+
+.sample-ribbon-kv .k {
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+}
+
+.sample-ribbon-kv .v {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.flow-caption {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    margin: 0.2rem 0 0 0;
 }
 
 /* Container borders */

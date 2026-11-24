@@ -58,12 +58,12 @@ PLOTLY_FONT_FAMILY = "Public Sans, -apple-system, BlinkMacSystemFont, Segoe UI, 
 PLOTLY_MONO_FAMILY = "JetBrains Mono, ui-monospace, SFMono-Regular, monospace"
 
 NAV_PAGES = [
-    ("dashboard", "01", "Dashboard"),
-    ("input", "02", "Input & Dataset"),
-    ("whitebox", "03", "Step-by-Step Process"),
-    ("results", "04", "Classification Results"),
-    ("evaluation", "05", "Model Evaluation"),
-    ("docs", "06", "Docs & Guide"),
+    ("dashboard", "01", "Ringkasan Sistem"),
+    ("input", "02", "Simulasi & Data"),
+    ("whitebox", "03", "Bedah Perhitungan"),
+    ("results", "04", "Hasil & Ranking"),
+    ("evaluation", "05", "Evaluasi Model A vs B"),
+    ("docs", "06", "Referensi & Panduan"),
 ]
 
 DEFAULT_MANUAL_INPUT = {
@@ -75,8 +75,8 @@ DEFAULT_MANUAL_INPUT = {
 }
 
 REFERENCE_MODES = {
-    "manual_5": "5 Manual Reference Samples (S1-S5, K<=5)",
-    "kaggle_480": "Full Kaggle Train Set (480 Samples)",
+    "manual_5": "5 Sampel Referensi Manual (S1-S5, K<=5)",
+    "kaggle_480": "Data Latih Kaggle Penuh (480 Sampel)",
 }
 
 SAMPLE_PRESETS = {
@@ -86,8 +86,74 @@ SAMPLE_PRESETS = {
     "Sample S3 : Not Potable / Borderline (pH 7.00, Hardness 180.0, Turbidity 3.500)": (7.00, 180.0, 3.500),
     "Sample S4 : Potable / Layak Minum Ideal (pH 7.00, Hardness 120.0, Turbidity 2.250)": (7.00, 120.0, 2.250),
     "Sample S5 : Potable / Kualitas Sangat Baik (pH 7.00, Hardness 90.0, Turbidity 1.625)": (7.00, 90.0, 1.625),
-    "Custom Input (Manual)": None,
+    "Input Manual (Bebas)": None,
 }
+
+VARIABLE_SPECS = [
+    {
+        "Variabel": "pH (X1)",
+        "Peran": "Input Fuzzy & KNN",
+        "Domain": "0.0 - 14.0",
+        "Himpunan & Titik [a, b, c]": "Acidic [0, 0, 7] · Neutral [0, 7, 14] · Alkaline [7, 14, 14]",
+        "Keterangan": "Tingkat keasaman/kebasaan air. Standar air minum WHO berada pada kisaran netral 6.5 - 8.5.",
+    },
+    {
+        "Variabel": "Hardness (X2)",
+        "Peran": "Input Fuzzy & KNN",
+        "Domain": "60.0 - 300.0 mg/L",
+        "Himpunan & Titik [a, b, c]": "Soft [60, 60, 180] · Moderate [60, 180, 300] · Hard [180, 300, 300]",
+        "Keterangan": "Kesadahan air (kandungan mineral kalsium & magnesium). Kesadahan rendah hingga sedang lebih nyaman dikonsumsi.",
+    },
+    {
+        "Variabel": "Turbidity (X3)",
+        "Peran": "Input Fuzzy & KNN",
+        "Domain": "1.0 - 6.0 NTU",
+        "Himpunan & Titik [a, b, c]": "Clear [1, 1, 3.5] · Moderate [1, 3.5, 6] · Turbid [3.5, 6, 6]",
+        "Keterangan": "Tingkat kekeruhan akibat partikel tersuspensi. Standar WHO menganjurkan air minum jernih (<= 5 NTU, ideal <= 2.5 NTU).",
+    },
+    {
+        "Variabel": "fuzzy_quality_score (Y / z*)",
+        "Peran": "Output Tahap 1 -> Fitur ke-4 KNN",
+        "Domain": "0.0 - 100.0",
+        "Himpunan & Titik [a, b, c]": "Poor [0, 0, 50] · Moderate [0, 50, 100] · Good [50, 100, 100]",
+        "Keterangan": "Skor kualitas air kontinu hasil defuzzifikasi Centroid Mamdani yang merangkum interaksi 27 aturan.",
+    },
+    {
+        "Variabel": "Potability (Target)",
+        "Peran": "Output Akhir Tahap 2 (KNN)",
+        "Domain": "{0, 1}",
+        "Himpunan & Titik [a, b, c]": "Not Potable (0) · Potable (1)",
+        "Keterangan": "Keputusan akhir kelayakan minum berdasarkan pemungutan suara mayoritas K tetangga terdekat di ruang 4 dimensi.",
+    },
+]
+
+LIBRARY_SPECS = [
+    {
+        "Library": "NumPy",
+        "Kategori": "Komputasi Numerik",
+        "Fungsi di Aplikasi": "Menghitung fungsi keanggotaan segitiga, operasi MIN-MAX inferensi Mamdani, integral Centroid, normalisasi Min-Max, dan jarak Euclidean KNN.",
+    },
+    {
+        "Library": "Pandas",
+        "Kategori": "Pengolahan Data",
+        "Fungsi di Aplikasi": "Memuat dataset CSV Kaggle & 5 sampel referensi, membersihkan nilai kosong, menyusun tabel ranking batch, statistik deskriptif, dan ekspor hasil CSV.",
+    },
+    {
+        "Library": "Streamlit",
+        "Kategori": "Antarmuka Web (GUI)",
+        "Fungsi di Aplikasi": "Membangun antarmuka interaktif 6 halaman, form simulasi sampel, validasi unggah CSV, kontrol filter, serta navigasi antarhalaman.",
+    },
+    {
+        "Library": "Plotly",
+        "Kategori": "Visualisasi Interaktif",
+        "Fungsi di Aplikasi": "Merender kurva fungsi keanggotaan, area agregasi MAX + titik Centroid z*, grafik distribusi kelas, sensitivitas nilai K, dan Confusion Matrix interaktif.",
+    },
+    {
+        "Library": "Matplotlib",
+        "Kategori": "Grafik Laporan",
+        "Fungsi di Aplikasi": "Menghasilkan grafik statis resolusi tinggi (200 DPI) untuk dokumentasi dan lampiran laporan resmi proyek.",
+    },
+]
 
 TEAM_MEMBERS = [
     {

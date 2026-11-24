@@ -43,14 +43,22 @@ def _render_sidebar(df_active) -> str:
         page_labels = {item[0]: f"{item[1]} · {item[2]}" for item in NAV_PAGES}
 
         q_page = st.query_params.get("page", "")
-        default_idx = page_ids.index(q_page) if q_page in page_ids else 0
+        if "nav_page" not in st.session_state:
+            st.session_state["nav_page"] = q_page if q_page in page_ids else "dashboard"
+        elif q_page in page_ids and q_page != st.session_state.get("_last_q_page"):
+            st.session_state["nav_page"] = q_page
+        st.session_state["_last_q_page"] = q_page
 
         selected_page = st.radio(
-            "Navigation",
+            "Navigasi",
             options=page_ids,
-            index=default_idx,
+            key="nav_page",
             format_func=lambda pid: page_labels[pid],
         )
+
+        if st.query_params.get("page", "") != selected_page:
+            st.query_params["page"] = selected_page
+            st.session_state["_last_q_page"] = selected_page
 
         inp = st.session_state["manual_input"]
         fuzzy_live = compute_fuzzy_mamdani(

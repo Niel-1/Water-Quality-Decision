@@ -119,6 +119,46 @@ def render_notice(html_body: str, accent: bool = False) -> None:
     render_html(f'<div class="{cls}">{html_body}</div>')
 
 
+def render_focus_cue(tag: str, html_text: str) -> None:
+    """Render a compact single-row focus cue clarifying what to inspect on this page."""
+    render_html(
+        f'<div class="focus-cue">'
+        f'<span class="focus-cue-tag">{escape(tag)}</span>'
+        f"<span>{html_text}</span>"
+        f"</div>"
+    )
+
+
+def navigate_to(page_id: str) -> None:
+    """Navigate cleanly to another page while keeping sidebar radio and URL synced."""
+    st.session_state["nav_page"] = page_id
+    st.session_state["_last_q_page"] = page_id
+    st.query_params["page"] = page_id
+
+
+def render_next_step_bar(
+    summary: str,
+    button_label: str,
+    target_page_id: str,
+    button_key: str,
+) -> None:
+    """Render a consistent bottom navigation bar to step smoothly between pages."""
+    st.divider()
+    with st.container(border=True):
+        c_text, c_btn = st.columns([2.4, 1.0], gap="medium", vertical_alignment="center")
+        with c_text:
+            st.markdown(f"**Langkah Berikutnya**\n\n{summary}")
+        with c_btn:
+            st.button(
+                button_label,
+                key=button_key,
+                type="primary",
+                width="stretch",
+                on_click=navigate_to,
+                args=(target_page_id,),
+            )
+
+
 def render_physicochemical_strip(ph: float, hardness: float, turbidity: float) -> None:
     """Render the signature live physicochemical WHO/Permenkes range-compliance strip."""
     ph_pct = max(0.0, min(100.0, (ph / 14.0) * 100.0))
