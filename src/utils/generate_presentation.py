@@ -142,6 +142,21 @@ def _add_rect(slide, x, y, w, h, fill_rgb, border_rgb=None, border_pt=0.75, roun
     return shp
 
 
+def _add_arrow(slide, x, y, w, h, fill_rgb, direction="right"):
+    shape_type = MSO_SHAPE.RIGHT_ARROW if direction == "right" else MSO_SHAPE.DOWN_ARROW
+    shp = slide.shapes.add_shape(shape_type, Inches(x), Inches(y), Inches(w), Inches(h))
+    try:
+        shp.adjustments[0] = 0.42
+        shp.adjustments[1] = 0.48
+    except Exception:
+        pass
+    shp.fill.solid()
+    shp.fill.fore_color.rgb = fill_rgb
+    shp.line.fill.background()
+    shp.shadow.inherit = False
+    return shp
+
+
 def _add_pill(
     slide,
     x,
@@ -734,7 +749,7 @@ def build_presentation():
         4.56,
         8.8,
         1.05,
-        "Project sistem klasifikasi kelayakan air minum (Potable vs Not Potable) yang menggabungkan Fuzzy Mamdani dan K-Nearest Neighbors, lengkap dengan simulasi interaktif di Streamlit.",
+        "Sistem pendukung keputusan untuk klasifikasi kelayakan air minum (Potable vs Not Potable) yang mengintegrasikan Fuzzy Mamdani dan K-Nearest Neighbors, dilengkapi simulasi interaktif berbasis Streamlit.",
         size=13.5,
         color=C_BODY,
         line_spacing=1.32,
@@ -797,47 +812,47 @@ def build_presentation():
     _add_chrome(
         s2,
         2,
-        "Tim & Alur Presentasi",
-        "Kenalan Dulu: Anggota Kelompok 1 & Pembagian Materi",
-        "Biar alurnya enak diikuti, presentasi project ini kita bagi jadi 5 bagian yang setara untuk 5 anggota tim.",
+        "Tim & Struktur Presentasi",
+        "Anggota Kelompok 1 & Pembagian Materi Presentasi",
+        "Presentasi disusun dalam lima bagian terstruktur yang dibagi secara merata kepada seluruh anggota kelompok.",
     )
 
-    team_headers = ["Bagian", "Nama Anggota", "NIM", "Fokus di Project", "Materi yang Dibawakan"]
+    team_headers = ["Bagian", "Nama Anggota", "NIM", "Fokus Kontribusi", "Materi Presentasi"]
     team_rows = [
         [
             "Bagian 1",
             "Nathanael Adrian Wattimena",
             "2408561013",
             "Ketua Kelompok, Analisis Masalah & Laporan",
-            "Pendahuluan, ide masalah, dan alur besar sistem (Slide 03-05)",
+            "Pendahuluan, perumusan masalah, dan arsitektur sistem (Slide 03-05)",
         ],
         [
             "Bagian 2",
             "I Wayan Arya Adi Guna",
             "2408561019",
             "Data Cleaning, Preprocessing & Eksplorasi Dataset",
-            "Dataset Kaggle, cleaning data, dan pilihan fitur (Slide 06-08)",
+            "Dataset Kaggle, pembersihan data, dan pemilihan fitur (Slide 06-08)",
         ],
         [
             "Bagian 3",
             "Komang Dhika Artika Nurdi",
             "2408561055",
             "Implementasi Fuzzy Mamdani & Perhitungan Manual",
-            "Kurva segitiga, 27 rule base, dan cek manual S4 (Slide 09-12)",
+            "Kurva keanggotaan segitiga, 27 basis aturan, & verifikasi S4 (Slide 09-12)",
         ],
         [
             "Bagian 4",
             "Kadek Phatra Adisuta Timonuli",
             "2408561076",
             "Implementasi KNN, Integrasi & Evaluasi Model",
-            "Trace kasus uji Q*, uji Model A vs B, & error analysis (Slide 13-16)",
+            "Penelusuran kasus uji Q*, evaluasi Model A vs B, & error (Slide 13-16)",
         ],
         [
             "Bagian 5",
             "I Putu Maichail Ganio Wijaya",
             "2408561123",
             "Streamlit UI, Visualisasi Chart & Dokumentasi",
-            "Demo 6 halaman GUI Streamlit, kesimpulan & Q&A (Slide 17-20)",
+            "Demonstrasi 6 halaman aplikasi Streamlit, kesimpulan & Q&A (Slide 17-20)",
         ],
     ]
     _add_table(
@@ -849,12 +864,12 @@ def build_presentation():
         team_headers,
         team_rows,
         col_widths=[1.05, 2.58, 1.30, 3.25, 4.05],
-        font_size=9.8,
+        font_size=9.7,
         aligns=[PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.LEFT],
         row_bg_fn=lambda r, c, v: C_PRIMARY_SOFT if c == 0 else (C_WHITE if r % 2 == 0 else C_ROW_ALT),
     )
 
-    _add_card(s2, 0.55, 5.68, 3.92, 1.15, "Mata Kuliah & Kampus", accent_rgb=C_PRIMARY)
+    _add_card(s2, 0.55, 5.68, 3.92, 1.15, "Mata Kuliah & Institusi", accent_rgb=C_PRIMARY)
     _add_text(
         s2,
         0.85,
@@ -880,14 +895,14 @@ def build_presentation():
         line_spacing=1.30,
     )
 
-    _add_card(s2, 8.86, 5.68, 3.92, 1.15, "Ringkasan Hasil Project", accent_rgb=C_PRIMARY)
+    _add_card(s2, 8.86, 5.68, 3.92, 1.15, "Ringkasan Capaian Sistem", accent_rgb=C_PRIMARY)
     _add_text(
         s2,
         9.16,
         6.08,
         3.48,
         0.65,
-        "600 sampel bersih · 27 rules Mamdani\nAkurasi Model B: 97.50% (K = 11)\nUnit test: 5/5 passed · 6 halaman GUI",
+        "600 sampel bersih · 27 aturan Mamdani\nAkurasi Model B: 97.50% (K = 11)\nUnit test: 5/5 lulus · 6 halaman GUI",
         size=9.8,
         color=C_BODY,
         line_spacing=1.24,
@@ -900,49 +915,48 @@ def build_presentation():
         prs,
         page_num=3,
         part_pill="BAGIAN 01  ·  PENDAHULUAN",
-        title_big="PENDAHULUAN &\nGAMBARAN SISTEM",
-        description="Di bagian awal ini, kita bakal bahas masalah apa yang bikin project ini menarik untuk dibuat, ide solusi yang kita pakai, serta gambaran besar cara kerja sistemnya.",
+        title_big="PENDAHULUAN &\nARSITEKTUR SISTEM",
+        description="Bagian ini memaparkan latar belakang permasalahan klasifikasi kelayakan air minum, landasan pemilihan metode, serta alur kerja sistem yang mengintegrasikan Fuzzy Mamdani dan KNN.",
         presenter_name="Nathanael Adrian Wattimena",
         presenter_nim="2408561013",
         top_right_tag="BAGIAN 01 / 05",
     )
 
-    # SLIDE 04: KENAPA KITA BIKIN PROJECT INI?
+    # SLIDE 04: LATAR BELAKANG & PERUMUSAN MASALAH
     s4 = _new_slide(prs)
     _add_chrome(
         s4,
         4,
         "Bagian 01 · Pendahuluan",
-        "Kenapa Cek Kelayakan Air Tidak Cukup Pakai Batas Kaku?",
-        "Di data kualitas air, banyak sampel yang nilainya nanggung di daerah perbatasan (borderline).",
+        "Keterbatasan Batas Tegas (Crisp) dalam Penilaian Kualitas Air",
+        "Penilaian kelayakan air minum memerlukan pendekatan yang mampu menangani nilai ambang batas secara kontinu.",
     )
 
     probs = [
         (
-            "1. Aturan Kaku (Crisp) Gampang Salah di Batas",
-            "Kalau cuma pakai batas saklek if-else (misal pH 6.49 langsung gagal, pH 6.50 langsung lolos), beda tipis 0.01 saja bisa mengubah keputusan secara ekstrem. Padahal di dunia nyata kualitas air berubah secara halus.",
+            "1. Sensitivitas Batas Tegas (Crisp Threshold)",
+            "Pendekatan aturan tegas (if-else) sangat sensitif terhadap perubahan nilai kecil di sekitar ambang batas. Perubahan tipis seperti pH 6.49 ke 6.50 langsung mengubah keputusan secara ekstrem, padahal kualitas air bersifat kontinu.",
             C_PRIMARY,
         ),
         (
-            "2. Parameter Air Saling Memengaruhi",
-            "Air yang pH-nya bagus belum tentu aman diminum kalau ternyata keruh (Turbidity tinggi) atau terlalu sadah (Hardness tinggi). Jadi penilaiannya perlu melihat kombinasi beberapa parameter sekaligus.",
+            "2. Interaksi Antarparameter Kualitas Air",
+            "Kelayakan air tidak dapat ditentukan oleh satu parameter tunggal. Air dengan pH netral tetap berisiko apabila memiliki tingkat kekeruhan (Turbidity) atau kesadahan mineral (Hardness) yang tinggi.",
             C_MINT,
         ),
         (
-            "3. Pengen Akurat tapi Tetap Gampang Dijelaskan",
-            "Model klasifikasi biasa kadang sulit dijelaskan alasannya ke pengguna. Lewat Fuzzy Mamdani, kita dapat skor kualitas air yang jelas logikanya, lalu KNN membantu membaca pola kemiripan dari data latih.",
+            "3. Kebutuhan Akurasi dan Interpretabilitas",
+            "Model klasifikasi berbasis jarak membutuhkan representasi fitur yang informatif sekaligus mudah dijelaskan. Logika Fuzzy Mamdani menghasilkan skor kualitas yang transparan sebelum diproses lebih lanjut oleh KNN.",
             C_PRIMARY,
         ),
     ]
     py = 1.62
     for title_p, desc_p, acc in probs:
         _add_card(s4, 0.55, py, 6.25, 1.62, title_p, accent_rgb=acc)
-        _add_text(s4, 0.86, py + 0.52, 5.75, 1.00, desc_p, size=10.3, color=C_BODY, line_spacing=1.26)
+        _add_text(s4, 0.86, py + 0.52, 5.75, 1.00, desc_p, size=10.2, color=C_BODY, line_spacing=1.25)
         py += 1.78
 
-    # Right column: 3 Parameter Utama dari Dataset + Tujuan Project (Tanpa WHO/Kemenkes!)
-    _add_text(s4, 7.05, 1.60, 5.7, 0.28, "3 PARAMETER UTAMA YANG KITA PAKAI DARI DATASET", size=10.0, bold=True, color=C_PRIMARY)
-    param_headers = ["Parameter", "Domain di Sistem", "Kategori Fuzzy", "Peran Penilaian"]
+    _add_text(s4, 7.05, 1.60, 5.7, 0.28, "TIGA PARAMETER UTAMA DARI DATASET", size=10.0, bold=True, color=C_PRIMARY)
+    param_headers = ["Parameter", "Domain Sistem", "Himpunan Fuzzy", "Peran Penilaian"]
     param_rows = [
         ["pH (X1)", "0 - 14", "Acidic / Neutral / Alkaline", "Mengukur tingkat keasaman air"],
         ["Hardness (X2)", "60 - 300 mg/L", "Soft / Moderate / Hard", "Mengukur kadar mineral terlarut"],
@@ -962,7 +976,7 @@ def build_presentation():
         aligns=[PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.CENTER, PP_ALIGN.LEFT],
     )
 
-    _add_card(s4, 7.05, 4.28, 5.73, 2.52, "Target yang Mau Kita Buktikan di Project Ini", accent_rgb=C_PRIMARY)
+    _add_card(s4, 7.05, 4.28, 5.73, 2.52, "Tujuan Pengembangan Sistem", accent_rgb=C_PRIMARY)
     _add_bullets(
         s4,
         7.35,
@@ -970,76 +984,160 @@ def build_presentation():
         5.25,
         1.95,
         [
-            ("Skor Kualitas dari Fuzzy Mamdani: ", "Mengubah 3 angka input jadi skor kualitas air 0-100 lewat 27 aturan yang transparan."),
-            ("Uji Fitur Tambahan di KNN: ", "Bandingin KNN biasa 3 fitur (Model A) vs KNN 4 fitur + skor fuzzy (Model B) untuk lihat apakah akurasinya naik."),
-            ("Aplikasi Siap Pakai: ", "Bikin GUI Streamlit supaya siapapun bisa coba input manual, lihat hitungannya step-by-step, dan cek evaluasi model."),
+            ("Skor Kualitas Berbasis Fuzzy Mamdani: ", "Mengonversi tiga parameter fisik-kimia menjadi skor kualitas air berskala 0-100 melalui 27 basis aturan yang transparan."),
+            ("Evaluasi Penambahan Fitur pada KNN: ", "Membandingkan kinerja KNN 3 fitur (Model A) dengan KNN 4 fitur berbantuan skor fuzzy (Model B) secara terukur."),
+            ("Implementasi Antarmuka Interaktif: ", "Menyediakan aplikasi web berbasis Streamlit untuk simulasi input, penelusuran perhitungan bertahap, dan evaluasi model."),
         ],
-        size=10.0,
+        size=9.9,
         space_after=7,
     )
 
-    # SLIDE 05: ALUR KERJA SISTEM (TWO-STAGE PIPELINE)
+    # SLIDE 05: ARSITEKTUR PIPELINE (100% NATIVE EDITABLE CANVA VECTOR DIAGRAM!)
     s5 = _new_slide(prs)
     _add_chrome(
         s5,
         5,
-        "Bagian 01 · Alur Sistem",
-        "Cara Kerja Sistem: Gabungan Fuzzy Mamdani + KNN",
-        "Sistemnya berjalan dalam dua tahap berurutan: skor dari Fuzzy Mamdani dipakai sebagai fitur ke-4 untuk KNN.",
+        "Bagian 01 · Arsitektur Sistem",
+        "Arsitektur Pipeline Sistem: Fuzzy Mamdani + KNN 4D",
+        "Sistem bekerja secara dua tahap berurutan dengan skor Fuzzy Mamdani sebagai fitur keempat pada klasifikasi KNN.",
     )
 
-    _add_rect(s5, 0.55, 1.58, 7.60, 5.26, C_WHITE, border_rgb=C_BORDER, border_pt=0.9, rounded=True)
-    _add_image_fit(s5, FIG_DIR / "gambar_3_2_arsitektur_sistem.png", 0.68, 1.70, 7.34, 4.72)
-    _add_text(
+    # --- 4 NATIVE EDITABLE STAGE CONTAINERS (pure Canva shapes, zero raster PNG) ---
+    # Stage 1: Input Fisik-Kimia (x=0.55, w=2.45)
+    _add_rect(s5, 0.55, 1.56, 2.45, 3.44, C_WHITE, border_rgb=C_PRIMARY, border_pt=1.2, rounded=True)
+    _add_pill(s5, 0.69, 1.68, 2.17, 0.34, "1. INPUT FITUR", C_PRIMARY, C_WHITE, font_size=9.0)
+    in_boxes = [
+        ("pH (X1)", "Domain [0, 14]"),
+        ("Hardness (X2)", "[60, 300] mg/L"),
+        ("Turbidity (X3)", "[1, 6] NTU"),
+    ]
+    iy = 2.16
+    for lbl_i, sub_i in in_boxes:
+        _add_rect(s5, 0.71, iy, 2.13, 0.76, C_PRIMARY_SOFT, border_rgb=C_BLUE_MID, border_pt=0.9, rounded=True)
+        _add_text(s5, 0.77, iy + 0.10, 2.01, 0.28, lbl_i, size=10.2, bold=True, color=C_PRIMARY_DARK, align=PP_ALIGN.CENTER, font=FONT_HEAD)
+        _add_text(s5, 0.77, iy + 0.40, 2.01, 0.26, sub_i, size=9.0, color=C_BODY, align=PP_ALIGN.CENTER)
+        iy += 0.92
+
+    # Native Arrow: Stage 1 -> Stage 2
+    _add_arrow(s5, 3.07, 3.16, 0.28, 0.24, C_PRIMARY, direction="right")
+
+    # Stage 2: Tahap I - FIS Mamdani (x=3.42, w=3.15)
+    _add_rect(s5, 3.42, 1.56, 3.15, 3.44, C_WHITE, border_rgb=C_PRIMARY, border_pt=1.2, rounded=True)
+    _add_pill(s5, 3.56, 1.68, 2.87, 0.34, "2. TAHAP I · FIS MAMDANI", None, C_WHITE, font_size=9.0, gradient=True)
+    s2_steps = [
+        ("Fuzzifikasi Segitiga Simetris (μ)", False),
+        ("27 Basis Aturan & Implikasi MIN", False),
+        ("Agregasi Antar-Aturan (MAX)", False),
+        ("Defuzzifikasi Centroid → Y_fuzzy", True),
+    ]
+    sy = 2.16
+    for idx_s, (txt_s, is_hi) in enumerate(s2_steps):
+        bg_b = C_PRIMARY_SOFT if is_hi else C_WHITE
+        bd_b = C_PRIMARY if is_hi else C_BORDER
+        fg_b = C_PRIMARY_DARK if is_hi else C_INK
+        _add_rect(s5, 3.58, sy, 2.83, 0.52, bg_b, border_rgb=bd_b, border_pt=1.1 if is_hi else 0.85, rounded=True)
+        _add_text(s5, 3.64, sy + 0.04, 2.71, 0.44, txt_s, size=9.2, bold=is_hi, color=fg_b, align=PP_ALIGN.CENTER, valign=MSO_ANCHOR.MIDDLE, font=FONT_HEAD if is_hi else FONT_BODY)
+        if idx_s < 3:
+            _add_arrow(s5, 4.91, sy + 0.55, 0.18, 0.13, C_BLUE_MID, direction="down")
+        sy += 0.71
+
+    # Native Arrow: Stage 2 (Defuzzifikasi) -> Stage 3 (Vektor 4D)
+    _add_arrow(s5, 6.67, 3.16, 0.28, 0.24, C_PRIMARY, direction="right")
+
+    # Stage 3: Tahap II - KNN 4 Fitur (x=7.05, w=3.15)
+    _add_rect(s5, 7.05, 1.56, 3.15, 3.44, C_WHITE, border_rgb=C_MINT_TEXT, border_pt=1.2, rounded=True)
+    _add_pill(s5, 7.19, 1.68, 2.87, 0.34, "3. TAHAP II · KNN (4 FITUR)", C_MINT_TEXT, C_WHITE, font_size=9.0)
+    s3_steps = [
+        ("Vektor 4D [X1, X2, X3, Y_fuzzy]", True),
+        ("Normalisasi Min-Max [0, 1] (Train)", False),
+        ("Jarak Euclidean 4 Dimensi", False),
+        ("Sorting & Majority Voting (K)", False),
+    ]
+    sy = 2.16
+    for idx_s, (txt_s, is_hi) in enumerate(s3_steps):
+        bg_b = C_MINT_SOFT if is_hi else C_WHITE
+        bd_b = C_MINT_TEXT if is_hi else C_BORDER
+        fg_b = C_MINT_TEXT if is_hi else C_INK
+        _add_rect(s5, 7.21, sy, 2.83, 0.52, bg_b, border_rgb=bd_b, border_pt=1.1 if is_hi else 0.85, rounded=True)
+        _add_text(s5, 7.27, sy + 0.04, 2.71, 0.44, txt_s, size=9.2, bold=is_hi, color=fg_b, align=PP_ALIGN.CENTER, valign=MSO_ANCHOR.MIDDLE, font=FONT_HEAD if is_hi else FONT_BODY)
+        if idx_s < 3:
+            _add_arrow(s5, 8.54, sy + 0.55, 0.18, 0.13, C_MINT_TEXT, direction="down")
+        sy += 0.71
+
+    # Native Arrow: Stage 3 -> Stage 4
+    _add_arrow(s5, 10.27, 3.16, 0.28, 0.24, C_MINT_TEXT, direction="right")
+
+    # Stage 4: Keputusan (x=10.62, w=2.16)
+    _add_rect(s5, 10.62, 1.56, 2.16, 3.44, C_WHITE, border_rgb=C_PRIMARY, border_pt=1.2, rounded=True)
+    _add_pill(s5, 10.76, 1.68, 1.88, 0.34, "4. KEPUTUSAN", None, C_WHITE, font_size=9.0, gradient=True)
+
+    _add_rect(s5, 10.78, 2.34, 1.84, 1.00, C_MINT_SOFT, border_rgb=C_MINT_TEXT, border_pt=1.2, rounded=True)
+    _add_text(s5, 10.84, 2.48, 1.72, 0.34, "Potable (1)", size=11.5, bold=True, color=C_MINT_TEXT, align=PP_ALIGN.CENTER, font=FONT_HEAD)
+    _add_text(s5, 10.84, 2.84, 1.72, 0.32, "Layak Minum", size=9.6, bold=True, color=C_MINT_TEXT, align=PP_ALIGN.CENTER)
+
+    _add_rect(s5, 10.78, 3.58, 1.84, 1.00, C_CORAL_SOFT, border_rgb=C_CORAL, border_pt=1.2, rounded=True)
+    _add_text(s5, 10.84, 3.72, 1.72, 0.34, "Not Potable (0)", size=11.5, bold=True, color=C_CORAL, align=PP_ALIGN.CENTER, font=FONT_HEAD)
+    _add_text(s5, 10.84, 4.08, 1.72, 0.32, "Tidak Layak", size=9.6, bold=True, color=C_CORAL, align=PP_ALIGN.CENTER)
+
+    # Native Skip-Connection Connector Bar (Stage 1 Input -> Stage 3 Vektor 4D)
+    _add_rect(s5, 1.76, 5.00, 0.035, 0.28, C_PRIMARY)
+    _add_rect(s5, 1.76, 5.25, 6.87, 0.035, C_PRIMARY)
+    _add_rect(s5, 8.60, 5.00, 0.035, 0.28, C_PRIMARY)
+    _add_pill(
         s5,
-        0.72,
-        6.48,
-        7.25,
-        0.28,
-        "Alur dua tahap sistem: input air masuk ke mesin Mamdani dulu, lalu hasilnya ikut masuk ke KNN.",
-        size=9,
-        italic=True,
-        color=C_MUTED,
-        align=PP_ALIGN.CENTER,
+        2.75,
+        5.10,
+        4.85,
+        0.30,
+        "Fitur Asli [pH, Hardness, Turbidity] diteruskan langsung ke Vektor 4D",
+        C_WHITE,
+        C_PRIMARY,
+        font_size=8.6,
+        bold=True,
+        border_rgb=C_PRIMARY,
+        border_pt=0.9,
+        margin_left=0.14,
+        margin_right=0.14,
     )
 
-    _add_card(s5, 8.38, 1.58, 4.40, 1.65, "Tahap 1: Mesin Fuzzy Mamdani", accent_rgb=C_PRIMARY)
+    # --- 3 CONCISE FORMAL SUMMARY CARDS BELOW THE DIAGRAM ---
+    _add_card(s5, 0.55, 5.56, 3.92, 1.28, "Tahap I: Inferensi Mamdani", accent_rgb=C_PRIMARY)
     _add_text(
         s5,
-        8.68,
-        2.02,
-        3.92,
-        1.12,
-        "Input [pH, Hardness, Turbidity] diproses lewat kurva segitiga simetris, 27 aturan MIN-MAX, dan Centroid analitik. Outputnya satu angka jelas: fuzzy_quality_score (0 sampai 100).",
-        size=9.9,
+        0.85,
+        5.96,
+        3.48,
+        0.80,
+        "Mengolah 3 parameter input melalui kurva segitiga, 27 aturan MIN-MAX, dan Centroid analitik menjadi skor 0-100.",
+        size=9.2,
         color=C_BODY,
-        line_spacing=1.24,
+        line_spacing=1.22,
     )
 
-    _add_card(s5, 8.38, 3.38, 4.40, 1.72, "Tahap 2: Model A (3D) vs Model B (4D)", accent_rgb=C_MINT)
+    _add_card(s5, 4.70, 5.56, 3.92, 1.28, "Tahap II: Model A vs Model B", accent_rgb=C_MINT)
     _add_text(
         s5,
-        8.68,
-        3.82,
-        3.92,
-        1.18,
-        "Model A (Baseline): KNN cuma pakai 3 fitur asli [pH, Hardness, Turbidity].\nModel B (Fuzzy-Enhanced): KNN pakai 4 fitur [pH, Hardness, Turbidity, fuzzy_quality_score].\nTujuannya buat ngebuktiin efek skor fuzzy secara adil.",
-        size=9.9,
+        5.00,
+        5.96,
+        3.48,
+        0.80,
+        "Model A memakai 3 fitur asli; Model B menambahkan fuzzy_quality_score menjadi 4 fitur untuk mengukur peningkatan akurasi.",
+        size=9.2,
         color=C_BODY,
-        line_spacing=1.24,
+        line_spacing=1.22,
     )
 
-    _add_card(s5, 8.38, 5.25, 4.40, 1.59, "Dibangun From-Scratch (Python & NumPy)", accent_rgb=C_PRIMARY, fill_rgb=C_PRIMARY_SOFT)
+    _add_card(s5, 8.86, 5.56, 3.92, 1.28, "Implementasi Mandiri & Validasi", accent_rgb=C_PRIMARY, fill_rgb=C_PRIMARY_SOFT)
     _add_text(
         s5,
-        8.68,
-        5.68,
-        3.92,
-        1.06,
-        "Mesin fuzzy (src/fuzzy_mamdani.py) dan KNN (src/knn_model.py) kita tulis manual tanpa library fuzzy instan. Hasil KNN-nya nanti kita cocokkan dengan scikit-learn (match 100%).",
-        size=9.9,
+        9.16,
+        5.96,
+        3.48,
+        0.80,
+        "Modul Mamdani dan KNN ditulis mandiri dengan Python & NumPy, serta tervalidasi 100% identik terhadap scikit-learn.",
+        size=9.2,
         color=C_PRIMARY_DARK,
-        line_spacing=1.24,
+        line_spacing=1.22,
     )
 
     # =========================================================================
@@ -1049,8 +1147,8 @@ def build_presentation():
         prs,
         page_num=6,
         part_pill="BAGIAN 02  ·  DATASET & PREPROCESSING",
-        title_big="DATASET KAGGLE &\nDATA CLEANING",
-        description="Sekarang kita lihat data apa yang kita pakai, gimana proses bersihinnya supaya tidak bias, dan kenapa kita pilih 3 fitur utama ditambah 1 skor fuzzy.",
+        title_big="DATASET KAGGLE &\nPREPROCESSING DATA",
+        description="Bagian ini menjelaskan sumber data yang digunakan, tahapan pembersihan dan penyeimbangan kelas, serta dasar pemilihan tiga fitur utama dan sampel referensi manual.",
         presenter_name="I Wayan Arya Adi Guna",
         presenter_nim="2408561019",
         top_right_tag="BAGIAN 02 / 05",
@@ -1061,38 +1159,38 @@ def build_presentation():
     _add_chrome(
         s7,
         7,
-        "Bagian 02 · Data Cleaning",
-        "Dari 3.276 Baris Mentah Kaggle Jadi 600 Sampel Siap Uji",
-        "Dataset diambil dari Kaggle Water Potability, lalu dibersihkan dan diseimbangkan biar model tidak berat sebelah.",
+        "Bagian 02 · Preprocessing Data",
+        "Transformasi Dataset: 3.276 Baris Mentah Menjadi 600 Sampel Bersih",
+        "Data bersumber dari Kaggle Water Potability yang dibersihkan dan diseimbangkan untuk mencegah bias kelas.",
     )
 
     steps = [
-        ("LANGKAH 1", "Data Mentah Kaggle", "3.276 baris, 10 kolom.\nMasih banyak data kosong (491 nilai pH kosong).", C_PRIMARY),
-        ("LANGKAH 2", "Bersihkan Data", "Buang baris kosong dan filter ke rentang valid:\npH [0,14], Hard [60,300], Turb [1,6].", C_MINT),
-        ("LANGKAH 3", "Seimbangkan Kelas", "Ambil 600 sampel seimbang: 300 Potable dan\n300 Not Potable supaya tidak bias.", C_PRIMARY),
-        ("LANGKAH 4", "Split Anti-Leakage", "Bagi 80:20 jadi 480 Train dan 120 Test.\nScaler cuma di-fit dari data Train.", C_MINT),
+        ("TAHAP 1", "Dataset Mentah Kaggle", "3.276 baris, 10 kolom.\nTerdapat nilai kosong (491 nilai hilang pada kolom pH).", C_PRIMARY),
+        ("TAHAP 2", "Pembersihan & Filter", "Menghapus baris bernilai kosong dan memfilter domain:\npH [0,14], Hard [60,300], Turb [1,6].", C_MINT),
+        ("TAHAP 3", "Penyeimbangan Kelas", "Menyusun 600 sampel seimbang: 300 Potable dan\n300 Not Potable agar evaluasi objektif.", C_PRIMARY),
+        ("TAHAP 4", "Pemisahan Anti-Leakage", "Pembagian 80:20 menjadi 480 Train dan 120 Test.\nParameter scaler hanya dihitung dari data Train.", C_MINT),
     ]
     sx = 0.55
     for idx, (tag, stitle, sdesc, acc) in enumerate(steps):
         _add_rect(s7, sx, 1.60, 2.86, 1.52, C_WHITE, border_rgb=C_BORDER, border_pt=0.85, rounded=True)
         _add_rect(s7, sx, 1.60, 2.86, 0.08, None, grad_angle=0.0)
         _add_text(s7, sx + 0.14, 1.74, 1.3, 0.22, tag, size=8.5, bold=True, color=C_PRIMARY)
-        _add_text(s7, sx + 0.14, 1.96, 2.58, 0.28, stitle, size=11.8, bold=True, color=C_INK, font=FONT_HEAD)
-        _add_text(s7, sx + 0.14, 2.28, 2.58, 0.76, sdesc, size=9.3, color=C_BODY, line_spacing=1.20)
+        _add_text(s7, sx + 0.14, 1.96, 2.58, 0.28, stitle, size=11.6, bold=True, color=C_INK, font=FONT_HEAD)
+        _add_text(s7, sx + 0.14, 2.28, 2.58, 0.76, sdesc, size=9.2, color=C_BODY, line_spacing=1.20)
         if idx < 3:
             _add_text(s7, sx + 2.87, 2.15, 0.25, 0.35, "→", size=16, bold=True, color=C_PRIMARY, align=PP_ALIGN.CENTER)
         sx += 3.12
 
     _add_text(s7, 0.55, 3.34, 6.9, 0.28, "RINGKASAN STATISTIK DATASET BERSIH (600 SAMPEL)", size=10.2, bold=True, color=C_PRIMARY)
-    stat_headers = ["Fitur / Variabel", "Min", "Mean", "Std Dev", "Max", "Dipakai Untuk"]
+    stat_headers = ["Fitur / Variabel", "Min", "Mean", "Std Dev", "Max", "Peran dalam Sistem"]
     stat_rows = [
         ["ph (X1)", "1.4318", "7.1165", "1.7151", "13.3499", "Input Mamdani & KNN"],
         ["Hardness (X2)", "73.4922", "195.2735", "34.0901", "286.5680", "Input Mamdani & KNN"],
         ["Turbidity (X3)", "1.8444", "3.9713", "0.7570", "5.9568", "Input Mamdani & KNN"],
-        ["fuzzy_quality_score (Y)", "20.3883", "46.3661", "4.8023", "60.0580", "Hasil Mamdani -> Fitur 4"],
-        ["Solids (ppm)", "1372.09", "22237.82", "8482.93", "55334.70", "Info eksplorasi saja"],
-        ["Chloramines (ppm)", "2.4586", "7.2088", "1.6174", "13.1270", "Info eksplorasi saja"],
-        ["Conductivity (uS/cm)", "201.62", "424.45", "79.67", "753.34", "Info eksplorasi saja"],
+        ["fuzzy_quality_score (Y)", "20.3883", "46.3661", "4.8023", "60.0580", "Keluaran Mamdani (Fitur 4)"],
+        ["Solids (ppm)", "1372.09", "22237.82", "8482.93", "55334.70", "Atribut Eksplorasi"],
+        ["Chloramines (ppm)", "2.4586", "7.2088", "1.6174", "13.1270", "Atribut Eksplorasi"],
+        ["Conductivity (uS/cm)", "201.62", "424.45", "79.67", "753.34", "Atribut Eksplorasi"],
     ]
     _add_table(
         s7,
@@ -1108,7 +1206,7 @@ def build_presentation():
         row_bg_fn=lambda r, c, v: C_MINT_SOFT if r == 3 else (C_WHITE if r % 2 == 0 else C_ROW_ALT),
     )
 
-    _add_card(s7, 8.05, 3.68, 4.73, 3.12, "Kenapa Harus Seimbang & Anti-Leakage?", accent_rgb=C_MINT)
+    _add_card(s7, 8.05, 3.68, 4.73, 3.12, "Prinsip Keseimbangan & Anti-Leakage", accent_rgb=C_MINT)
     _add_bullets(
         s7,
         8.35,
@@ -1116,25 +1214,25 @@ def build_presentation():
         4.25,
         2.55,
         [
-            ("Proporsi 50:50: ", "Di data asli Kaggle, kelas Not Potable jauh lebih banyak. Kita samakan jadi 300:300 biar akurasinya jujur."),
-            ("Tidak Ada Bocoran Data: ", "Nilai min dan max untuk normalisasi KNN cuma dihitung dari 480 data latih, tidak mengintip 120 data uji."),
-            ("Siap Dicek Ulang: ", "Script cleaning-nya (src/prepare_dataset.py) pakai random seed tetap sehingga hasilnya selalu konsisten."),
+            ("Distribusi Seimbang 50:50: ", "Pada dataset asli Kaggle, kelas Not Potable lebih dominan. Penyeimbangan 300:300 memastikan akurasi merefleksikan kinerja sebenarnya."),
+            ("Pencegahan Kebocoran Data: ", "Nilai minimum dan maksimum untuk normalisasi KNN hanya dihitung dari 480 data latih, tanpa melibatkan 120 data uji."),
+            ("Reproduksibilitas Eksperimen: ", "Skrip prapemrosesan (src/prepare_dataset.py) menetapkan random seed tetap sehingga pembagian data selalu konsisten."),
         ],
-        size=10.0,
+        size=9.9,
         space_after=8,
     )
 
-    # SLIDE 08: ALASAN 3 FITUR INTI + 5 SAMPEL MANUAL S1-S5
+    # SLIDE 08: PEMILIHAN 3 FITUR INTI + 5 SAMPEL MANUAL S1-S5
     s8 = _new_slide(prs)
     _add_chrome(
         s8,
         8,
-        "Bagian 02 · Fitur & Data Uji",
-        "Kenapa Cuma 3 Fitur Inti + 5 Sampel Referensi Manual?",
-        "Memilih jumlah fitur yang pas bikin rule base fuzzy tetap masuk akal dan bisa kita cek manual satu per satu.",
+        "Bagian 02 · Seleksi Fitur",
+        "Pemilihan Tiga Fitur Inti dan Lima Sampel Referensi Manual",
+        "Seleksi fitur menjaga kompleksitas basis aturan fuzzy tetap terukur serta memungkinkan verifikasi matematis.",
     )
 
-    _add_card(s8, 0.55, 1.60, 5.35, 5.20, "Alasan Kita Pakai 3 Fitur Fisik + 1 Skor Fuzzy", accent_rgb=C_PRIMARY)
+    _add_card(s8, 0.55, 1.60, 5.35, 5.20, "Dasar Pemilihan 3 Fitur Fisik-Kimia + 1 Skor Fuzzy", accent_rgb=C_PRIMARY)
     _add_bullets(
         s8,
         0.85,
@@ -1142,17 +1240,17 @@ def build_presentation():
         4.85,
         4.52,
         [
-            ("Mencegah Rule Explosion: ", "Kalau semua 9 kolom Kaggle dimasukkan ke Fuzzy Mamdani (masing-masing 3 kategori), aturannya meledak jadi 3^9 = 19.683 rule! Dengan 3 fitur utama, kita dapat tepat 3^3 = 27 rule yang lengkap dan masih bisa diaudit manusia."),
-            ("Paling Mudah Dipahami: ", "pH (keasaman), Hardness (kesadahan mineral), dan Turbidity (kekeruhan) adalah 3 ukuran air paling dasar yang langsung kebayang artinya."),
-            ("Fitur ke-4 yang Bernilai: ", "Skor fuzzy_quality_score merangkum interaksi ketiga fitur tadi jadi satu angka 0-100 yang siap membantu KNN memisahkan kelas air."),
-            ("Data Mini untuk Cek Manual: ", "Selain 600 data Kaggle, kita juga siapkan 5 sampel referensi (S1 sampai S5) buat membandingkan hitungan kertas vs kode program."),
+            ("Mencegah Ledakan Aturan (Rule Explosion): ", "Penggunaan seluruh 9 atribut dengan 3 himpunan fuzzy menghasilkan 3^9 = 19.683 aturan. Pemilihan 3 fitur inti membentuk tepat 3^3 = 27 aturan yang lengkap dan mudah diaudit."),
+            ("Representasi Parameter Fundamental: ", "pH (keasaman), Hardness (kesadahan mineral), dan Turbidity (kekeruhan) merupakan tiga indikator dasar kualitas fisik-kimia air."),
+            ("Pengayaan Dimensi Fitur: ", "Nilai fuzzy_quality_score merangkum interaksi non-linear ketiga fitur menjadi satu representasi skalar 0-100 bagi algoritma KNN."),
+            ("Sampel Referensi Verifikasi: ", "Selain 600 data Kaggle, disiapkan 5 sampel uji manual (S1 hingga S5) untuk membandingkan perhitungan analitik terhadap keluaran program."),
         ],
-        size=10.1,
+        size=9.9,
         space_after=9,
     )
 
-    _add_text(s8, 6.18, 1.60, 6.6, 0.28, "5 SAMPEL REFERENSI MANUAL (manual_calc_sample.csv)", size=10.2, bold=True, color=C_PRIMARY)
-    s_headers = ["Kode", "pH", "Hardness", "Turbidity", "Skor Fuzzy", "Label Asli"]
+    _add_text(s8, 6.18, 1.60, 6.6, 0.28, "LIMA SAMPEL REFERENSI MANUAL (manual_calc_sample.csv)", size=10.2, bold=True, color=C_PRIMARY)
+    s_headers = ["Kode", "pH", "Hardness", "Turbidity", "Skor Fuzzy", "Label Aktual"]
     s_rows = [
         ["S1", "3.50", "240.0", "4.750", "44.0476", "Not Potable"],
         ["S2", "10.50", "240.0", "4.750", "44.0476", "Not Potable"],
@@ -1175,7 +1273,7 @@ def build_presentation():
         row_bg_fn=lambda r, c, v: C_MINT_SOFT if (c == 5 and v == "Potable") else (C_CORAL_SOFT if (c == 5 and v == "Not Potable") else (C_WHITE if r % 2 == 0 else C_ROW_ALT)),
     )
 
-    _add_card(s8, 6.18, 4.84, 6.60, 1.96, "Fungsi 5 Sampel S1-S5 di Presentasi & GUI", accent_rgb=C_MINT)
+    _add_card(s8, 6.18, 4.84, 6.60, 1.96, "Peran Sampel Referensi S1-S5 dalam Validasi", accent_rgb=C_MINT)
     _add_bullets(
         s8,
         6.48,
@@ -1183,10 +1281,10 @@ def build_presentation():
         6.10,
         1.42,
         [
-            ("Bukti Hitungan Manual: ", "Sampel S4 dipakai di Bagian 3 buat nunjukin hitungan manual Mamdani yang cocok 0.0000 dengan kode."),
-            ("Data Latih Mini KNN: ", "Kelima sampel ini juga dipakai di Bagian 4 sebagai tetangga untuk mengetes kasus uji baru Q* secara manual."),
+            ("Verifikasi Perhitungan Mamdani: ", "Sampel S4 digunakan pada Bagian 3 untuk membuktikan kecocokan perhitungan manual dengan program (selisih 0.0000)."),
+            ("Data Latih Mini KNN 4D: ", "Kelima sampel digunakan pada Bagian 4 sebagai himpunan tetangga referensi dalam penelusuran klasifikasi kasus uji baru Q*."),
         ],
-        size=10.0,
+        size=9.9,
         space_after=6,
     )
 
@@ -1197,8 +1295,8 @@ def build_presentation():
         prs,
         page_num=9,
         part_pill="BAGIAN 03  ·  FUZZY MAMDANI",
-        title_big="FUZZY MAMDANI &\nHITUNGAN MANUAL",
-        description="Di bagian ini kita masuk ke dapur Fuzzy Mamdani: gimana bentuk kurva keanggotaannya, isi lengkap 27 rule base-nya, dan pembuktian hitungan manual sampel S4.",
+        title_big="SISTEM INFERENSI\nFUZZY MAMDANI",
+        description="Bagian ini membahas perancangan fungsi keanggotaan segitiga simetris, penyusunan lengkap 27 basis aturan inferensi, serta verifikasi analitik defuzzifikasi Centroid pada sampel S4.",
         presenter_name="Komang Dhika Artika Nurdi",
         presenter_nim="2408561055",
         top_right_tag="BAGIAN 03 / 05",
@@ -1210,8 +1308,8 @@ def build_presentation():
         s10,
         10,
         "Bagian 03 · Kurva Keanggotaan",
-        "Desain Kurva Segitiga Simetris (a, b, c) untuk Semua Variabel",
-        "Tiap variabel dibagi jadi 3 himpunan segitiga simetris sehingga total derajat keanggotaannya selalu tepat 1.",
+        "Perancangan Fungsi Keanggotaan Segitiga Simetris (a, b, c)",
+        "Setiap variabel dipartisi menjadi tiga himpunan segitiga simetris sehingga jumlah derajat keanggotaan selalu bernilai 1.",
     )
 
     _add_rect(s10, 0.55, 1.58, 6.75, 5.26, C_WHITE, border_rgb=C_BORDER, border_pt=0.9, rounded=True)
@@ -1230,7 +1328,7 @@ def build_presentation():
     )
 
     _add_text(s10, 7.50, 1.56, 5.3, 0.28, "PARAMETER KURVA SEGITIGA (a, b, c)", size=10.2, bold=True, color=C_PRIMARY)
-    mf_headers = ["Variabel & Rentang", "3 Kategori Fuzzy", "Titik (a, b, c)"]
+    mf_headers = ["Variabel & Domain", "Himpunan Fuzzy", "Parameter (a, b, c)"]
     mf_rows = [
         ["pH (X1) [0, 14]", "Acidic / Neutral / Alkaline", "(0,0,7)  |  (0,7,14)  |  (7,14,14)"],
         ["Hardness (X2) [60, 300]", "Soft / Moderate / Hard", "(60,60,180) | (60,180,300) | (180,300,300)"],
@@ -1251,14 +1349,14 @@ def build_presentation():
         row_bg_fn=lambda r, c, v: C_MINT_SOFT if r == 3 else (C_WHITE if r % 2 == 0 else C_ROW_ALT),
     )
 
-    _add_card(s10, 7.50, 4.42, 5.28, 2.42, "Rumus & Kelebihan Kurva Simetris", accent_rgb=C_MINT)
+    _add_card(s10, 7.50, 4.42, 5.28, 2.42, "Formulasi & Properti Partisi Simetris", accent_rgb=C_MINT)
     _add_text(
         s10,
         7.80,
         4.84,
         4.80,
         0.52,
-        "mu(x; a, b, c) = max(0, min((x - a)/(b - a), (c - x)/(c - b)))\nShoulder: kiri a=b (mu=1, x<=a) | kanan b=c (mu=1, x>=c)",
+        "mu(x; a, b, c) = max(0, min((x - a)/(b - a), (c - x)/(c - b)))\nBahu kiri a=b (mu=1, x<=a) | Bahu kanan b=c (mu=1, x>=c)",
         size=9.3,
         bold=True,
         color=C_PRIMARY_DARK,
@@ -1271,10 +1369,10 @@ def build_presentation():
         4.80,
         1.32,
         [
-            ("Tidak Ada Titik Kosong: ", "Nilai x berapapun di dalam rentang selalu punya sum(mu) = 1.0000, jadi tidak pernah ada kasus rule mati semua."),
-            ("Transisi Halus: ", "Di titik perpotongan (misal pH = 3.5), nilainya terbagi adil 0.50 di dua kategori sekaligus."),
+            ("Cakupan Domain Penuh: ", "Untuk setiap nilai x dalam domain, jumlah derajat keanggotaan selalu sum(mu) = 1.0000 sehingga tidak terjadi kondisi tanpa aturan aktif."),
+            ("Transisi Keanggotaan Kontinu: ", "Pada titik perpotongan (misalnya pH = 3.5), derajat keanggotaan terbagi proporsional 0.50 pada dua himpunan berdekatan."),
         ],
-        size=9.7,
+        size=9.5,
         space_after=5,
     )
 
@@ -1283,9 +1381,9 @@ def build_presentation():
     _add_chrome(
         s11,
         11,
-        "Bagian 03 · 27 Rule Base",
-        "Basis Aturan Lengkap Fuzzy Mamdani (27 Rules: R01 - R27)",
-        "Semua kombinasi 3 x 3 x 3 kondisi input kita petakan lengkap pakai operator AND = MIN dan agregasi MAX.",
+        "Bagian 03 · 27 Basis Aturan",
+        "Basis Aturan Lengkap Fuzzy Mamdani (27 Aturan: R01 - R27)",
+        "Seluruh kombinasi 3 x 3 x 3 kondisi input dipetakan secara menyeluruh menggunakan operator implikasi MIN dan agregasi MAX.",
     )
 
     r_headers = ["ID", "pH (X1)", "Hardness", "Turbidity", "Output (Y)"]
@@ -1319,7 +1417,7 @@ def build_presentation():
         ["R25", "Alkaline", "Hard", "Clear", "Poor"],
         ["R26", "Alkaline", "Hard", "Moderate", "Poor"],
         ["R27", "Alkaline", "Hard", "Turbid", "Poor"],
-        ["Σ 27", "3 x 3 x 3", "27 Rules", "Lengkap", "3G · 9M · 15P"],
+        ["Σ 27", "3 x 3 x 3", "27 Aturan", "Lengkap", "3G · 9M · 15P"],
     ]
 
     def rule_bg(r, c, val):
@@ -1336,13 +1434,13 @@ def build_presentation():
     _add_table(s11, 0.55, 1.58, 3.45, 5.25, r_headers, rules_left, [0.46, 0.71, 0.76, 0.74, 0.78], font_size=8.0, row_bg_fn=rule_bg, margin_lr=0.02)
     _add_table(s11, 4.52, 1.58, 3.45, 5.25, r_headers, rules_right, [0.46, 0.71, 0.76, 0.74, 0.78], font_size=8.0, row_bg_fn=rule_bg, margin_lr=0.02)
 
-    _add_card(s11, 8.55, 1.58, 4.23, 2.38, "Sebaran Hasil 27 Aturan", accent_rgb=C_MINT)
-    _add_pill(s11, 8.83, 2.06, 3.68, 0.42, "GOOD : 3 Rules (R10, R11, R13)", C_MINT_SOFT, C_MINT_TEXT, font_size=9.5)
-    _add_pill(s11, 8.83, 2.60, 3.68, 0.42, "MODERATE : 9 Rules (Perbatasan)", C_PRIMARY_SOFT, C_PRIMARY_DARK, font_size=9.5)
-    _add_pill(s11, 8.83, 3.14, 3.68, 0.42, "POOR : 15 Rules (Kualitas Rendah)", C_CORAL_SOFT, C_CORAL, font_size=9.5)
-    _add_text(s11, 8.83, 3.62, 3.68, 0.28, "Aturan dibuat ketat biar air berisiko tidak lolos.", size=8.9, italic=True, color=C_MUTED)
+    _add_card(s11, 8.55, 1.58, 4.23, 2.38, "Distribusi Konsekuen 27 Aturan", accent_rgb=C_MINT)
+    _add_pill(s11, 8.83, 2.06, 3.68, 0.42, "GOOD : 3 Aturan (R10, R11, R13)", C_MINT_SOFT, C_MINT_TEXT, font_size=9.4)
+    _add_pill(s11, 8.83, 2.60, 3.68, 0.42, "MODERATE : 9 Aturan (Transisi)", C_PRIMARY_SOFT, C_PRIMARY_DARK, font_size=9.4)
+    _add_pill(s11, 8.83, 3.14, 3.68, 0.42, "POOR : 15 Aturan (Kualitas Rendah)", C_CORAL_SOFT, C_CORAL, font_size=9.4)
+    _add_text(s11, 8.83, 3.62, 3.68, 0.28, "Dirancang konservatif untuk meminimalkan pelolosan air berisiko.", size=8.6, italic=True, color=C_MUTED)
 
-    _add_card(s11, 8.55, 4.14, 4.23, 2.69, "Cara Kerja Inferensi Mamdani", accent_rgb=C_PRIMARY)
+    _add_card(s11, 8.55, 4.14, 4.23, 2.69, "Mekanisme Inferensi Mamdani", accent_rgb=C_PRIMARY)
     _add_bullets(
         s11,
         8.83,
@@ -1350,26 +1448,26 @@ def build_presentation():
         3.75,
         2.16,
         [
-            ("Cari Kekuatan Rule (MIN): ", "alpha_k = min(mu_pH, mu_Hardness, mu_Turbidity) untuk tiap rule."),
-            ("Potong Kurva Output: ", "Kurva output (Poor/Moderate/Good) dipotong setinggi nilai alpha_k."),
-            ("Gabungkan Semua (MAX): ", "Ambil batas atas tertinggi dari semua rule aktif jadi satu kurva gabungan."),
-            ("Logika Utamanya: ", "Output Good cuma keluar kalau pH Neutral dan tidak ada kondisi Hard atau Turbid."),
+            ("Kekuatan Penyalaan (MIN): ", "alpha_k = min(mu_pH, mu_Hardness, mu_Turbidity) dihitung pada tiap aturan."),
+            ("Implikasi Pemotongan (Clipping): ", "Kurva output (Poor/Moderate/Good) dipotong horizontal setinggi alpha_k."),
+            ("Agregasi (MAX): ", "Seluruh kurva terpotong digabungkan dengan mengambil nilai maksimum di tiap titik z."),
+            ("Prinsip Kelas Good: ", "Keluaran Good hanya aktif apabila pH Neutral tanpa disertai kondisi Hard ataupun Turbid."),
         ],
-        size=9.5,
+        size=9.3,
         space_after=5,
     )
 
-    # SLIDE 12: VERIFIKASI HITUNGAN MANUAL SAMPEL S4 (CENTROID ANALITIK)
+    # SLIDE 12: VERIFIKASI PERHITUNGAN MANUAL SAMPEL S4 (CENTROID ANALITIK)
     s12 = _new_slide(prs)
     _add_chrome(
         s12,
         12,
-        "Bagian 03 · Cek Manual S4",
-        "Buktikan Hitungan Manual vs Program: Sampel S4",
-        "Kita coba hitung manual S4 (pH = 7.00, Hardness = 120.0, Turbidity = 2.25) pakai Centroid analitik eksak.",
+        "Bagian 03 · Verifikasi S4",
+        "Verifikasi Perhitungan Analitik vs Program: Sampel S4",
+        "Pengujian dilakukan pada sampel S4 (pH = 7.00, Hardness = 120.0, Turbidity = 2.25) dengan Centroid analitik eksak.",
     )
 
-    _add_card(s12, 0.55, 1.58, 6.05, 1.98, "Langkah 1: Fuzzifikasi Input S4", accent_rgb=C_PRIMARY)
+    _add_card(s12, 0.55, 1.58, 6.05, 1.98, "Langkah 1: Fuzzifikasi Input Sampel S4", accent_rgb=C_PRIMARY)
     fuz_headers = ["Variabel", "Nilai x", "Derajat Keanggotaan (mu)"]
     fuz_rows = [
         ["pH (X1)", "7.00", "Acidic = 0.0000  |  Neutral = 1.0000  |  Alkaline = 0.0000"],
@@ -1378,8 +1476,8 @@ def build_presentation():
     ]
     _add_table(s12, 0.80, 2.04, 5.20, 1.36, fuz_headers, fuz_rows, col_widths=[1.05, 0.65, 3.50], font_size=8.6, aligns=[PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.LEFT])
 
-    _add_card(s12, 0.55, 3.74, 6.05, 3.10, "Langkah 2: 4 Rule Aktif (MIN) & Gabungan (MAX)", accent_rgb=C_MINT)
-    s4_r_headers = ["Rule", "Kondisi (X1, X2, X3)", "mu1, mu2, mu3", "alpha", "Output"]
+    _add_card(s12, 0.55, 3.74, 6.05, 3.10, "Langkah 2: 4 Aturan Aktif (MIN) & Agregasi (MAX)", accent_rgb=C_MINT)
+    s4_r_headers = ["Aturan", "Antecedent (X1, X2, X3)", "mu1, mu2, mu3", "alpha", "Output"]
     s4_r_rows = [
         ["R10", "(Neutral, Soft, Clear)", "1.0, 0.5, 0.5", "0.5000", "Good"],
         ["R11", "(Neutral, Soft, Moderate)", "1.0, 0.5, 0.5", "0.5000", "Good"],
@@ -1394,7 +1492,7 @@ def build_presentation():
         1.82,
         s4_r_headers,
         s4_r_rows,
-        col_widths=[0.50, 1.80, 1.04, 0.76, 1.10],
+        col_widths=[0.54, 1.76, 1.04, 0.76, 1.10],
         font_size=8.6,
         header_bg=C_BLUE_MID,
         aligns=[PP_ALIGN.CENTER, PP_ALIGN.LEFT, PP_ALIGN.CENTER, PP_ALIGN.CENTER, PP_ALIGN.CENTER],
@@ -1406,14 +1504,14 @@ def build_presentation():
         6.14,
         5.65,
         0.58,
-        "Hasil MAX: Poor = 0.0000 | Moderate = 0.5000 | Good = 0.5000\nKurva akhirnya rata di tinggi 0.50 mulai z = 25 sampai z = 100.",
-        size=9.4,
+        "Hasil Agregasi MAX: Poor = 0.0000 | Moderate = 0.5000 | Good = 0.5000\nKurva agregasi berbentuk datar setinggi 0.50 pada interval z = 25 hingga z = 100.",
+        size=9.2,
         bold=True,
         color=C_INK,
         line_spacing=1.22,
     )
 
-    _add_card(s12, 6.82, 1.58, 5.96, 3.35, "Langkah 3: Hitung Luas (A) & Momen (M) Analitik", accent_rgb=C_PRIMARY)
+    _add_card(s12, 6.82, 1.58, 5.96, 3.35, "Langkah 3: Integrasi Luas (A) & Momen (M) Analitik", accent_rgb=C_PRIMARY)
     int_headers = ["Segmen", "Interval z", "Persamaan mu(z)", "Luas A_i", "Momen M_i"]
     int_rows = [
         ["Segmen 1", "[0.00, 25.00]", "mu(z) = 0.0200 z", "6.2500", "104.1667"],
@@ -1439,16 +1537,16 @@ def build_presentation():
         3.86,
         5.52,
         0.95,
-        "Karena pakai integral eksak per segmen (bukan taksiran grid titik):\nA1 = 0.5 * 25 * 0.50 = 6.2500   |   M1 = (0.02 / 3) * 25^3 = 104.1667\nA2 = (100 - 25) * 0.50 = 37.5000 | M2 = 0.25 * (100^2 - 25^2) = 2343.7500",
-        size=9.4,
+        "Integrasi eksak dilakukan per segmen poligon (tanpa kesalahan diskretisasi grid):\nA1 = 0.5 * 25 * 0.50 = 6.2500   |   M1 = (0.02 / 3) * 25^3 = 104.1667\nA2 = (100 - 25) * 0.50 = 37.5000 | M2 = 0.25 * (100^2 - 25^2) = 2343.7500",
+        size=9.3,
         color=C_BODY,
         line_spacing=1.28,
     )
 
     _add_rect(s12, 6.82, 5.12, 5.96, 1.72, None, rounded=True, grad_angle=0.0)
-    _add_text(s12, 7.10, 5.28, 5.48, 0.26, "HASIL AKHIR DEFUZZIFIKASI & COCOKAN KODE", size=9.5, bold=True, color=C_WHITE)
+    _add_text(s12, 7.10, 5.28, 5.48, 0.26, "HASIL DEFUZZIFIKASI CENTROID & VERIFIKASI PROGRAM", size=9.5, bold=True, color=C_WHITE)
     _add_text(s12, 7.10, 5.64, 5.48, 0.44, "z* (S4) = 2447.9167 / 43.7500 = 55.9524", size=16.2, bold=True, color=C_WHITE, font=FONT_HEAD)
-    _add_text(s12, 7.10, 6.20, 5.48, 0.44, "Output Program = 55.9524  |  Selisih = 0.0000 (100% COCOK)", size=10.2, bold=True, color=RGBColor(0xF0, 0xFB, 0xF7))
+    _add_text(s12, 7.10, 6.20, 5.48, 0.44, "Keluaran Program = 55.9524  |  Selisih Absolut = 0.0000 (Identik 100%)", size=10.0, bold=True, color=RGBColor(0xF0, 0xFB, 0xF7))
 
     # =========================================================================
     # BAGIAN 04: KNN & EVALUASI MODEL (Presenter 4: Kadek Phatra Adisuta T.)
@@ -1457,24 +1555,24 @@ def build_presentation():
         prs,
         page_num=13,
         part_pill="BAGIAN 04  ·  KNN & EVALUASI MODEL",
-        title_big="KLASIFIKASI KNN &\nHASIL EVALUASI",
-        description="Setelah skor Mamdani keluar, sekarang kita lihat gimana KNN 4D bekerja pada kasus uji baru Q*, lalu kita adu akurasi Model A (3D) vs Model B (4D).",
+        title_big="KLASIFIKASI KNN &\nEVALUASI MODEL",
+        description="Bagian ini memaparkan penelusuran klasifikasi KNN 4 dimensi pada sampel uji baru Q*, perbandingan performa Model A (3D) dan Model B (4D) pada berbagai nilai K, serta analisis Confusion Matrix.",
         presenter_name="Kadek Phatra Adisuta Timonuli",
         presenter_nim="2408561076",
         top_right_tag="BAGIAN 04 / 05",
     )
 
-    # SLIDE 14: TRACE END-TO-END KASUS UJI BARU Q*
+    # SLIDE 14: PENELUSURAN END-TO-END KASUS UJI BARU Q*
     s14 = _new_slide(prs)
     _add_chrome(
         s14,
         14,
-        "Bagian 04 · Trace Kasus Q*",
-        "Simulasi End-to-End pada Sampel Baru Q* (Mamdani -> KNN 4D)",
-        "Misal ada sampel air baru Q* = (pH 5.25, Hardness 150.0, Turbidity 2.25). Ini alur lengkap sampai keluar keputusannya.",
+        "Bagian 04 · Penelusuran Q*",
+        "Penelusuran End-to-End pada Sampel Uji Baru Q* (Mamdani -> KNN 4D)",
+        "Evaluasi lengkap pada kasus uji Q* = (pH 5.25, Hardness 150.0, Turbidity 2.25) dari fuzzifikasi hingga keputusan KNN.",
     )
 
-    _add_card(s14, 0.55, 1.58, 5.65, 5.26, "Tahap 1: Hitung Skor Fuzzy Mamdani untuk Q*", accent_rgb=C_PRIMARY)
+    _add_card(s14, 0.55, 1.58, 5.65, 5.26, "Tahap 1: Perhitungan Skor Fuzzy Mamdani untuk Q*", accent_rgb=C_PRIMARY)
     _add_bullets(
         s14,
         0.84,
@@ -1483,10 +1581,10 @@ def build_presentation():
         1.42,
         [
             ("Fuzzifikasi: ", "pH (Acidic=0.25, Neutral=0.75); Hardness (Soft=0.25, Moderate=0.75); Turbidity (Clear=0.50, Moderate=0.50)."),
-            ("8 Rule Aktif: ", "R01, R02, R04, R05 (alpha=0.25); R10, R11 (alpha=0.25); R13, R14 (alpha=0.50)."),
-            ("Hasil MAX: ", "Poor = 0.2500  |  Moderate = 0.5000  |  Good = 0.5000."),
+            ("8 Aturan Aktif: ", "R01, R02, R04, R05 (alpha=0.25); R10, R11 (alpha=0.25); R13, R14 (alpha=0.50)."),
+            ("Agregasi MAX: ", "Poor = 0.2500  |  Moderate = 0.5000  |  Good = 0.5000."),
         ],
-        size=9.7,
+        size=9.6,
         space_after=5,
     )
 
@@ -1515,15 +1613,15 @@ def build_presentation():
     _add_text(s14, 0.98, 5.76, 4.88, 0.36, "z* (Q*) = 2454.4271 / 45.3125 = 54.1667", size=14.5, bold=True, color=C_MINT_TEXT)
     _add_text(s14, 0.98, 6.16, 4.88, 0.34, "Vektor 4D Q* = [5.25, 150.0, 2.25, 54.1667] -> Scaled [0.250, 0.400, 0.200, 0.491]", size=8.9, bold=True, color=C_INK)
 
-    _add_card(s14, 6.42, 1.58, 6.36, 5.26, "Tahap 2: Normalisasi Min-Max 4D & Cari Tetangga Terdekat", accent_rgb=C_MINT)
+    _add_card(s14, 6.42, 1.58, 6.36, 5.26, "Tahap 2: Normalisasi Min-Max 4D & Pencarian Tetangga", accent_rgb=C_MINT)
     _add_text(
         s14,
         6.68,
         2.02,
         5.90,
         0.46,
-        "Semua 4 fitur diskalakan ke [0, 1] pakai rentang S1-S5, lalu dihitung jarak Euclidean 4D dari Q* ke tiap sampel referensi:",
-        size=9.5,
+        "Keempat fitur diskalakan ke rentang [0, 1] berdasarkan batas S1-S5, kemudian dihitung jarak Euclidean 4D dari Q* ke tiap referensi:",
+        size=9.4,
         color=C_BODY,
         line_spacing=1.20,
     )
@@ -1552,7 +1650,7 @@ def build_presentation():
     )
 
     _add_rect(s14, 6.72, 5.26, 5.88, 1.36, None, rounded=True, grad_angle=0.0)
-    _add_text(s14, 6.96, 5.38, 5.4, 0.26, "HASIL VOTING 3 TETANGGA TERDEKAT (K = 3)", size=9.2, bold=True, color=C_WHITE)
+    _add_text(s14, 6.96, 5.38, 5.4, 0.26, "KEPUTUSAN MAJORITY VOTING (K = 3)", size=9.2, bold=True, color=C_WHITE)
     _add_text(s14, 6.96, 5.66, 5.4, 0.44, "Prediksi Q* = POTABLE  (Vote: 2 Potable vs 1 Not Potable)", size=14.0, bold=True, color=C_WHITE, font=FONT_HEAD)
     _add_text(
         s14,
@@ -1560,8 +1658,8 @@ def build_presentation():
         6.16,
         5.4,
         0.38,
-        "3 tetangga terdekat: S4 (Potable), S3 (Not Potable), dan S5 (Potable). Hasil ini 100% sama dengan fitur Step-by-Step di GUI.",
-        size=9.0,
+        "Tiga tetangga terdekat adalah S4 (Potable), S3 (Not Potable), dan S5 (Potable). Hasil ini 100% konsisten dengan menu Step-by-Step di aplikasi.",
+        size=8.9,
         color=RGBColor(0xF0, 0xFB, 0xF7),
     )
 
@@ -1571,8 +1669,8 @@ def build_presentation():
         s15,
         15,
         "Bagian 04 · Model A vs B",
-        "Hasil Uji Coba: Model A (3 Fitur) vs Model B (4 Fitur + Fuzzy)",
-        "Diadu pada 120 data uji (480 train / 120 test) untuk K = 3, 5, 7, 9, dan 11. Semua dihitung from-scratch dan dicek ke scikit-learn.",
+        "Evaluasi Perbandingan: Model A (3 Fitur) vs Model B (4 Fitur + Fuzzy)",
+        "Pengujian dilakukan pada 120 data uji (split 480 train / 120 test) untuk K = 3, 5, 7, 9, dan 11 dengan validasi silang scikit-learn.",
     )
 
     _add_rect(s15, 0.55, 1.58, 6.30, 5.26, C_WHITE, border_rgb=C_BORDER, border_pt=0.9, rounded=True)
@@ -1583,7 +1681,7 @@ def build_presentation():
         6.46,
         6.05,
         0.30,
-        "Grafik akurasi dan Macro-F1 Model A (Baseline 3D) vs Model B (Fuzzy-Enhanced 4D) lintas K.",
+        "Grafik akurasi dan Macro-F1 Model A (Baseline 3D) dibandingkan Model B (Fuzzy-Enhanced 4D) lintas nilai K.",
         size=9,
         italic=True,
         color=C_MUTED,
@@ -1614,7 +1712,7 @@ def build_presentation():
         highlight_col=2,
     )
 
-    _add_card(s15, 7.05, 4.62, 5.73, 2.22, "Apa yang Bisa Kita Lihat dari Hasil Ini?", accent_rgb=C_MINT)
+    _add_card(s15, 7.05, 4.62, 5.73, 2.22, "Temuan Utama Hasil Evaluasi", accent_rgb=C_MINT)
     _add_bullets(
         s15,
         7.35,
@@ -1622,11 +1720,11 @@ def build_presentation():
         5.26,
         1.70,
         [
-            ("Model B Menang di Semua K: ", "Nambahin skor fuzzy bikin akurasi naik terus +2.50% sampai +4.17% tanpa pernah turun sekali pun."),
-            ("Paling Bagus di K = 11: ", "Akurasi tembus 97.50% dengan Macro-F1 97.50%, artinya dari 120 data uji cuma salah 3 data saja."),
-            ("Kode Scratch Terbukti Valid: ", "100% prediksi KNN buatan kita sendiri cocok persis dengan KNeighborsClassifier dari scikit-learn."),
+            ("Keunggulan Konsisten Model B: ", "Penambahan fitur fuzzy_quality_score meningkatkan akurasi sebesar +2.50% hingga +4.17% di seluruh konfigurasi nilai K."),
+            ("Performa Optimal pada K = 11: ", "Model B mencapai akurasi tertinggi 97.50% dan Macro-F1 97.50%, dengan hanya 3 kesalahan klasifikasi dari 120 data uji."),
+            ("Validasi Implementasi Mandiri: ", "Seluruh prediksi KNN mandiri menghasilkan kesesuaian 100% terhadap KNeighborsClassifier dari scikit-learn."),
         ],
-        size=9.8,
+        size=9.6,
         space_after=6,
     )
 
@@ -1636,8 +1734,8 @@ def build_presentation():
         s16,
         16,
         "Bagian 04 · Analisis Error",
-        "Bedah Kesalahan Prediksi di K = 11 (Confusion Matrix)",
-        "Dengan tambahan fitur fuzzy_quality_score, jumlah salah tebak turun drastis dari 8 sampel jadi cuma 3 sampel.",
+        "Analisis Kesalahan Prediksi pada K = 11 (Confusion Matrix)",
+        "Integrasi fitur fuzzy_quality_score menurunkan total kesalahan klasifikasi dari 8 sampel menjadi 3 sampel.",
     )
 
     _add_rect(s16, 0.55, 1.58, 6.45, 5.26, C_WHITE, border_rgb=C_BORDER, border_pt=0.9, rounded=True)
@@ -1648,7 +1746,7 @@ def build_presentation():
         6.46,
         6.20,
         0.30,
-        "Confusion Matrix di K = 11: Model A (kiri, 93.33%) dibanding Model B (kanan, 97.50%) pada 120 data uji.",
+        "Confusion Matrix pada K = 11: Model A (kiri, 93.33%) dibandingkan Model B (kanan, 97.50%) pada 120 data uji.",
         size=9,
         italic=True,
         color=C_MUTED,
@@ -1656,11 +1754,11 @@ def build_presentation():
     )
 
     _add_text(s16, 7.20, 1.56, 5.58, 0.28, "DETAIL METRIK PER KELAS MODEL B (K = 11)", size=10.2, bold=True, color=C_PRIMARY)
-    pc_headers = ["Kelas", "Precision", "Recall", "F1-Score", "Jumlah"]
+    pc_headers = ["Kelas", "Precision", "Recall", "F1-Score", "Support"]
     pc_rows = [
         ["Not Potable (0)", "98.31%", "96.67%", "97.48%", "60"],
         ["Potable (1)", "96.72%", "98.33%", "97.52%", "60"],
-        ["Rata-rata Macro", "97.51%", "97.50%", "97.50%", "120"],
+        ["Macro Avg", "97.51%", "97.50%", "97.50%", "120"],
     ]
     _add_table(
         s16,
@@ -1678,9 +1776,9 @@ def build_presentation():
     )
 
     _add_kpi_tile(s16, 7.20, 3.84, 2.68, 1.18, "Error Model A (3D)", "8 / 120", "2 FP + 6 FN (Recall Potable 90%)", accent=C_CORAL)
-    _add_kpi_tile(s16, 10.10, 3.84, 2.68, 1.18, "Error Model B (4D)", "3 / 120", "2 FP + 1 FN (Turun 62.5%!)", accent=C_MINT)
+    _add_kpi_tile(s16, 10.10, 3.84, 2.68, 1.18, "Error Model B (4D)", "3 / 120", "2 FP + 1 FN (Penurunan 62.5%)", accent=C_MINT)
 
-    _add_card(s16, 7.20, 5.18, 5.58, 1.66, "Poin Penting dari Analisis Error", accent_rgb=C_PRIMARY)
+    _add_card(s16, 7.20, 5.18, 5.58, 1.66, "Implikasi Analisis Confusion Matrix", accent_rgb=C_PRIMARY)
     _add_bullets(
         s16,
         7.50,
@@ -1688,10 +1786,10 @@ def build_presentation():
         5.12,
         1.16,
         [
-            ("Salah Tolak (FN) Turun Tajam: ", "Air layak minum yang salah ditebak turun dari 6 sampel di Model A jadi cuma 1 sampel di Model B."),
-            ("Tetap Aman untuk Air Buruk: ", "False Positive tetap kecil banget (2 dari 60 sampel Not Potable) dengan Precision 98.31%."),
+            ("Penurunan False Negative (FN): ", "Kesalahan penolakan air layak minum menurun tajam dari 6 sampel pada Model A menjadi hanya 1 sampel pada Model B."),
+            ("Keamanan Klasifikasi Air Tidak Layak: ", "False Positive tetap terjaga sangat rendah (2 dari 60 sampel Not Potable) dengan Precision sebesar 98.31%."),
         ],
-        size=9.8,
+        size=9.6,
         space_after=5,
     )
 
@@ -1702,8 +1800,8 @@ def build_presentation():
         prs,
         page_num=17,
         part_pill="BAGIAN 05  ·  DEMO APLIKASI & PENUTUP",
-        title_big="APLIKASI STREAMLIT &\nKESIMPULAN PROJECT",
-        description="Terakhir, kita bakal tunjukin langsung tampilan aplikasi Streamlit 6 halaman yang sudah kita bangun, plus ringkasan kesimpulan project sebelum masuk ke tanya jawab.",
+        title_big="APLIKASI STREAMLIT &\nKESIMPULAN",
+        description="Bagian terakhir menyajikan demonstrasi antarmuka aplikasi web Streamlit enam halaman yang telah dibangun, diikuti rangkuman kesimpulan utama dan sesi tanya jawab.",
         presenter_name="I Putu Maichail Ganio Wijaya",
         presenter_nim="2408561123",
         top_right_tag="BAGIAN 05 / 05",
@@ -1714,26 +1812,26 @@ def build_presentation():
     _add_chrome(
         s18,
         18,
-        "Bagian 05 · Demo GUI (1/2)",
-        "Tampilan Aplikasi Streamlit Kita: Halaman 01 s.d. 03",
-        "Aplikasi web interaktif dibangun modular pakai Streamlit & Plotly (app.py + src/ui/) supaya mudah didemokan.",
+        "Bagian 05 · Antarmuka GUI (1/2)",
+        "Implementasi Antarmuka Aplikasi Streamlit: Halaman 01 s.d. 03",
+        "Aplikasi web interaktif dikembangkan secara modular menggunakan Streamlit dan Plotly (app.py + src/ui/).",
     )
 
     gui_1_3 = [
         (
             "01 · Dashboard",
             FIG_DIR / "gui_01_dashboard.png",
-            "Halaman depan buat lihat ringkasan angka penting (600 data, skor rata-rata 46.37, akurasi Model B 97.50%, 100% match sklearn), alur sistem, dan profil Kelompok 1.",
+            "Menampilkan ringkasan metrik utama sistem (600 sampel bersih, skor rata-rata 46.37, akurasi Model B 97.50%, validasi 100% scikit-learn), diagram alur, serta profil tim.",
         ),
         (
             "02 · Input & Dataset",
             FIG_DIR / "gui_02_input_dataset.png",
-            "Tempat simulasi langsung: bisa geser slider pH/Hardness/Turbidity, klik preset S1-S5 atau Q*, pilih mode tetangga KNN, sampai upload file CSV sendiri.",
+            "Menyediakan simulasi prediksi langsung melalui slider pH/Hardness/Turbidity, preset sampel S1-S5 dan Q*, pemilihan dataset referensi KNN, serta fitur unggah berkas CSV.",
         ),
         (
             "03 · Step-by-Step Process",
             FIG_DIR / "gui_03_step_by_step.png",
-            "Mode transparansi (white-box): nunjukin posisi input di kurva segitiga, rule mana saja yang nyala, bentuk kurva hasil MAX, Centroid eksak, dan jarak KNN-nya.",
+            "Menyajikan visualisasi transparan (white-box) berupa posisi input pada kurva segitiga, daftar aturan aktif, kurva agregasi MAX, Centroid eksak, dan tabel jarak KNN.",
         ),
     ]
     gx = 0.55
@@ -1743,7 +1841,7 @@ def build_presentation():
         _add_pill(s18, gx + 0.16, 1.76, 2.65, 0.32, title_g, None, C_WHITE, font_size=9.2, gradient=True, margin_left=0.18, margin_right=0.18)
         _add_rect(s18, gx + 0.14, 2.20, 3.64, 2.40, RGBColor(0x0B, 0x10, 0x1C), border_rgb=C_BORDER, border_pt=0.5)
         _add_image_fit(s18, img_g, gx + 0.16, 2.22, 3.60, 2.36)
-        _add_text(s18, gx + 0.18, 4.74, 3.56, 1.96, desc_g, size=10.1, color=C_BODY, line_spacing=1.26)
+        _add_text(s18, gx + 0.18, 4.74, 3.56, 1.96, desc_g, size=9.9, color=C_BODY, line_spacing=1.25)
         gx += 4.15
 
     # SLIDE 19: GUI STREAMLIT HALAMAN 04 - 06
@@ -1751,26 +1849,26 @@ def build_presentation():
     _add_chrome(
         s19,
         19,
-        "Bagian 05 · Demo GUI (2/2)",
-        "Tampilan Aplikasi Streamlit Kita: Halaman 04 s.d. 06",
-        "Dilengkapi ranking seluruh dataset, lab uji coba Model A vs Model B secara interaktif, dan halaman panduan rumus.",
+        "Bagian 05 · Antarmuka GUI (2/2)",
+        "Implementasi Antarmuka Aplikasi Streamlit: Halaman 04 s.d. 06",
+        "Dilengkapi pemeringkatan seluruh dataset, modul eksperimen Model A vs Model B secara interaktif, dan panduan dokumentasi.",
     )
 
     gui_4_6 = [
         (
             "04 · Classification Results",
             FIG_DIR / "gui_04_results.png",
-            "Menampilkan hasil penilaian 600 sampel sekaligus, lengkap dengan filter kelas Potable/Not Potable, filter skor minimum, grafik distribusi, dan tombol download CSV.",
+            "Menampilkan hasil klasifikasi dan pemeringkatan seluruh 600 sampel secara massal, dilengkapi filter kelas Potable/Not Potable, filter skor minimum, grafik distribusi, serta ekspor CSV.",
         ),
         (
             "05 · Model Evaluation",
             FIG_DIR / "gui_05_evaluation.png",
-            "Lab eksperimen langsung: bisa ubah nilai K, ganti metode scaling (Min-Max / Z-Score), lihat Confusion Matrix, dan bukti kecocokan 100% dengan scikit-learn.",
+            "Menyediakan modul evaluasi eksperimental untuk mengubah nilai K dan metode normalisasi (Min-Max / Z-Score), membandingkan Confusion Matrix, serta memverifikasi kesesuaian scikit-learn.",
         ),
         (
             "06 · Docs & Guide",
             FIG_DIR / "gui_06_docs.png",
-            "Halaman dokumentasi singkat di dalam aplikasi berisi rumus Fuzzy Mamdani & KNN 4D, tabel lengkap 27 rule base, dan petunjuk pemakaian tiap menu.",
+            "Menyajikan dokumentasi terintegrasi yang memuat formulasi matematis Fuzzy Mamdani dan KNN 4D, tabel lengkap 27 basis aturan, serta panduan penggunaan setiap halaman.",
         ),
     ]
     gx = 0.55
@@ -1780,7 +1878,7 @@ def build_presentation():
         _add_pill(s19, gx + 0.16, 1.76, 2.75, 0.32, title_g, None, C_WHITE, font_size=9.2, gradient=True, margin_left=0.18, margin_right=0.18)
         _add_rect(s19, gx + 0.14, 2.20, 3.64, 2.40, RGBColor(0x0B, 0x10, 0x1C), border_rgb=C_BORDER, border_pt=0.5)
         _add_image_fit(s19, img_g, gx + 0.16, 2.22, 3.60, 2.36)
-        _add_text(s19, gx + 0.18, 4.74, 3.56, 1.96, desc_g, size=10.1, color=C_BODY, line_spacing=1.26)
+        _add_text(s19, gx + 0.18, 4.74, 3.56, 1.96, desc_g, size=9.9, color=C_BODY, line_spacing=1.25)
         gx += 4.15
 
     # SLIDE 20: KESIMPULAN & PENUTUP (Q&A)
@@ -1789,16 +1887,16 @@ def build_presentation():
         s20,
         20,
         "Bagian 05 · Penutup",
-        "Kesimpulan Project & Sesi Tanya Jawab",
-        "Ringkasan apa yang berhasil kita buktikan di project ini beserta ide pengembangannya ke depan.",
+        "Kesimpulan Penelitian & Sesi Tanya Jawab",
+        "Rangkuman capaian utama pengembangan sistem beserta rekomendasi arah pengembangan selanjutnya.",
     )
 
-    _add_kpi_tile(s20, 0.55, 1.58, 2.90, 1.18, "Akurasi Terbaik (Model B)", "97.50%", "Di K = 11 (Macro-F1: 97.50%)", accent=C_PRIMARY)
-    _add_kpi_tile(s20, 3.66, 1.58, 2.90, 1.18, "Kenaikan vs Model A", "+4.17%", "Selalu unggul di semua nilai K", accent=C_MINT)
-    _add_kpi_tile(s20, 6.77, 1.58, 2.90, 1.18, "Selisih Hitungan Manual", "0.0000", "Persis sama untuk S4 & Q*", accent=C_PRIMARY)
-    _add_kpi_tile(s20, 9.88, 1.58, 2.90, 1.18, "Validasi Kode", "100%", "Match scikit-learn · 5/5 Pytest", accent=C_MINT)
+    _add_kpi_tile(s20, 0.55, 1.58, 2.90, 1.18, "Akurasi Terbaik (Model B)", "97.50%", "Pada K = 11 (Macro-F1: 97.50%)", accent=C_PRIMARY)
+    _add_kpi_tile(s20, 3.66, 1.58, 2.90, 1.18, "Kenaikan vs Model A", "+4.17%", "Unggul konsisten di seluruh nilai K", accent=C_MINT)
+    _add_kpi_tile(s20, 6.77, 1.58, 2.90, 1.18, "Selisih Hitungan Manual", "0.0000", "Identik pada sampel S4 & Q*", accent=C_PRIMARY)
+    _add_kpi_tile(s20, 9.88, 1.58, 2.90, 1.18, "Validasi Kode", "100%", "Sesuai scikit-learn · 5/5 Pytest", accent=C_MINT)
 
-    _add_card(s20, 0.55, 2.96, 6.45, 3.88, "Poin Utama yang Kita Buktikan", accent_rgb=C_PRIMARY)
+    _add_card(s20, 0.55, 2.96, 6.45, 3.88, "Kesimpulan Utama", accent_rgb=C_PRIMARY)
     _add_bullets(
         s20,
         0.86,
@@ -1806,16 +1904,16 @@ def build_presentation():
         5.96,
         3.28,
         [
-            ("Fuzzy Mamdani Jelas & Akurat: ", "Pakai kurva segitiga simetris, 27 rule lengkap, dan Centroid analitik, hasil program kita cocok 100% (selisih 0.0000) sama hitungan manual."),
-            ("Skor Fuzzy Beneran Bantu KNN: ", "Nambahin fuzzy_quality_score di Model B bikin akurasi naik di semua nilai K dan memangkas error dari 8 jadi cuma 3 sampel di K = 11."),
-            ("Evaluasi Jujur & Teruji: ", "Scaling Min-Max di-fit khusus dari data latih (anti-leakage), plus semua unit test (5/5) dan validasi scikit-learn tembus 100%."),
-            ("Siap Langsung Didemokan: ", "Lewat GUI Streamlit 6 halaman, siapapun bisa langsung coba input sampel baru dan lihat proses hitungannya transparan."),
+            ("Inferensi Fuzzy Mamdani Akurat & Transparan: ", "Dengan kurva segitiga simetris, 27 aturan lengkap, dan Centroid analitik, keluaran program identik 100% (selisih 0.0000) terhadap perhitungan manual."),
+            ("Kontribusi Positif Skor Fuzzy pada KNN: ", "Penambahan fitur fuzzy_quality_score pada Model B meningkatkan akurasi di seluruh nilai K dan menurunkan kesalahan dari 8 menjadi 3 sampel pada K = 11."),
+            ("Protokol Evaluasi Valid & Anti-Leakage: ", "Normalisasi Min-Max dihitung secara eksklusif dari data latih, didukung kelulusan seluruh unit test (5/5) dan kesesuaian 100% terhadap scikit-learn."),
+            ("Kesiapan Implementasi Antarmuka: ", "Melalui aplikasi Streamlit enam halaman, seluruh tahapan perhitungan fuzzy hingga klasifikasi KNN dapat disimulasikan dan diaudit secara interaktif."),
         ],
-        size=10.2,
+        size=9.9,
         space_after=8,
     )
 
-    _add_card(s20, 7.22, 2.96, 5.56, 1.98, "Ide Pengembangan Selanjutnya", accent_rgb=C_MINT)
+    _add_card(s20, 7.22, 2.96, 5.56, 1.98, "Saran Pengembangan Selanjutnya", accent_rgb=C_MINT)
     _add_bullets(
         s20,
         7.52,
@@ -1823,15 +1921,15 @@ def build_presentation():
         5.08,
         1.45,
         [
-            ("Coba Fitur & Pembobotan Tambahan: ", "Bisa diuji pakai Weighted KNN atau ditambah parameter lain dari dataset (seperti Solids dan Chloramines)."),
-            ("Sambungkan ke Sensor IoT: ", "Mesin Mamdani + KNN ini siap dipakai baca data sensor pH dan kekeruhan secara real-time."),
+            ("Eksplorasi Pembobotan & Fitur Tambahan: ", "Model dapat dikembangkan menggunakan Distance-Weighted KNN atau penambahan atribut dataset lain seperti Solids dan Chloramines."),
+            ("Integrasi Sensor Kualitas Air (IoT): ", "Pipeline Fuzzy Mamdani dan KNN siap diintegrasikan dengan aliran data sensor pH dan kekeruhan secara real-time."),
         ],
-        size=9.7,
+        size=9.5,
         space_after=6,
     )
 
     _add_rect(s20, 7.22, 5.12, 5.56, 1.72, None, rounded=True, grad_angle=0.0)
-    _add_text(s20, 7.50, 5.26, 5.05, 0.44, "TERIMA KASIH  ·  ADA PERTANYAAN?", size=16.5, bold=True, color=C_WHITE, font=FONT_HEAD)
+    _add_text(s20, 7.50, 5.26, 5.05, 0.44, "TERIMA KASIH  ·  SESI TANYA JAWAB", size=16.2, bold=True, color=C_WHITE, font=FONT_HEAD)
     _add_text(
         s20,
         7.50,
