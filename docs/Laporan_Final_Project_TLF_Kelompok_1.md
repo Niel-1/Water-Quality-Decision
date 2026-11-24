@@ -22,7 +22,7 @@ Di sisi lain, algoritma **K-Nearest Neighbor (KNN)** unggul dalam mengklasifikas
 
 ## 1.2 Rumusan Masalah
 
-1. Bagaimana merancang Sistem Inferensi Fuzzy Mamdani dengan fungsi keanggotaan segitiga simetris Ruspini dan 27 basis aturan untuk menghasilkan `fuzzy_quality_score` dari parameter `ph`, `Hardness`, dan `Turbidity`?
+1. Bagaimana merancang Sistem Inferensi Fuzzy Mamdani dengan fungsi keanggotaan segitiga simetris dan 27 basis aturan untuk menghasilkan `fuzzy_quality_score` dari parameter `ph`, `Hardness`, dan `Turbidity`?
 2. Bagaimana mengintegrasikan `fuzzy_quality_score` ke dalam ruang fitur 4 dimensi pada algoritma KNN berbasis normalisasi Min-Max dan jarak Euclidean secara *from scratch*?
 3. Apakah keluaran program Python konsisten dengan hasil perhitungan manual langkah demi langkah pada sampel referensi `S4` dan kasus uji baru `Q*`?
 4. Seberapa besar peningkatan performa klasifikasi Model B (Fuzzy-Enhanced KNN 4 fitur) dibandingkan Model A (Baseline KNN 3 fitur) pada berbagai nilai $K$?
@@ -30,7 +30,7 @@ Di sisi lain, algoritma **K-Nearest Neighbor (KNN)** unggul dalam mengklasifikas
 ## 1.3 Tujuan Pengembangan Aplikasi
 
 1. Merancang dan mengimplementasikan mesin inferensi Fuzzy Mamdani (fuzzifikasi, 27 aturan, inferensi MIN, agregasi MAX, dan defuzzifikasi Centroid analitik) secara mandiri di Python.
-2. Membangun pipeline klasifikasi hibrida Fuzzy-KNN dengan fitur tambahan `fuzzy_quality_score` dan memvalidasinya terhadap perhitungan manual serta implementasi referensi `scikit-learn`.
+2. Membangun pipeline klasifikasi dua tahap Fuzzy-KNN dengan fitur tambahan `fuzzy_quality_score` dan memvalidasinya terhadap perhitungan manual serta implementasi referensi `scikit-learn`.
 3. Mengevaluasi perbandingan akurasi, *precision*, *recall*, *F1-score*, dan matriks konfusi antara Baseline KNN (3 fitur) dan Fuzzy-Enhanced KNN (4 fitur) untuk $K \in \{3, 5, 7, 9, 11\}$.
 4. Menyediakan aplikasi Sistem Pendukung Keputusan interaktif berbasis Streamlit yang memudahkan simulasi prediksi, eksplorasi aturan fuzzy, dan verifikasi perhitungan.
 
@@ -44,7 +44,7 @@ Di sisi lain, algoritma **K-Nearest Neighbor (KNN)** unggul dalam mengklasifikas
 
 1. Dataset bersumber dari repositori publik Kaggle (*Water Quality and Potability*, `water_potability.csv`) yang dibersihkan menjadi 600 sampel seimbang (300 `Potable` dan 300 `Not Potable`).
 2. Variabel input Fuzzy Mamdani dibatasi pada tiga parameter utama yang paling berpengaruh, yaitu `ph` ($[0, 14]$), `Hardness` ($[60, 300]$ mg/L), dan `Turbidity` ($[1, 6]$ NTU).
-3. Fungsi keanggotaan menggunakan kurva segitiga simetris Ruspini dengan 3 himpunan linguistik per variabel, sehingga membentuk tepat $3^3 = 27$ basis aturan.
+3. Fungsi keanggotaan menggunakan kurva segitiga simetris dengan 3 himpunan linguistik per variabel, sehingga membentuk tepat $3^3 = 27$ basis aturan.
 4. Evaluasi klasifikasi menggunakan pembagian data terstratifikasi 80:20 (480 data latih, 120 data uji) dengan normalisasi Min-Max yang dihitung khusus dari data latih agar bebas kebocoran data (*data leakage*).
 
 # BAB II
@@ -54,13 +54,13 @@ Di sisi lain, algoritma **K-Nearest Neighbor (KNN)** unggul dalam mengklasifikas
 
 Logika fuzzy yang diperkenalkan oleh Zadeh (1965) memperluas logika himpunan klasik dengan mengizinkan suatu elemen memiliki derajat keanggotaan kontinu pada interval $[0, 1]$. Pendekatan ini memungkinkan representasi konsep linguistik seperti "asam", "netral", atau "agak keruh" secara matematis tanpa batas pemisah yang kaku.
 
-### 2.1.1 Fungsi Keanggotaan Segitiga dan Partisi Ruspini
+### 2.1.1 Fungsi Keanggotaan Segitiga Simetris
 
 Fungsi keanggotaan segitiga (*triangular membership function*) ditentukan oleh tiga parameter $(a, b, c)$ dengan $a \le b \le c$, di mana $b$ adalah titik puncak ($\mu(b) = 1$) serta $a$ dan $c$ adalah batas bawah dan atas. Persamaan matematis kurva segitiga dirumuskan sebagai berikut:
 
 $$\mu(x; a, b, c) = \begin{cases} 0, & x \le a \text{ atau } x \ge c \\ \dfrac{x - a}{b - a}, & a < x \le b \\ \dfrac{c - x}{c - b}, & b < x < c \end{cases}$$
 
-Pada sistem ini digunakan **partisi Ruspini** (Ruspini, 1969), yaitu susunan himpunan fuzzy di mana jumlah seluruh derajat keanggotaan pada setiap titik $x$ dalam domain selalu bernilai satu ($\sum \mu_i(x) = 1$). Untuk himpunan tepi kiri berlaku $a = b$ (bahu kiri bernilai 1 di $x \le b$), sedangkan untuk himpunan tepi kanan berlaku $b = c$ (bahu kanan bernilai 1 di $x \ge b$).
+Pada sistem ini, tiga kurva segitiga untuk setiap variabel disusun secara simetris dan saling bersinggungan sehingga jumlah seluruh derajat keanggotaan pada setiap titik $x$ dalam domain selalu bernilai satu ($\sum \mu_i(x) = 1$). Untuk himpunan tepi kiri berlaku $a = b$ (bahu kiri bernilai 1 di $x \le b$), sedangkan untuk himpunan tepi kanan berlaku $b = c$ (bahu kanan bernilai 1 di $x \ge b$).
 
 ### 2.1.2 Tahapan Sistem Inferensi Fuzzy Metode Mamdani
 
@@ -97,7 +97,7 @@ Setelah seluruh jarak diurutkan dari terkecil ke terbesar, diambil $K$ tetangga 
 
 ## 2.3 Integrasi Metode Fuzzy Mamdani dan K-Nearest Neighbor (KNN)
 
-Integrasi Fuzzy Mamdani dan KNN dalam proyek ini mengadopsi arsitektur hibrida dua tahap (*two-stage feature enrichment*). Pada tahap pertama, mesin Fuzzy Mamdani mengevaluasi kombinasi non-linear dari `ph`, `Hardness`, dan `Turbidity` melalui 27 aturan pakar untuk menghasilkan satu fitur ringkas bernama `fuzzy_quality_score` ($Y \in [0, 100]$).
+Integrasi Fuzzy Mamdani dan KNN dalam proyek ini mengadopsi arsitektur kombinasi dua tahap (*two-stage feature enrichment*). Pada tahap pertama, mesin Fuzzy Mamdani mengevaluasi kombinasi non-linear dari `ph`, `Hardness`, dan `Turbidity` melalui 27 aturan pakar untuk menghasilkan satu fitur ringkas bernama `fuzzy_quality_score` ($Y \in [0, 100]$).
 
 Pada tahap kedua, skor kualitas air fuzzy tersebut digabungkan dengan ketiga fitur fisik-kimia asli menjadi vektor 4 dimensi $\mathbf{x} = [X_1, X_2, X_3, Y]$, kemudian dinormalisasi dengan Min-Max Scaling dan diklasifikasikan oleh KNN. Pendekatan ini menggabungkan transparansi pengetahuan pakar dari logika fuzzy dengan kemampuan pengenalan pola distribusi data historis dari KNN.
 
@@ -130,7 +130,7 @@ Kebutuhan fungsional sistem mencakup prapemrosesan dataset `water_potability.csv
 
 ## 3.2 Deskripsi Dataset Publik Kaggle (`water_potability.csv`)
 
-Dataset mentah berasal dari Kaggle (*Water Quality and Potability*) yang terdiri atas 3.276 sampel dengan beberapa nilai kosong (*missing values*) dan ketidakseimbangan kelas. Tahap prapemrosesan pada `src/data/preprocess.py` menghapus baris dengan nilai kosong pada atribut kunci, memfilter nilai ekstrem di luar domain fisik wajar, serta menyusun 600 sampel bersih yang seimbang (300 `Potable` dan 300 `Not Potable`).
+Dataset mentah berasal dari Kaggle (*Water Quality and Potability*) yang terdiri atas 3.276 sampel dengan beberapa nilai kosong (*missing values*) dan ketidakseimbangan kelas. Tahap prapemrosesan pada `src/prepare_dataset.py` menghapus baris dengan nilai kosong pada atribut kunci, memfilter nilai ekstrem di luar domain fisik wajar, serta menyusun 600 sampel bersih yang seimbang (300 `Potable` dan 300 `Not Potable`).
 
 Data bersih (`water_potability_clean.csv`) dibagi secara terstratifikasi dengan rasio 80:20 menjadi 480 data latih (240 `Potable`, 240 `Not Potable`) dan 120 data uji (60 `Potable`, 60 `Not Potable`). Statistik deskriptif seluruh fitur pada 600 sampel bersih ditunjukkan pada **Tabel 3.1**.
 
@@ -148,11 +148,11 @@ Data bersih (`water_potability_clean.csv`) dibagi secara terstratifikasi dengan 
 
 ## 3.3 Variabel Input-Output, Fungsi Keanggotaan, dan 27 Basis Aturan
 
-### 3.3.1 Fungsi Keanggotaan Segitiga Simetris Ruspini
+### 3.3.1 Fungsi Keanggotaan Segitiga Simetris
 
-Sistem Fuzzy Mamdani menggunakan 3 variabel input (`ph`, `Hardness`, `Turbidity`) dan 1 variabel output (`water_quality_score`). Masing-masing variabel dipartisi menjadi 3 himpunan segitiga simetris Ruspini $(a, b, c)$ sebagaimana dirinci pada **Tabel 3.2** dan divisualisasikan pada **Gambar 3.1**.
+Sistem Fuzzy Mamdani menggunakan 3 variabel input (`ph`, `Hardness`, `Turbidity`) dan 1 variabel output (`water_quality_score`). Masing-masing variabel dipartisi menjadi 3 himpunan segitiga simetris $(a, b, c)$ sebagaimana dirinci pada **Tabel 3.2** dan divisualisasikan pada **Gambar 3.1**.
 
-**Tabel 3.2** Parameter Fungsi Keanggotaan Segitiga Simetris Ruspini $(a, b, c)$
+**Tabel 3.2** Parameter Fungsi Keanggotaan Segitiga Simetris $(a, b, c)$
 
 | Variabel & Domain | Himpunan Fuzzy | Parameter $(a, b, c)$ | Persamaan Derajat Keanggotaan $\mu(x)$ |
 | :--- | :--- | :---: | :--- |
@@ -169,9 +169,9 @@ Sistem Fuzzy Mamdani menggunakan 3 variabel input (`ph`, `Hardness`, `Turbidity`
 | | `Moderate` | $(0.0, 50.0, 100.0)$ | $\max(0, \min(z/50.0, (100.0 - z)/50.0))$ |
 | | `Good` | $(50.0, 100.0, 100.0)$ | $\max(0, \min(1, (z - 50.0)/50.0))$ |
 
-![Gambar 3.1 Kurva Fungsi Keanggotaan Segitiga Simetris Ruspini](figures/gambar_3_1_membership_functions.png)
+![Gambar 3.1 Kurva Fungsi Keanggotaan Segitiga Simetris](figures/gambar_3_1_membership_functions.png)
 
-**Gambar 3.1** Kurva Fungsi Keanggotaan Segitiga Simetris Ruspini untuk Variabel Input dan Output
+**Gambar 3.1** Kurva Fungsi Keanggotaan Segitiga Simetris untuk Variabel Input dan Output
 
 ### 3.3.2 Basis Aturan Lengkap (*Complete Rule Base*) 27 Aturan
 
@@ -200,13 +200,13 @@ Kombinasi seluruh himpunan fuzzy dari 3 variabel input menghasilkan 27 aturan (`
 
 Alur pengolahan sistem dimulai dari pembersihan dataset dan ekstraksi fitur `fuzzy_quality_score` menggunakan mesin Mamdani, kemudian dilanjutkan dengan normalisasi Min-Max dan klasifikasi KNN pada Model A (3 fitur) serta Model B (4 fitur). Rancangan arsitektur pipeline dan flowchart komputasi *end-to-end* ditunjukkan pada **Gambar 3.2** dan **Gambar 3.3**.
 
-![Gambar 3.2 Diagram Arsitektur Pipeline Sistem Pendukung Keputusan Hibrida Fuzzy Mamdani dan KNN](figures/gambar_3_2_arsitektur_sistem.png)
+![Gambar 3.2 Diagram Arsitektur Pipeline Sistem Pendukung Keputusan Kombinasi Fuzzy Mamdani dan KNN](figures/gambar_3_2_arsitektur_sistem.png)
 
-**Gambar 3.2** Diagram Arsitektur Pipeline Sistem Pendukung Keputusan Hibrida Fuzzy Mamdani dan KNN
+**Gambar 3.2** Diagram Arsitektur Pipeline Sistem Pendukung Keputusan Kombinasi Fuzzy Mamdani dan KNN
 
-![Gambar 3.3 Flowchart Alur Komputasi End-to-End Algoritma Hibrida Fuzzy Mamdani dan KNN](figures/gambar_3_3_flowchart_algoritma.png)
+![Gambar 3.3 Flowchart Alur Komputasi End-to-End Kombinasi Fuzzy Mamdani dan KNN](figures/gambar_3_3_flowchart_algoritma.png)
 
-**Gambar 3.3** Flowchart Alur Komputasi *End-to-End* Algoritma Hibrida Fuzzy Mamdani dan KNN
+**Gambar 3.3** Flowchart Alur Komputasi *End-to-End* Kombinasi Fuzzy Mamdani dan KNN
 
 ## 3.5 Perhitungan Manual Langkah demi Langkah
 
@@ -319,7 +319,7 @@ Berdasarkan 3 tetangga terdekat (`S4`, `S3`, `S5`), diperoleh suara 2 `Potable` 
 
 ## 3.6 Perancangan Antarmuka Pengguna Grafis (GUI Streamlit)
 
-Aplikasi web interaktif dirancang menggunakan pola navigasi *sidebar* dengan 6 halaman terpisah: *System Overview*, *Water Potability Simulator*, *Fuzzy Mamdani Explorer*, *KNN Performance & Comparison*, *Dataset Explorer*, dan *Manual Calculation Verification*. Pemisahan ini memudahkan pengguna berpindah dari simulasi prediksi langsung hingga verifikasi matematis tanpa tampilan yang padat.
+Aplikasi web interaktif dirancang menggunakan pola navigasi *sidebar* dengan 6 halaman terpisah: **01 · Dashboard**, **02 · Input & Dataset**, **03 · Step-by-Step Process**, **04 · Classification Results**, **05 · Model Evaluation**, dan **06 · Docs & Guide**. Pemisahan ini memudahkan pengguna berpindah dari simulasi prediksi langsung hingga penelusuran perhitungan *white-box* dan evaluasi model tanpa tampilan yang padat.
 
 ## 3.7 Rancangan Pengujian Sistem
 
@@ -339,38 +339,42 @@ Sistem dikembangkan pada lingkungan Python 3 menggunakan pustaka standar komputa
 | Python 3.10+ | Bahasa pemrograman utama untuk seluruh modul Fuzzy Mamdani dan KNN *from scratch*. |
 | `numpy` & `pandas` | Pengolahan matriks fitur, prapemrosesan dataset CSV, dan komputasi vektor jarak Euclidean. |
 | `streamlit` & `plotly` | Membangun aplikasi GUI interaktif 6 halaman beserta grafik kurva keanggotaan dan *heatmap*. |
+| `matplotlib` | Menghasilkan gambar grafik resolusi tinggi (200 DPI) untuk dokumentasi laporan resmi. |
 | `scikit-learn` | Pustaka referensi eksternal untuk menguji kesesuaian 100% algoritma KNN *from scratch*. |
 | `pytest` | Menjalankan rangkaian *unit test* otomatis untuk seluruh modul inti sistem. |
 
 ## 4.2 Penjelasan Struktur Program
 
-Kode proyek disusun secara modular agar setiap tahapan komputasi terpisah rapi dan mudah diuji, seperti diringkas pada **Tabel 4.2**.
+Kode proyek disusun secara modular agar setiap tahapan komputasi dan komponen antarmuka terpisah rapi serta mudah diuji, seperti diringkas pada **Tabel 4.2**.
 
 **Tabel 4.2** Struktur Modular File dan Direktori Program
 
 | Path File / Direktori | Deskripsi Tanggung Jawab |
 | :--- | :--- |
-| `app/streamlit_app.py` | Titik masuk antarmuka pengguna grafis Streamlit 6 halaman. |
-| `src/data/preprocess.py` | Pembersihan dataset Kaggle, penyeimbangan 600 sampel, dan pembuatan `manual_calc_sample.csv`. |
-| `src/fuzzy/membership.py` | Implementasi fungsi keanggotaan segitiga simetris Ruspini untuk 3 input dan 1 output. |
-| `src/fuzzy/rules.py` | Definisi 27 basis aturan (`R01` s.d. `R27`) Fuzzy Mamdani. |
-| `src/fuzzy/mamdani_engine.py` | Mesin inferensi MIN, agregasi MAX, dan defuzzifikasi Centroid analitik per segmen. |
-| `src/models/knn_scratch.py` | Implementasi `MinMaxScalerScratch` dan `KNNClassifierScratch` berbasis jarak Euclidean. |
-| `src/models/evaluator.py` | Evaluasi komparatif Model A vs Model B lintas nilai $K$ dan validasi `scikit-learn`. |
-| `tests/` | Pengujian otomatis `pytest` (5 kasus uji untuk Fuzzy, KNN, integrasi, dan verifikasi manual). |
+| `app.py` | Titik masuk utama antarmuka pengguna grafis Streamlit 6 halaman dan manajemen *session state*. |
+| `src/prepare_dataset.py` | Pembersihan dataset Kaggle, penyeimbangan 600 sampel, dan pembuatan `manual_calc_sample.csv`. |
+| `src/fuzzy_mamdani.py` | Implementasi fungsi keanggotaan segitiga simetris, 27 basis aturan (`R01`-`R27`), inferensi MIN, agregasi MAX, dan defuzzifikasi Centroid analitik. |
+| `src/knn_model.py` | Implementasi `MinMaxScalerScratch`, `ZScoreScalerScratch`, `KNNClassifierScratch`, serta evaluasi Model A vs Model B dan validasi `scikit-learn`. |
+| `src/ui/` | Paket antarmuka modular: tema CSS (`theme.py`), token & preset (`constants.py`), loader & cache (`data.py`), komponen kartu/tabel (`components.py`), grafik Plotly (`charts.py`), dan 6 modul halaman di `src/ui/pages/`. |
+| `tests/test_system.py` | Pengujian otomatis `pytest` (5 kasus uji untuk Fuzzy Mamdani, KNN, integrasi, dan verifikasi manual `S4` serta `Q*`). |
 
 ## 4.3 Implementasi Setiap Tahapan Algoritma
 
 ### 4.3.1 Implementasi Fungsi Keanggotaan Segitiga dan Fuzzifikasi
 
-Fungsi `triangular_mf` pada `src/fuzzy/membership.py` menangani kurva segitiga simetris maupun kasus bahu tepi ($a = b$ dan $b = c$) sehingga partisi Ruspini tetap terpenuhi pada seluruh domain.
+Fungsi `triangular_mf` pada `src/fuzzy_mamdani.py` menangani kurva segitiga simetris maupun kasus bahu tepi ($a = b$ dan $b = c$) sehingga jumlah derajat keanggotaan pada setiap titik domain tetap bernilai satu ($\sum \mu = 1$).
 
 ```python
 def triangular_mf(x: float, a: float, b: float, c: float) -> float:
-    if a == b and x <= b:
-        return 1.0
-    if b == c and x >= b:
-        return 1.0
+    x = float(x)
+    if a == b:
+        if x <= a:
+            return 1.0 if x >= a else 0.0
+        return 0.0 if x >= c else (c - x) / (c - b)
+    if b == c:
+        if x >= c:
+            return 1.0 if x <= c else 0.0
+        return 0.0 if x <= a else (x - a) / (b - a)
     if x <= a or x >= c:
         return 0.0
     if x == b:
@@ -382,7 +386,7 @@ def triangular_mf(x: float, a: float, b: float, c: float) -> float:
 
 ### 4.3.2 Implementasi Inferensi 27 Rule dan Defuzzifikasi Centroid Analitik
 
-Pada `src/fuzzy/mamdani_engine.py`, kekuatan penyulutan dihitung dengan `min()` untuk setiap aturan dan diagregasikan per label konsekuen dengan `max()`. Titik-titik kritis perubahan kemiringan kurva agregasi dikumpulkan lalu diintegrasikan secara analitik eksak pada setiap segmen $[z_0, z_1]$:
+Pada `src/fuzzy_mamdani.py`, fungsi `compute_fuzzy_mamdani` menghitung *firing strength* tiap aturan menggunakan operator `min()`, lalu mengagregasi setiap label konsekuen dengan `max()`. Selanjutnya `defuzzify_centroid_analytic` mengumpulkan titik-titik perubahan kemiringan kurva agregasi dan menghitung integral luas serta momen secara analitik eksak pada setiap segmen $[z_0, z_1]$:
 
 ```python
 total_area = 0.0
@@ -402,15 +406,12 @@ centroid = total_moment / total_area if total_area > 0 else 50.0
 
 ### 4.3.3 Implementasi Normalisasi Min-Max dan KNN *From Scratch*
 
-Normalisasi Min-Max dan klasifikasi KNN dibangun mandiri pada `src/models/knn_scratch.py`. Parameter `fit` hanya mengambil nilai minimum dan maksimum dari data latih, lalu jarak Euclidean dan *majority voting* dihitung secara eksplisit:
+Normalisasi Min-Max (`MinMaxScalerScratch`) dan klasifikasi KNN (`KNNClassifierScratch`) dibangun mandiri pada `src/knn_model.py`. Parameter `fit` hanya mengambil nilai minimum dan maksimum dari data latih, lalu jarak Euclidean 4 dimensi dan *majority voting* dihitung secara eksplisit:
 
 ```python
-def predict_one(self, x_query_scaled: np.ndarray) -> int:
-    distances = np.sqrt(np.sum((self.X_train_scaled - x_query_scaled) ** 2, axis=1))
-    nn_indices = np.argsort(distances)[: self.k]
-    nn_labels = self.y_train[nn_indices]
-    values, counts = np.unique(nn_labels, return_counts=True)
-    return int(values[np.argmax(counts)])
+def euclidean_distances(x_query: np.ndarray, X_train: np.ndarray) -> np.ndarray:
+    diff = X_train - x_query
+    return np.sqrt(np.sum(diff ** 2, axis=1))
 ```
 
 ## 4.4 Verifikasi Perhitungan Manual vs Keluaran Program Python
@@ -432,18 +433,18 @@ Pengujian konsistensi antara perhitungan manual Bab III dan keluaran program Pyt
 
 ## 4.5 Dokumentasi Tampilan Antarmuka Pengguna Grafis (GUI Streamlit)
 
-Implementasi GUI Streamlit terdiri atas 6 halaman terpadu yang merangkum seluruh fungsi simulasi, eksplorasi, dan evaluasi sistem seperti tercantum pada **Tabel 4.4**.
+Implementasi GUI Streamlit terdiri atas 6 halaman terpadu yang merangkum seluruh kebutuhan fungsional aplikasi mulai dari ringkasan sistem, simulasi input, penelusuran *white-box*, klasifikasi batch, evaluasi model, hingga dokumentasi rumus seperti tercantum pada **Tabel 4.4**. Tangkapan layar lengkap keenam halaman disajikan pada **Lampiran 4**.
 
 **Tabel 4.4** Ringkasan 6 Halaman Antarmuka Pengguna Grafis (GUI Streamlit)
 
 | No. | Nama Halaman GUI | Fitur Utama dan Output Visualisasi |
 | :---: | :--- | :--- |
-| 1 | *System Overview & Architecture* | Ringkasan arsitektur hibrida Fuzzy-KNN, statistik dataset 600 sampel, dan profil Kelompok 1. |
-| 2 | *Water Potability Simulator* | Input slider `ph`, `Hardness`, `Turbidity`, preset cepat (`S1`-`Q*`), skor fuzzy, poligon Centroid, dan perbandingan prediksi Model A vs Model B. |
-| 3 | *Fuzzy Mamdani Explorer* | Visualisasi interaktif 4 kurva keanggotaan segitiga Ruspini dan tabel filter 27 basis aturan. |
-| 4 | *KNN Performance & Comparison* | Grafik perbandingan akurasi dan F1 lintas $K$, tabel metrik per kelas, serta *heatmap Confusion Matrix*. |
-| 5 | *Dataset Explorer* | Tabel dataset bersih 600 baris, statistik deskriptif, histogram fitur, dan *scatter plot* korelasi skor fuzzy. |
-| 6 | *Manual Calculation Verification* | Langkah perhitungan manual interaktif `S4` dan `Q*` bersanding dengan tabel audit selisih `0.0000`. |
+| 1 | **01 · Dashboard** | Ringkasan dataset 600 sampel bersih, alur *Two-Stage Pipeline* (Fuzzy Mamdani + KNN), KPI performa Model B, grafik distribusi kelas & *boxplot* skor fuzzy, serta profil anggota Kelompok 1. |
+| 2 | **02 · Input & Dataset** | Tab 1 (*Single-Sample Simulator*): preset `Q*`/`S1`-`S5`, input manual `ph`, `Hardness`, `Turbidity`, pilihan mode referensi KNN & nilai $K$, serta hasil skor dan prediksi langsung. Tab 2 (*Dataset Explorer & Upload CSV*): unggah CSV kustom dengan validasi, statistik deskriptif, dan alur prapemrosesan. |
+| 3 | **03 · Step-by-Step Process** | Penelusuran perhitungan *white-box* 4 desimal untuk sampel aktif: kurva fungsi keanggotaan segitiga, tabel fuzzifikasi, evaluasi 27 rule & *firing strength*, kurva agregasi MAX, integral segmen Centroid analitik, normalisasi Min-Max, jarak Euclidean, hingga *majority voting* KNN. |
+| 4 | **04 · Classification Results** | Pemeringkatan kualitas seluruh dataset berdasarkan prediksi Model B, filter kelas kelayakan dan batas minimum skor fuzzy, tombol unduh hasil ke CSV, serta visualisasi histogram dan *scatter plot* fisikokimia. |
+| 5 | **05 · Model Evaluation** | Pengaturan strategi split & *feature scaling*, tabel perbandingan Model A vs Model B pada $K \in \{3, 5, 7, 9, 11\}$, grafik sensitivitas $K$, *Confusion Matrix* berdampingan, metrik per kelas, serta ringkasan analisis & keterbatasan sistem. |
+| 6 | **06 · Docs & Guide** | Referensi rumus matematis Fuzzy Mamdani dan Fuzzy-Enhanced KNN, tabel lengkap 27 basis aturan (`R01`-`R27`), serta panduan singkat penggunaan setiap halaman aplikasi. |
 
 ## 4.6 Hasil Pengujian dan Evaluasi Sistem
 
@@ -503,7 +504,7 @@ Kelebihan utama sistem ini adalah transparansi penuh (*white-box*) karena seluru
 
 ## 5.1 Kesimpulan
 
-1. Sistem Pendukung Keputusan penentuan kualitas dan kelayakan air minum berbasis integrasi **Fuzzy Mamdani** (3 input, partisi segitiga simetris Ruspini, 27 aturan, Centroid analitik) dan **K-Nearest Neighbor (KNN)** telah berhasil dibangun *from scratch* menggunakan Python dan antarmuka Streamlit 6 halaman.
+1. Sistem Pendukung Keputusan penentuan kualitas dan kelayakan air minum berbasis kombinasi **Fuzzy Mamdani** (3 input, fungsi keanggotaan segitiga simetris, 27 aturan, Centroid analitik) dan **K-Nearest Neighbor (KNN)** telah berhasil dibangun *from scratch* menggunakan Python dan antarmuka Streamlit 6 halaman.
 2. Verifikasi antara perhitungan manual dan keluaran program pada sampel referensi `S4` ($z^* = 55.9524$) maupun kasus uji baru `Q*` ($z^* = 54.1667$, prediksi `Potable` pada $K = 3$) menghasilkan selisih absolut `0.0000`, serta prediksi KNN *from scratch* cocok 100% dengan `scikit-learn`.
 3. Integrasi fitur `fuzzy_quality_score` pada Model B (4 fitur) secara konsisten mengungguli Model A (Baseline KNN 3 fitur) di seluruh nilai $K \in \{3, 5, 7, 9, 11\}$, dengan peningkatan akurasi sebesar +2.50% hingga +4.17% dan pencapaian akurasi tertinggi sebesar 97.50% pada $K = 11$ (95.00% pada $K = 5$).
 4. Pengurangan kesalahan klasifikasi dari 9 sampel menjadi 6 sampel pada $K = 5$ membuktikan bahwa fitur hasil inferensi pakar Fuzzy Mamdani efektif memperkuat pemisahan kelas KNN di area perbatasan.
@@ -523,9 +524,8 @@ Kelebihan utama sistem ini adalah transparansi penuh (*white-box*) karena seluru
 5. **Kusumadewi, S., & Purnomo, H.** (2010). *Aplikasi Logika Fuzzy untuk Pendukung Keputusan* (Edisi ke-2). Yogyakarta: Graha Ilmu.
 6. **Mamdani, E. H., & Assilian, S.** (1975). An experiment in linguistic synthesis with a fuzzy logic controller. *International Journal of Man-Machine Studies*, 7(1), 1-13. https://doi.org/10.1016/S0020-7373(75)80002-2
 7. **Ross, T. J.** (2016). *Fuzzy Logic with Engineering Applications* (4th ed.). Chichester: John Wiley & Sons.
-8. **Ruspini, E. H.** (1969). A new approach to clustering. *Information and Control*, 15(1), 22-32. https://doi.org/10.1016/S0019-9958(69)90591-9
-9. **World Health Organization (WHO).** (2022). *Guidelines for Drinking-water Quality: Fourth Edition Incorporating the First and Second Addenda*. Geneva: World Health Organization.
-10. **Zadeh, L. A.** (1965). Fuzzy sets. *Information and Control*, 8(3), 338-353. https://doi.org/10.1016/S0019-9958(65)90241-X
+8. **World Health Organization (WHO).** (2022). *Guidelines for Drinking-water Quality: Fourth Edition Incorporating the First and Second Addenda*. Geneva: World Health Organization.
+9. **Zadeh, L. A.** (1965). Fuzzy sets. *Information and Control*, 8(3), 338-353. https://doi.org/10.1016/S0019-9958(65)90241-X
 
 # LAMPIRAN
 
@@ -533,13 +533,13 @@ Kelebihan utama sistem ini adalah transparansi penuh (*white-box*) karena seluru
 
 **Tabel L.1** Pembagian Tugas dan Kontribusi Anggota Kelompok 1
 
-| No. | Nama Mahasiswa | NIM | Peran & Kontribusi Utama |
-| :---: | :--- | :---: | :--- |
-| 1 | Nathanael Adrian Wattimena | 2408561013 | Perancangan fungsi keanggotaan Ruspini, 27 basis aturan, mesin Centroid Mamdani, serta Bab II dan Subbab 3.3. |
-| 2 | I Wayan Arya Adi Guna | 2408561019 | Implementasi `MinMaxScalerScratch`, `KNNClassifierScratch`, modul evaluasi komparatif, serta Subbab 4.6 dan Bab V. |
-| 3 | Komang Dhika Artika Nurdi | 2408561055 | Pipeline prapemrosesan dataset 600 sampel, perhitungan manual `S4` dan `Q*`, serta pengujian otomatis `pytest`. |
-| 4 | Kadek Phatra Adisuta Timonuli | 2408561076 | Pengembangan antarmuka GUI Streamlit 6 halaman, visualisasi Plotly, serta Subbab 3.1, 3.6, dan 4.5. |
-| 5 | I Putu Maichail Ganio Wijaya | 2408561123 | Integrasi *end-to-end*, validasi selisih nol manual vs program, penyusunan Bab I, Bab II, dan penyuntingan laporan. |
+| No. | Nama / NIM | Tanggung Jawab | Kontribusi Konkret | Bukti Pekerjaan |
+| :---: | :--- | :--- | :--- | :--- |
+| 1 | **Nathanael Adrian Wattimena**<br>`2408561013` | Ketua Kelompok, Analisis Masalah & Laporan (BAB I-II) | Koordinasi tim, perumusan masalah, studi literatur standar air minum WHO & Permenkes RI, penyusunan Bab I, Bab II, dan penyuntingan akhir laporan. | BAB I, BAB II, dan koordinasi progres proyek. |
+| 2 | **I Wayan Arya Adi Guna**<br>`2408561019` | Data Cleaning, Preprocessing & Eksplorasi Dataset | Pembersihan dataset Kaggle 3.276 baris menjadi 600 sampel seimbang, penghapusan *missing values*, penyusunan 5 sampel referensi (`S1`-`S5`), dan analisis statistik deskriptif. | `src/prepare_dataset.py`, `data/processed/*.csv`, Subbab 3.2. |
+| 3 | **Komang Dhika Artika Nurdi**<br>`2408561055` | Implementasi Fuzzy Mamdani & Perhitungan Manual | Implementasi kurva segitiga simetris, 27 basis aturan (`R01`-`R27`), mesin inferensi MIN-MAX, defuzzifikasi Centroid analitik, serta verifikasi perhitungan manual `S4` dan `Q*`. | `src/fuzzy_mamdani.py`, Subbab 3.3, 3.5, 4.3.1-4.3.2, dan `tests/test_system.py`. |
+| 4 | **Kadek Phatra Adisuta Timonuli**<br>`2408561076` | Implementasi KNN, Integrasi & Evaluasi Model | Implementasi `MinMaxScalerScratch`, `ZScoreScalerScratch`, `KNNClassifierScratch`, integrasi fitur `fuzzy_quality_score`, evaluasi Model A vs Model B lintas $K$, dan validasi 100% terhadap `scikit-learn`. | `src/knn_model.py`, `docs/experiment_results.json`, Subbab 4.3.3, 4.6, dan BAB V. |
+| 5 | **I Putu Maichail Ganio Wijaya**<br>`2408561123` | Streamlit UI, Visualisasi Chart & Dokumentasi | Pengembangan antarmuka GUI Streamlit 6 halaman modular, visualisasi interaktif Plotly, grafik laporan Matplotlib 200 DPI, serta panduan penggunaan aplikasi. | `app.py`, `src/ui/`, `src/utils/generate_report_figures.py`, Subbab 3.6 & 4.5. |
 
 ## Lampiran 2: Data 5 Sampel Referensi Perhitungan Manual (`manual_calc_sample.csv`)
 
@@ -567,5 +567,34 @@ pip install -r requirements.txt
 python3 -m pytest -q
 
 # 4. Jalankan aplikasi GUI Streamlit
-streamlit run app/streamlit_app.py
+streamlit run app.py
 ```
+
+## Lampiran 4: Tangkapan Layar Aplikasi GUI Streamlit
+
+Berikut 6 tangkapan layar antarmuka GUI Streamlit (`http://localhost:8501`) yang diambil langsung dari aplikasi akhir Kelompok 1:
+
+![Gambar L.1 Halaman 01 · Dashboard](figures/gui_01_dashboard.png)
+
+**Gambar L.1** Halaman `01 · Dashboard`: ringkasan dataset 600 sampel, Two-Stage Pipeline, KPI Model B, distribusi kelas, dan profil Kelompok 1
+
+![Gambar L.2 Halaman 02 · Input & Dataset](figures/gui_02_input_dataset.png)
+
+**Gambar L.2** Halaman `02 · Input & Dataset`: Single-Sample Simulator, preset `S1`-`S5` dan `Q*`, validasi input, serta fitur Upload Custom CSV
+
+![Gambar L.3 Halaman 03 · Step-by-Step Process](figures/gui_03_step_by_step.png)
+
+**Gambar L.3** Halaman `03 · Step-by-Step Process`: trace perhitungan *white-box* kurva Membership Function, 27 rule, agregasi MAX, Centroid analitik, dan jarak Euclidean KNN
+
+![Gambar L.4 Halaman 04 · Classification Results](figures/gui_04_results.png)
+
+**Gambar L.4** Halaman `04 · Classification Results`: ranking kualitas air seluruh dataset, filter kelas dan minimum Fuzzy Score, ekspor CSV, serta grafik distribusi
+
+![Gambar L.5 Halaman 05 · Model Evaluation](figures/gui_05_evaluation.png)
+
+**Gambar L.5** Halaman `05 · Model Evaluation`: komparasi Model A vs Model B lintas $K \in \{3, 5, 7, 9, 11\}$, grafik sensitivitas $K$, *Confusion Matrix*, dan metrik per kelas
+
+![Gambar L.6 Halaman 06 · Docs & Guide](figures/gui_06_docs.png)
+
+**Gambar L.6** Halaman `06 · Docs & Guide`: referensi rumus matematis Fuzzy Mamdani dan KNN, tabel 27 *rule base*, serta panduan penggunaan aplikasi
+

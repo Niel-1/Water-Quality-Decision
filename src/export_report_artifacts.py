@@ -230,7 +230,7 @@ def generate_report_artifacts():
             "",
             "## 2. Desain Fungsi Keanggotaan & 27 Rule Base Fuzzy Mamdani",
             "",
-            "### 2.1 Parameter Fungsi Keanggotaan Segitiga Simetris Ruspini $(a, b, c)$",
+            "### 2.1 Parameter Fungsi Keanggotaan Segitiga Simetris $(a, b, c)$",
             "- **Variabel Input 1 (`ph`, $X_1$, Tingkat Keasaman Air, Domain $[0, 14]$):**",
             "  - `Acidic` (Asam): Segitiga $(0, 0, 7)$",
             "  - `Neutral` (Netral / Ideal WHO): Segitiga $(0, 7, 14)$",

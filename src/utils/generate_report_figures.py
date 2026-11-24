@@ -27,7 +27,7 @@ plt.rcParams["axes.linewidth"] = 1.0
 
 
 def generate_gambar_3_1():
-    """Gambar 3.1: 4-panel Fungsi Keanggotaan Segitiga Simetris Ruspini."""
+    """Gambar 3.1: 4-panel Fungsi Keanggotaan Segitiga Simetris."""
     fig, axes = plt.subplots(2, 2, figsize=(11, 7.2), dpi=200)
     fig.patch.set_facecolor("white")
 
@@ -35,7 +35,7 @@ def generate_gambar_3_1():
         ("ph", "Variabel Input 1: pH (Tingkat Keasaman Air)", "Nilai pH", ["#c0392b", "#1e8449", "#2471a3"]),
         ("Hardness", "Variabel Input 2: Hardness (Kesadahan Air, mg/L)", "Hardness (mg/L)", ["#1e8449", "#d68910", "#c0392b"]),
         ("Turbidity", "Variabel Input 3: Turbidity (Kekeruhan Air, NTU)", "Turbidity (NTU)", ["#1e8449", "#d68910", "#c0392b"]),
-        ("water_quality_score", "Variabel Output: water_quality_score (Skor Kualitas Air)", "Skor Kualitas Air (0–100)", ["#c0392b", "#d68910", "#1e8449"]),
+        ("water_quality_score", "Variabel Output: water_quality_score (Skor Kualitas Air)", "Skor Kualitas Air (0-100)", ["#c0392b", "#d68910", "#1e8449"]),
     ]
 
     for ax, (var_key, title, xlabel, colors) in zip(axes.flat, panels):
@@ -59,7 +59,7 @@ def generate_gambar_3_1():
         ax.tick_params(labelsize=8.8)
 
     fig.suptitle(
-        "Kurva Fungsi Keanggotaan Segitiga Simetris Ruspini (Σμ = 1)\nSistem Inferensi Fuzzy Mamdani — Kualitas dan Kelayakan Air Minum",
+        "Kurva Fungsi Keanggotaan Segitiga Simetris (Σμ = 1)\nSistem Inferensi Fuzzy Mamdani: Kualitas dan Kelayakan Air Minum",
         fontsize=12,
         fontweight="bold",
         y=0.98,
@@ -101,14 +101,14 @@ def draw_arrow(ax, x1, y1, x2, y2, label=None, lx=None, ly=None):
 
 
 def generate_gambar_3_2():
-    """Gambar 3.2: Diagram Arsitektur Pipeline Sistem Hibrida Fuzzy Mamdani + KNN."""
+    """Gambar 3.2: Diagram Arsitektur Pipeline Sistem Kombinasi Fuzzy Mamdani + KNN."""
     fig, ax = plt.subplots(figsize=(12, 5.2), dpi=200)
     fig.patch.set_facecolor("white")
     ax.set_xlim(0, 12)
     ax.set_ylim(0, 5.4)
     ax.axis("off")
 
-    ax.text(6.0, 5.1, "Arsitektur Pipeline Sistem Pendukung Keputusan Hibrida Fuzzy Mamdani + KNN",
+    ax.text(6.0, 5.1, "Arsitektur Pipeline Sistem Pendukung Keputusan Kombinasi Fuzzy Mamdani + KNN",
             ha="center", va="center", fontsize=12, fontweight="bold", color="#111827")
 
     # Container 1: Input
@@ -125,7 +125,7 @@ def generate_gambar_3_2():
                                 facecolor="#fefce8", edgecolor="#b45309", lw=1.3, linestyle="--", zorder=1)
     ax.add_patch(c2)
     ax.text(4.3, 4.35, "2. Tahap I: FIS Mamdani", ha="center", va="center", fontsize=9.2, fontweight="bold", color="#92400e")
-    draw_box(ax, 2.95, 3.55, 2.7, 0.52, "Fuzzifikasi Segitiga Ruspini (μ)", fc="white", ec="#d97706", fontsize=8.3)
+    draw_box(ax, 2.95, 3.55, 2.7, 0.52, "Fuzzifikasi Segitiga Simetris (μ)", fc="white", ec="#d97706", fontsize=8.3)
     draw_box(ax, 2.95, 2.80, 2.7, 0.52, "27 Basis Aturan & Implikasi MIN", fc="white", ec="#d97706", fontsize=8.3)
     draw_box(ax, 2.95, 2.05, 2.7, 0.52, "Agregasi Antar-Aturan (MAX)", fc="white", ec="#d97706", fontsize=8.3)
     draw_box(ax, 2.95, 1.25, 2.7, 0.58, "Defuzzifikasi Centroid Analitik\n→ fuzzy_quality_score (Y)", fc="#fef3c7", ec="#b45309", fontsize=8.3, bold=True)
@@ -187,16 +187,16 @@ def generate_gambar_3_3():
     ax.set_ylim(0, 11.2)
     ax.axis("off")
 
-    ax.text(4.3, 10.85, "Flowchart Alur Komputasi End-to-End Algoritma Hibrida Fuzzy Mamdani + KNN",
+    ax.text(4.3, 10.85, "Flowchart Alur Komputasi End-to-End Kombinasi Fuzzy Mamdani + KNN",
             ha="center", va="center", fontsize=11.5, fontweight="bold", color="#111827")
 
     steps = [
         (9.95, 0.55, "MULAI (Start)", "#1e3a5f", "#1e3a5f", "white", True),
         (9.00, 0.65, "Input Data Kualitas Air: pH (X₁), Hardness (X₂), Turbidity (X₃)\ndan Parameter Jumlah Tetangga K (Default K = 5)", "#eff6ff", "#1d4ed8", "#111827", False),
-        (7.98, 0.68, "Tahap 1 — Fuzzifikasi: Hitung derajat keanggotaan μ(X₁), μ(X₂), μ(X₃)\nmenggunakan fungsi segitiga simetris Ruspini", "#fefce8", "#b45309", "#111827", False),
-        (6.95, 0.68, "Tahap 2 & 3 — Evaluasi 27 Rule Base & Implikasi MIN:\nαₖ = min(μ_pH, μ_Hardness, μ_Turbidity) untuk setiap rule aktif (αₖ > 0)", "#fefce8", "#b45309", "#111827", False),
-        (5.95, 0.65, "Tahap 4 — Agregasi (MAX): Gabungkan hasil clipping per kategori output\nμ_agg(Poor), μ_agg(Moderate), μ_agg(Good)", "#fefce8", "#b45309", "#111827", False),
-        (4.92, 0.68, "Tahap 5 — Defuzzifikasi Centroid Analitik Per Segmen:\nz* = [∫ z · μ_agg(z) dz] / [∫ μ_agg(z) dz]  →  fuzzy_quality_score (Y)", "#fef3c7", "#92400e", "#111827", True),
+        (7.98, 0.68, "Tahap 1: Fuzzifikasi - Hitung derajat keanggotaan μ(X₁), μ(X₂), μ(X₃)\nmenggunakan kurva segitiga simetris", "#fefce8", "#b45309", "#111827", False),
+        (6.95, 0.68, "Tahap 2 & 3: Evaluasi 27 Rule Base & Implikasi MIN\nαₖ = min(μ_pH, μ_Hardness, μ_Turbidity) untuk setiap rule aktif (αₖ > 0)", "#fefce8", "#b45309", "#111827", False),
+        (5.95, 0.65, "Tahap 4: Agregasi (MAX) - Gabungkan hasil clipping per kategori output\nμ_agg(Poor), μ_agg(Moderate), μ_agg(Good)", "#fefce8", "#b45309", "#111827", False),
+        (4.92, 0.68, "Tahap 5: Defuzzifikasi Centroid Analitik Per Segmen\nz* = [∫ z · μ_agg(z) dz] / [∫ μ_agg(z) dz]  →  fuzzy_quality_score (Y)", "#fef3c7", "#92400e", "#111827", True),
         (3.90, 0.65, "Pengayaan Fitur (Feature Augmentation) & Normalisasi Min-Max [0, 1]:\nBentuk vektor 4D terstandarisasi [X₁', X₂', X₃', Y']", "#ecfdf5", "#047857", "#111827", False),
         (2.88, 0.65, "Hitung Jarak Euclidean 4D ke Seluruh Data Latih (N = 480):\nd(Q*, Sᵢ) = √[ Σ (q'ⱼ − s'ᵢⱼ)² ]  lalu urutkan jarak menaik", "#ecfdf5", "#047857", "#111827", False),
         (1.88, 0.65, "Ambil K Tetangga Terdekat & Lakukan Majority Voting:\nHitung suara kelas Potable (1) vs Not Potable (0)", "#ecfdf5", "#047857", "#111827", True),

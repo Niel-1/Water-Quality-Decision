@@ -47,9 +47,13 @@ def _render_sidebar(df_active) -> str:
         page_ids = [item[0] for item in NAV_PAGES]
         page_labels = {item[0]: f"{item[1]} · {item[2]}" for item in NAV_PAGES}
 
+        q_page = st.query_params.get("page", "")
+        default_idx = page_ids.index(q_page) if q_page in page_ids else 0
+
         selected_page = st.radio(
             "Navigation",
             options=page_ids,
+            index=default_idx,
             format_func=lambda pid: page_labels[pid],
         )
 

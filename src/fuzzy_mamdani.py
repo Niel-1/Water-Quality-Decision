@@ -48,7 +48,7 @@ def triangular_mf_array(x_arr: np.ndarray, a: float, b: float, c: float) -> np.n
     return np.array([triangular_mf(val, a, b, c) for val in x_arr], dtype=float)
 
 
-# Definisi Parameter Fungsi Keanggotaan (Partisi Segitiga Simetris Ruspini: sum(mu) = 1)
+# Definisi Parameter Fungsi Keanggotaan (Kurva Segitiga Simetris: sum(mu) = 1)
 MF_PARAMS = {
     "ph": {  # X1: Tingkat Keasaman Air (pH), Domain [0, 14]
         "domain": (0.0, 14.0),

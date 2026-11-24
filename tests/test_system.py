@@ -44,7 +44,7 @@ def test_triangular_mf_boundary_and_midpoints():
     assert triangular_mf(14.0, 7.0, 14.0, 14.0) == 1.0
 
 
-def test_ruspini_partition_sum_to_one():
+def test_symmetric_partition_sum_to_one():
     for ph in [0.0, 1.75, 3.5, 5.25, 7.0, 10.5, 14.0]:
         for h in [60.0, 120.0, 150.0, 180.0, 240.0, 300.0]:
             for t in [1.0, 2.25, 3.5, 4.75, 6.0]:
