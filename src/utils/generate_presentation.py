@@ -1,65 +1,140 @@
 """
 Generator Presentasi Final Project Teknologi Logika Fuzzy (Kelompok 1)
 Format: 15 Slide Widescreen 16:9 (.pptx) siap edit di PowerPoint, Google Slides, dan Canva.
-Palet warna mengikuti palet modern biru-hijau Canva (#EEF2F3, #FFFFFF, #4735F3, #2BB885, #63D4A1, #0F1015).
+Palet warna 100% mengikuti palet & aura gradien Canva pengguna (#EEF2F3, #FFFFFF, #4735F3 -> #61DD99).
 Tanpa stock image: seluruh visual menggunakan diagram asli, tabel native, dan tangkapan layar GUI Streamlit.
 """
 
+import io
+from functools import lru_cache
 from pathlib import Path
+import numpy as np
+from PIL import Image
 from pptx import Presentation
 from pptx.dml.color import RGBColor
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
-from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
 FIG_DIR = ROOT / "docs" / "figures"
 OUT_PPTX = ROOT / "docs" / "Presentasi_Final_Project_TLF_Kelompok_1.pptx"
 
-# Palet Warna Canva (Modern Blue-Green Gradient Palette)
-C_BG = RGBColor(0xEE, 0xF2, 0xF3)          # #EEF2F3 - Ice Canvas
-C_WHITE = RGBColor(0xFF, 0xFF, 0xFF)       # #FFFFFF - Card Surface
-C_BORDER = RGBColor(0xD3, 0xDF, 0xE5)      # #D3DFE5 - Hairline Card Border
-C_PRIMARY = RGBColor(0x47, 0x35, 0xF3)     # #4735F3 - Electric Cobalt / Indigo (Canva Primary)
-C_PRIMARY_DARK = RGBColor(0x2D, 0x1F, 0xB8)
-C_PRIMARY_SOFT = RGBColor(0xED, 0xEB, 0xFE)
-C_MINT = RGBColor(0x2B, 0xB8, 0x85)        # #2BB885 - Mint Emerald Deep
-C_MINT_LIGHT = RGBColor(0x63, 0xD4, 0xA1)  # #63D4A1 - Canva Gradient Mint
-C_MINT_SOFT = RGBColor(0xE6, 0xF8, 0xF0)   # #E6F8F0 - Mint Tint
-C_INK = RGBColor(0x0F, 0x10, 0x15)         # #0F1015 - Primary Ink
-C_BODY = RGBColor(0x33, 0x41, 0x55)        # #334155 - Body Copy
-C_MUTED = RGBColor(0x64, 0x74, 0x8B)       # #64748B - Secondary / Captions
-C_ROW_ALT = RGBColor(0xF6, 0xF9, 0xFA)     # #F6F9FA - Table Zebra Row
-C_CORAL = RGBColor(0xDC, 0x26, 0x26)       # #DC2626 - Poor / Error Accent
-C_CORAL_SOFT = RGBColor(0xFE, 0xEE, 0xEE)  # #FEEEEE - Poor Tint
-C_AMBER = RGBColor(0xB4, 0x53, 0x09)
-C_AMBER_SOFT = RGBColor(0xFE, 0xF3, 0xC7)
+# Palet Warna Exact Canva (PPT Proposal Bisnis Presentasi Gradien Modern Biru Hijau)
+C_BG = RGBColor(0xEE, 0xF2, 0xF3)           # #EEF2F3 - Canva Airy Canvas
+C_WHITE = RGBColor(0xFF, 0xFF, 0xFF)        # #FFFFFF - Crisp Card Surface
+C_BORDER = RGBColor(0xD2, 0xDF, 0xEC)       # #D2DFEC - Cool Ice-Blue Card Border
+C_PRIMARY = RGBColor(0x47, 0x35, 0xF3)      # #4735F3 - Canva Electric Blue-Indigo (Stop 0)
+C_BLUE_MID = RGBColor(0x4E, 0x7A, 0xE8)     # #4E7AE8 - Mid Gradient Sky-Cobalt
+C_PRIMARY_DARK = RGBColor(0x31, 0x24, 0xB8) # #3124B8 - Deep Cobalt for soft-pill text
+C_PRIMARY_SOFT = RGBColor(0xEC, 0xEE, 0xFF) # #ECEEFF - Luminous Soft Indigo Tint
+C_MINT = RGBColor(0x4E, 0x7A, 0xE8)         # Mid-gradient cobalt-aqua for crisp table headers
+C_MINT_PURE = RGBColor(0x61, 0xDD, 0x99)    # #61DD99 - Exact Canva SVG Gradient Stop 1
+C_MINT_LIGHT = RGBColor(0x61, 0xDD, 0x99)   # #61DD99 - Canva Bright Mint
+C_MINT_TEXT = RGBColor(0x16, 0x9B, 0x6A)    # #169B6A - High-contrast mint for readable text on white
+C_MINT_SOFT = RGBColor(0xE6, 0xFA, 0xF0)    # #E6FAF0 - Soft Mint Tint
+C_INK = RGBColor(0x18, 0x1E, 0x34)          # #181E34 - Soft Deep Navy Ink
+C_BODY = RGBColor(0x36, 0x41, 0x58)         # #364158 - Slate Navy Body Text
+C_MUTED = RGBColor(0x5E, 0x6C, 0x86)        # #5E6C86 - Secondary / Captions
+C_ROW_ALT = RGBColor(0xF5, 0xF8, 0xFD)      # #F5F8FD - Cool Airy Table Zebra Row
+C_CORAL = RGBColor(0xD9, 0x46, 0x6F)        # #D9466F - Harmonized Rose for Poor / Error
+C_CORAL_SOFT = RGBColor(0xFD, 0xEE, 0xF2)   # #FDEEF2 - Soft Rose Tint
 
-FONT_HEAD = "Helvetica Neue"
-FONT_BODY = "Helvetica Neue"
+FONT_HEAD = "Poppins"
+FONT_BODY = "Poppins"
 
 TOTAL_SLIDES = 15
 
 
-def _new_slide(prs: Presentation):
+@lru_cache(maxsize=4)
+def _make_aura_bg_bytes(variant: str = "content") -> bytes:
+    """Generate smooth 16:9 Canva-style airy #EEF2F3 canvas with luminous #4735F3 -> #61DD99 corner auras."""
+    W, H = 1600, 900
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    xn = xx / float(W)
+    yn = yy / float(H)
+
+    # Base #EEF2F3
+    r = np.full((H, W), 238.0, dtype=np.float32)
+    g = np.full((H, W), 242.0, dtype=np.float32)
+    b = np.full((H, W), 243.0, dtype=np.float32)
+
+    if variant == "cover":
+        blobs = [
+            # Top-right electric blue + mint luminous aura
+            (0.92, 0.04, 0.28, 0.30, (71, 53, 243), 0.42),
+            (0.76, 0.06, 0.26, 0.28, (97, 221, 153), 0.36),
+            # Bottom-left electric blue + mint luminous aura
+            (0.05, 0.96, 0.28, 0.30, (71, 53, 243), 0.42),
+            (0.24, 0.96, 0.26, 0.26, (97, 221, 153), 0.34),
+            # Subtle top-left mint mist
+            (0.04, 0.06, 0.22, 0.24, (97, 221, 153), 0.16),
+        ]
+    else:
+        blobs = [
+            # Top-right glowing blue-mint aura matching Canva Page 2 exactly
+            (0.92, 0.00, 0.24, 0.22, (71, 53, 243), 0.40),
+            (0.76, 0.02, 0.20, 0.18, (97, 221, 153), 0.30),
+            (0.84, 0.08, 0.22, 0.18, (88, 123, 240), 0.22),
+            # Bottom-left glowing blue-mint aura matching Canva Page 2 exactly
+            (0.03, 0.98, 0.22, 0.22, (71, 53, 243), 0.42),
+            (0.18, 0.99, 0.20, 0.16, (97, 221, 153), 0.28),
+            (0.10, 0.92, 0.18, 0.16, (88, 123, 240), 0.20),
+        ]
+
+    for cx, cy, sx, sy, (cr, cg, cb), alpha_max in blobs:
+        dist2 = ((xn - cx) / sx) ** 2 + ((yn - cy) / sy) ** 2
+        w = alpha_max * np.exp(-0.5 * dist2)
+        r = r * (1.0 - w) + cr * w
+        g = g * (1.0 - w) + cg * w
+        b = b * (1.0 - w) + cb * w
+
+    arr = np.clip(np.dstack([r, g, b]), 0, 255).astype(np.uint8)
+    buf = io.BytesIO()
+    Image.fromarray(arr, mode="RGB").save(buf, format="JPEG", quality=92, optimize=True)
+    return buf.getvalue()
+
+
+def _apply_gradient(shp, c_start=C_PRIMARY, c_end=C_MINT_PURE, angle=0.0):
+    """Apply native PowerPoint/Canva 2-stop linear gradient fill (#4735F3 -> #61DD99)."""
+    fill = shp.fill
+    fill.gradient()
+    fill.gradient_angle = angle
+    stops = fill.gradient_stops
+    stops[0].position = 0.0
+    stops[0].color.rgb = c_start
+    stops[1].position = 1.0
+    stops[1].color.rgb = c_end
+
+
+def _new_slide(prs: Presentation, variant: str = "content"):
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     bg = slide.background
     fill = bg.fill
     fill.solid()
     fill.fore_color.rgb = C_BG
+    # Place smooth Canva blue-mint aura background behind all slide elements
+    slide.shapes.add_picture(
+        io.BytesIO(_make_aura_bg_bytes(variant)),
+        Inches(0.0),
+        Inches(0.0),
+        width=Inches(13.333),
+        height=Inches(7.5),
+    )
     return slide
 
 
-def _add_rect(slide, x, y, w, h, fill_rgb, border_rgb=None, border_pt=0.75, rounded=False):
+def _add_rect(slide, x, y, w, h, fill_rgb, border_rgb=None, border_pt=0.75, rounded=False, grad_angle=None):
     shape_type = MSO_SHAPE.ROUNDED_RECTANGLE if rounded else MSO_SHAPE.RECTANGLE
     shp = slide.shapes.add_shape(shape_type, Inches(x), Inches(y), Inches(w), Inches(h))
     if rounded:
         try:
-            shp.adjustments[0] = 0.06
+            shp.adjustments[0] = 0.07
         except Exception:
             pass
-    if fill_rgb is not None:
+    if grad_angle is not None:
+        _apply_gradient(shp, C_PRIMARY, C_MINT_PURE, angle=grad_angle)
+    elif fill_rgb is not None:
         shp.fill.solid()
         shp.fill.fore_color.rgb = fill_rgb
     else:
@@ -73,25 +148,49 @@ def _add_rect(slide, x, y, w, h, fill_rgb, border_rgb=None, border_pt=0.75, roun
     return shp
 
 
-def _add_pill(slide, x, y, w, h, text, bg_rgb, fg_rgb, font_size=10, bold=True):
+def _add_pill(
+    slide,
+    x,
+    y,
+    w,
+    h,
+    text,
+    bg_rgb,
+    fg_rgb,
+    font_size=10,
+    bold=True,
+    gradient=False,
+    border_rgb=None,
+    border_pt=1.0,
+    align=PP_ALIGN.CENTER,
+):
     shp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(y), Inches(w), Inches(h))
     try:
         shp.adjustments[0] = 0.5
     except Exception:
         pass
-    shp.fill.solid()
-    shp.fill.fore_color.rgb = bg_rgb
-    shp.line.fill.background()
+    if gradient:
+        _apply_gradient(shp, C_PRIMARY, C_MINT_PURE, angle=0.0)
+    elif bg_rgb is not None:
+        shp.fill.solid()
+        shp.fill.fore_color.rgb = bg_rgb
+    else:
+        shp.fill.background()
+    if border_rgb is not None:
+        shp.line.color.rgb = border_rgb
+        shp.line.width = Pt(border_pt)
+    else:
+        shp.line.fill.background()
     shp.shadow.inherit = False
     tf = shp.text_frame
     tf.word_wrap = False
     tf.vertical_anchor = MSO_ANCHOR.MIDDLE
-    tf.margin_left = Inches(0.1)
-    tf.margin_right = Inches(0.1)
+    tf.margin_left = Inches(0.14)
+    tf.margin_right = Inches(0.14)
     tf.margin_top = Inches(0.02)
     tf.margin_bottom = Inches(0.02)
     p = tf.paragraphs[0]
-    p.alignment = PP_ALIGN.CENTER
+    p.alignment = align
     r = p.add_run()
     r.text = text
     r.font.name = FONT_HEAD
@@ -156,11 +255,11 @@ def _add_bullets(slide, x, y, w, h, items, size=11.5, color=C_BODY, space_after=
         p.space_after = Pt(space_after)
         p.line_spacing = line_spacing
         r0 = p.add_run()
-        r0.text = "▪  "
+        r0.text = "●  "
         r0.font.name = FONT_HEAD
-        r0.font.size = Pt(size)
+        r0.font.size = Pt(max(7.5, size - 2.0))
         r0.font.bold = True
-        r0.font.color.rgb = C_MINT
+        r0.font.color.rgb = C_MINT_TEXT
         if prefix:
             r1 = p.add_run()
             r1.text = prefix
@@ -256,7 +355,7 @@ def _add_table(
             is_bold = (ci == 0) or (highlight_col is not None and ci == highlight_col)
             r.font.bold = is_bold
             if bg_c == C_MINT_SOFT:
-                r.font.color.rgb = RGBColor(0x0F, 0x6A, 0x49)
+                r.font.color.rgb = C_MINT_TEXT
             elif bg_c == C_CORAL_SOFT:
                 r.font.color.rgb = C_CORAL
             elif bg_c == C_PRIMARY_SOFT:
@@ -267,66 +366,122 @@ def _add_table(
 
 
 def _add_chrome(slide, page_num: int, section_tag: str, title: str, subtitle: str = ""):
-    """Header, subtle top indigo-mint gradient ribbon, section tag, title, and footer."""
-    # Top dual-tone gradient bar (Canva blue-green signature)
-    _add_rect(slide, 0.0, 0.0, 7.6, 0.09, C_PRIMARY)
-    _add_rect(slide, 7.6, 0.0, 5.733, 0.09, C_MINT_LIGHT)
-
-    # Top metadata strip
-    _add_text(slide, 0.55, 0.22, 4.2, 0.28, "KELOMPOK 1  ·  INFORMATIKA UNIVERSITAS UDAYANA", size=9.5, bold=True, color=C_PRIMARY)
-    _add_pill(slide, 10.15, 0.19, 2.63, 0.30, section_tag.upper(), C_PRIMARY_SOFT, C_PRIMARY, font_size=9)
-
-    # Main slide title + subtitle
-    _add_text(slide, 0.55, 0.54, 12.2, 0.50, title, size=24, bold=True, color=C_INK, font=FONT_HEAD)
-    if subtitle:
-        _add_text(slide, 0.55, 1.03, 12.2, 0.34, subtitle, size=11.5, color=C_MUTED)
-
-    # Hairline divider below header
-    div_y = 1.40 if subtitle else 1.12
-    _add_rect(slide, 0.55, div_y, 12.23, 0.015, C_BORDER)
-
-    # Footer
-    _add_rect(slide, 0.55, 7.05, 12.23, 0.012, C_BORDER)
-    _add_text(
+    """Exact Canva signature capsule top bar, electric-blue title, and PAGE | XX gradient pill footer."""
+    # Top signature Canva capsule bar (white pill with #4735F3 border + gradient right cap)
+    _add_pill(
         slide,
         0.55,
-        7.10,
-        7.5,
-        0.28,
-        "Water Quality Decision Support System (Fuzzy Mamdani + KNN)  ·  github.com/dhikrtika/Water-Quality-Decision",
-        size=8.5,
-        color=C_MUTED,
+        0.18,
+        12.23,
+        0.34,
+        "KELOMPOK 1  ·  INFORMATIKA UNIVERSITAS UDAYANA",
+        C_WHITE,
+        C_PRIMARY,
+        font_size=9.2,
+        bold=True,
+        border_rgb=C_PRIMARY,
+        border_pt=1.0,
+        align=PP_ALIGN.LEFT,
+    )
+    _add_pill(
+        slide,
+        9.85,
+        0.18,
+        2.93,
+        0.34,
+        section_tag.upper(),
+        None,
+        C_WHITE,
+        font_size=9.0,
+        bold=True,
+        gradient=True,
+    )
+
+    # Main slide title in Canva Electric Blue (#4735F3) + clean slate subtitle
+    _add_text(slide, 0.55, 0.58, 12.23, 0.48, title, size=23, bold=True, color=C_PRIMARY, font=FONT_HEAD)
+    if subtitle:
+        _add_text(slide, 0.55, 1.05, 12.23, 0.34, subtitle, size=11.0, color=C_BODY)
+
+    # Subtle gradient hairline divider below header
+    div_y = 1.42 if subtitle else 1.14
+    _add_rect(slide, 0.55, div_y, 12.23, 0.022, None, grad_angle=0.0)
+
+    # Footer: Canva-style bottom-left outline pill & bottom-right PAGE | XX split pill
+    _add_pill(
+        slide,
+        0.55,
+        7.04,
+        3.15,
+        0.30,
+        "WATER-QUALITY-DECISION",
+        C_WHITE,
+        C_PRIMARY,
+        font_size=8.6,
+        bold=True,
+        border_rgb=C_BLUE_MID,
+        border_pt=0.9,
     )
     _add_text(
         slide,
-        11.2,
-        7.10,
+        3.85,
+        7.08,
+        6.5,
+        0.24,
+        "Fuzzy Mamdani (27 Rules) + KNN 4D  ·  github.com/dhikrtika/Water-Quality-Decision",
+        size=8.4,
+        color=C_MUTED,
+    )
+    _add_pill(
+        slide,
+        11.20,
+        7.04,
         1.58,
-        0.28,
-        f"SLIDE {page_num:02d} / {TOTAL_SLIDES:02d}",
-        size=9,
+        0.30,
+        "PAGE",
+        C_WHITE,
+        C_PRIMARY,
+        font_size=8.6,
         bold=True,
-        color=C_PRIMARY,
-        align=PP_ALIGN.RIGHT,
+        border_rgb=C_PRIMARY,
+        border_pt=0.9,
+        align=PP_ALIGN.LEFT,
+    )
+    _add_pill(
+        slide,
+        12.06,
+        7.04,
+        0.72,
+        0.30,
+        f"{page_num:02d}",
+        None,
+        C_WHITE,
+        font_size=9.0,
+        bold=True,
+        gradient=True,
     )
 
 
 def _add_card(slide, x, y, w, h, title=None, accent_rgb=None, fill_rgb=C_WHITE):
-    _add_rect(slide, x, y, w, h, fill_rgb, border_rgb=C_BORDER, border_pt=0.8, rounded=True)
+    _add_rect(slide, x, y, w, h, fill_rgb, border_rgb=C_BORDER, border_pt=0.85, rounded=True)
     if accent_rgb is not None:
-        _add_rect(slide, x + 0.14, y + 0.12, 0.07, h - 0.24, accent_rgb)
+        # Use Canva's signature vertical blue-to-mint gradient stripe on cards
+        _add_rect(slide, x + 0.14, y + 0.13, 0.075, h - 0.26, None, grad_angle=90.0)
     if title:
         tx = x + (0.30 if accent_rgb else 0.18)
         tw = w - (0.44 if accent_rgb else 0.36)
-        _add_text(slide, tx, y + 0.12, tw, 0.34, title, size=13, bold=True, color=C_INK, font=FONT_HEAD)
+        _add_text(slide, tx, y + 0.12, tw, 0.34, title, size=12.8, bold=True, color=C_PRIMARY, font=FONT_HEAD)
 
 
 def _add_kpi_tile(slide, x, y, w, h, label, value, caption, accent=C_PRIMARY, soft=C_PRIMARY_SOFT):
-    _add_rect(slide, x, y, w, h, C_WHITE, border_rgb=C_BORDER, border_pt=0.8, rounded=True)
-    _add_rect(slide, x, y, w, 0.08, accent)
-    _add_text(slide, x + 0.16, y + 0.14, w - 0.32, 0.24, label.upper(), size=9, bold=True, color=C_MUTED)
-    _add_text(slide, x + 0.16, y + 0.38, w - 0.32, 0.46, value, size=23, bold=True, color=accent, font=FONT_HEAD)
-    _add_text(slide, x + 0.16, y + 0.86, w - 0.32, 0.28, caption, size=9.5, color=C_BODY)
+    _add_rect(slide, x, y, w, h, C_WHITE, border_rgb=C_BORDER, border_pt=0.85, rounded=True)
+    if accent == C_CORAL:
+        _add_rect(slide, x, y, w, 0.08, C_CORAL)
+    else:
+        _add_rect(slide, x, y, w, 0.08, None, grad_angle=0.0)
+    _add_text(slide, x + 0.16, y + 0.14, w - 0.32, 0.24, label.upper(), size=8.8, bold=True, color=C_MUTED)
+    val_color = C_MINT_TEXT if accent in (C_MINT, C_MINT_PURE) else accent
+    _add_text(slide, x + 0.16, y + 0.38, w - 0.32, 0.46, value, size=22.5, bold=True, color=val_color, font=FONT_HEAD)
+    _add_text(slide, x + 0.16, y + 0.86, w - 0.32, 0.28, caption, size=9.3, color=C_BODY)
 
 
 def build_presentation():
@@ -335,111 +490,129 @@ def build_presentation():
     prs.slide_height = Inches(7.5)
 
     # =========================================================================
-    # SLIDE 01: COVER
+    # SLIDE 01: COVER (Exact Canva Aura + #4735F3 -> #61DD99 Gradient Identity)
     # =========================================================================
-    s1 = _new_slide(prs)
-    # Modern geometric blue-green accent blocks (zero stock image)
-    _add_rect(s1, 0.0, 0.0, 13.333, 0.14, C_PRIMARY)
-    _add_rect(s1, 8.2, 0.0, 5.133, 0.14, C_MINT_LIGHT)
-    _add_rect(s1, 9.55, 0.14, 3.783, 7.36, C_PRIMARY)
-    _add_rect(s1, 9.55, 5.15, 3.783, 2.35, C_MINT)
-    # Decorative geometric accent bars on right panel
-    _add_rect(s1, 9.95, 0.65, 2.95, 0.06, C_MINT_LIGHT)
+    s1 = _new_slide(prs, variant="cover")
 
-    # Left panel: Logo + Eyebrow + Hero Title + Description
+    # Top Canva capsule header on Cover
+    _add_pill(
+        s1,
+        0.65,
+        0.38,
+        8.25,
+        0.38,
+        "KELOMPOK 1  ·  INFORMATIKA FMIPA UNIVERSITAS UDAYANA",
+        C_WHITE,
+        C_PRIMARY,
+        font_size=9.5,
+        bold=True,
+        border_rgb=C_PRIMARY,
+        border_pt=1.0,
+        align=PP_ALIGN.LEFT,
+    )
+    _add_pill(
+        s1,
+        6.25,
+        0.38,
+        2.65,
+        0.38,
+        "FINAL PROJECT TLF 2026",
+        None,
+        C_WHITE,
+        font_size=9.2,
+        bold=True,
+        gradient=True,
+    )
+
+    # Left panel: Logo + Gradient Pill + Electric Blue Hero Title + Description
     logo_path = FIG_DIR / "logo_unud.png"
     if logo_path.exists():
-        _add_image_fit(s1, logo_path, 0.65, 0.52, 0.92, 0.92)
-    _add_text(
+        _add_image_fit(s1, logo_path, 0.65, 1.02, 0.86, 0.86)
+    _add_pill(
         s1,
-        1.72,
-        0.58,
-        7.3,
-        0.30,
-        "PROGRAM STUDI INFORMATIKA  ·  FMIPA UNIVERSITAS UDAYANA",
-        size=10.5,
+        1.68,
+        1.24,
+        4.15,
+        0.40,
+        "FUZZY MAMDANI (27 RULES) + KNN 4D",
+        None,
+        C_WHITE,
+        font_size=10,
         bold=True,
-        color=C_PRIMARY,
+        gradient=True,
     )
-    _add_text(
-        s1,
-        1.72,
-        0.90,
-        7.3,
-        0.30,
-        "Final Project Mata Kuliah Teknologi Logika Fuzzy  ·  Tahun 2026",
-        size=11,
-        color=C_MUTED,
-    )
-
-    _add_pill(s1, 0.65, 1.72, 3.55, 0.36, "FUZZY MAMDANI (27 RULES) + KNN 4D", C_MINT_SOFT, RGBColor(0x0F, 0x6A, 0x49), font_size=10)
 
     _add_text(
         s1,
         0.65,
-        2.22,
-        8.5,
-        1.75,
+        2.06,
+        8.4,
+        1.95,
         "WATER QUALITY\nDECISION SUPPORT\nSYSTEM",
         size=42,
         bold=True,
-        color=C_INK,
+        color=C_PRIMARY,
         font=FONT_HEAD,
         line_spacing=1.02,
     )
     _add_text(
         s1,
         0.65,
-        4.35,
-        8.3,
-        1.05,
+        4.22,
+        8.25,
+        1.10,
         "Sistem pendukung keputusan berbasis Fuzzy Mamdani (kurva segitiga simetris, 27 basis aturan, defuzzifikasi Centroid analitik) yang diintegrasikan dengan Fuzzy-Enhanced K-Nearest Neighbors untuk klasifikasi kelayakan air minum (Potable vs Not Potable).",
-        size=13,
+        size=12.6,
         color=C_BODY,
         line_spacing=1.28,
     )
 
-    # Bottom pills on left panel
-    _add_rect(s1, 0.65, 5.75, 8.35, 1.05, C_WHITE, border_rgb=C_BORDER, border_pt=0.9, rounded=True)
-    _add_text(s1, 0.88, 5.88, 3.9, 0.25, "KELOMPOK 1 · INFORMATIKA UNUD", size=10, bold=True, color=C_PRIMARY)
+    # Bottom team card on left panel
+    _add_rect(s1, 0.65, 5.62, 8.25, 1.15, C_WHITE, border_rgb=C_BLUE_MID, border_pt=1.0, rounded=True)
+    _add_rect(s1, 0.65, 5.62, 8.25, 0.08, None, grad_angle=0.0)
+    _add_text(s1, 0.90, 5.80, 4.5, 0.26, "ANGGOTA KELOMPOK 1  ·  INFORMATIKA UNUD", size=9.8, bold=True, color=C_PRIMARY)
     _add_text(
         s1,
-        0.88,
-        6.16,
-        7.9,
-        0.52,
+        0.90,
+        6.10,
+        7.8,
+        0.54,
         "Nathanael Adrian W. (013)  ·  I Wayan Arya Adi G. (019)  ·  Komang Dhika Artika N. (055)\nKadek Phatra Adisuta T. (076)  ·  I Putu Maichail Ganio W. (123)",
-        size=10.5,
+        size=10.2,
         color=C_INK,
-        line_spacing=1.25,
+        line_spacing=1.28,
     )
 
-    # Right indigo/mint panel: Key System Highlights (replacing stock images!)
-    _add_text(s1, 9.95, 0.92, 3.0, 0.35, "RINGKASAN CAPAIAN", size=11, bold=True, color=C_MINT_LIGHT)
+    # Right luminous gradient card (#4735F3 -> #61DD99, zero stock image!)
+    _add_rect(s1, 9.25, 0.38, 3.55, 6.74, None, rounded=True, grad_angle=135.0)
+    _add_text(s1, 9.56, 0.64, 2.95, 0.30, "RINGKASAN CAPAIAN", size=10.5, bold=True, color=C_WHITE)
+    _add_rect(s1, 9.56, 0.96, 2.95, 0.04, C_WHITE)
+
     cover_stats = [
         ("600 Sampel", "Dataset Kaggle bersih & seimbang\n(300 Potable : 300 Not Potable)"),
         ("27 Rules Mamdani", "Kurva segitiga simetris (sum mu = 1)\nCentroid analitik eksak (diff 0.0000)"),
         ("97.50% Akurasi", "Model B (4D, K=11), unggul +4.17%\ndari baseline KNN 3D (93.33%)"),
         ("100% Match", "Implementasi Python/NumPy scratch\nidentik 100% terhadap scikit-learn"),
     ]
-    cy = 1.48
+    cy = 1.18
     for val, desc in cover_stats:
-        _add_text(s1, 9.95, cy, 3.0, 0.36, val, size=20, bold=True, color=C_WHITE, font=FONT_HEAD)
-        _add_text(s1, 9.95, cy + 0.38, 3.0, 0.48, desc, size=9.8, color=RGBColor(0xE2, 0xE8, 0xF0), line_spacing=1.18)
-        cy += 0.92
+        _add_text(s1, 9.56, cy, 2.95, 0.36, val, size=19, bold=True, color=C_WHITE, font=FONT_HEAD)
+        _add_text(s1, 9.56, cy + 0.36, 2.95, 0.48, desc, size=9.4, color=RGBColor(0xF0, 0xFB, 0xF7), line_spacing=1.18)
+        cy += 0.96
 
-    _add_text(s1, 9.95, 5.45, 3.0, 0.30, "DELIVERABLES PROYEK", size=10.5, bold=True, color=C_INK)
+    _add_rect(s1, 9.52, 5.10, 3.00, 1.76, C_WHITE, border_rgb=C_BORDER, border_pt=0.6, rounded=True)
+    _add_text(s1, 9.72, 5.22, 2.65, 0.26, "DELIVERABLES PROYEK", size=9.6, bold=True, color=C_PRIMARY)
     _add_text(
         s1,
-        9.95,
-        5.80,
-        3.0,
-        1.35,
-        "▪  Core Engine Scratch (Python)\n▪  Streamlit GUI 6 Halaman\n▪  5/5 Unit Test (pytest)\n▪  Laporan & Dokumentasi Lengkap\n▪  Repo: Water-Quality-Decision",
-        size=10.5,
+        9.72,
+        5.50,
+        2.65,
+        1.26,
+        "●  Core Engine Scratch (Python)\n●  Streamlit GUI 6 Halaman\n●  5/5 Unit Test (pytest)\n●  Laporan & Analisis Lengkap\n●  Repo: Water-Quality-Decision",
+        size=9.5,
         bold=True,
-        color=C_WHITE,
-        line_spacing=1.30,
+        color=C_INK,
+        line_spacing=1.26,
     )
 
     # =========================================================================
@@ -643,9 +816,9 @@ def build_presentation():
     ]
     sx = 0.55
     for idx, (tag, stitle, sdesc, acc) in enumerate(steps):
-        _add_rect(s4, sx, 1.60, 2.86, 1.52, C_WHITE, border_rgb=C_BORDER, border_pt=0.8, rounded=True)
-        _add_rect(s4, sx, 1.60, 2.86, 0.08, acc)
-        _add_text(s4, sx + 0.14, 1.74, 1.2, 0.22, tag, size=8.5, bold=True, color=acc)
+        _add_rect(s4, sx, 1.60, 2.86, 1.52, C_WHITE, border_rgb=C_BORDER, border_pt=0.85, rounded=True)
+        _add_rect(s4, sx, 1.60, 2.86, 0.08, None, grad_angle=0.0)
+        _add_text(s4, sx + 0.14, 1.74, 1.2, 0.22, tag, size=8.5, bold=True, color=C_PRIMARY)
         _add_text(s4, sx + 0.14, 1.96, 2.58, 0.28, stitle, size=12, bold=True, color=C_INK, font=FONT_HEAD)
         _add_text(s4, sx + 0.14, 2.28, 2.58, 0.76, sdesc, size=9.4, color=C_BODY, line_spacing=1.20)
         if idx < 3:
@@ -1136,9 +1309,9 @@ def build_presentation():
         line_spacing=1.28,
     )
 
-    # Verification Hero Banner on Bottom Right
-    _add_rect(s9, 6.82, 5.12, 5.96, 1.72, C_PRIMARY, rounded=True)
-    _add_text(s9, 7.12, 5.28, 5.4, 0.26, "HASIL AKHIR DEFUZZIFIKASI & VERIFIKASI SISTEM", size=9.5, bold=True, color=C_MINT_LIGHT)
+    # Verification Hero Banner on Bottom Right (Canva #4735F3 -> #61DD99 gradient)
+    _add_rect(s9, 6.82, 5.12, 5.96, 1.72, None, rounded=True, grad_angle=0.0)
+    _add_text(s9, 7.12, 5.28, 5.4, 0.26, "HASIL AKHIR DEFUZZIFIKASI & VERIFIKASI SISTEM", size=9.5, bold=True, color=C_WHITE)
     _add_text(s9, 7.12, 5.58, 5.4, 0.56, "z* (S4) = 2447.9167 / 43.7500 = 55.9524", size=20, bold=True, color=C_WHITE, font=FONT_HEAD)
     _add_text(
         s9,
@@ -1149,7 +1322,7 @@ def build_presentation():
         "Output Program = 55.9524  |  Selisih = 0.0000 (100% VALID)",
         size=10.5,
         bold=True,
-        color=C_MINT_SOFT,
+        color=RGBColor(0xF0, 0xFB, 0xF7),
     )
 
     # =========================================================================
@@ -1243,9 +1416,9 @@ def build_presentation():
         row_bg_fn=lambda r, c, v: C_MINT_SOFT if (r in (0, 2) and c in (4, 5)) else (C_CORAL_SOFT if (r == 1 and c == 4) else (C_WHITE if r % 2 == 0 else C_ROW_ALT)),
     )
 
-    _add_rect(s10, 6.72, 5.26, 5.88, 1.36, C_PRIMARY, rounded=True)
-    _add_text(s10, 6.96, 5.38, 5.4, 0.26, "KEPUTUSAN MAJORITY VOTING (K = 3 TETANGGA TERDEKAT)", size=9.2, bold=True, color=C_MINT_LIGHT)
-    _add_text(s10, 6.96, 5.66, 5.4, 0.44, "Prediksi Q* = POTABLE  (Vote: 2 Potable vs 1 Not Potable)", size=14.5, bold=True, color=C_WHITE, font=FONT_HEAD)
+    _add_rect(s10, 6.72, 5.26, 5.88, 1.36, None, rounded=True, grad_angle=0.0)
+    _add_text(s10, 6.96, 5.38, 5.4, 0.26, "KEPUTUSAN MAJORITY VOTING (K = 3 TETANGGA TERDEKAT)", size=9.2, bold=True, color=C_WHITE)
+    _add_text(s10, 6.96, 5.66, 5.4, 0.44, "Prediksi Q* = POTABLE  (Vote: 2 Potable vs 1 Not Potable)", size=14.2, bold=True, color=C_WHITE, font=FONT_HEAD)
     _add_text(
         s10,
         6.96,
@@ -1253,8 +1426,8 @@ def build_presentation():
         5.4,
         0.38,
         "Tetangga terpilih: S4 (Potable, 0.3317), S3 (Not Potable, 0.5507), S5 (Potable, 0.7225). 100% cocok dengan GUI White-Box.",
-        size=9.2,
-        color=C_MINT_SOFT,
+        size=9.1,
+        color=RGBColor(0xF0, 0xFB, 0xF7),
     )
 
     # =========================================================================
@@ -1431,11 +1604,11 @@ def build_presentation():
     gx = 0.55
     for title_g, img_g, desc_g, acc in gui_1_3:
         _add_rect(s13, gx, 1.58, 3.92, 5.26, C_WHITE, border_rgb=C_BORDER, border_pt=0.9, rounded=True)
-        _add_rect(s13, gx, 1.58, 3.92, 0.08, acc)
-        _add_pill(s13, gx + 0.16, 1.76, 2.30, 0.30, title_g, C_PRIMARY_SOFT if acc == C_PRIMARY else C_MINT_SOFT, acc if acc == C_PRIMARY else RGBColor(0x0F, 0x6A, 0x49), font_size=9.5)
+        _add_rect(s13, gx, 1.58, 3.92, 0.08, None, grad_angle=0.0)
+        _add_pill(s13, gx + 0.16, 1.76, 2.55, 0.30, title_g, None, C_WHITE, font_size=9.2, gradient=True)
         _add_rect(s13, gx + 0.14, 2.18, 3.64, 2.42, RGBColor(0x0B, 0x10, 0x1C), border_rgb=C_BORDER, border_pt=0.5)
         _add_image_fit(s13, img_g, gx + 0.16, 2.20, 3.60, 2.38)
-        _add_text(s13, gx + 0.18, 4.74, 3.56, 1.96, desc_g, size=10.2, color=C_BODY, line_spacing=1.26)
+        _add_text(s13, gx + 0.18, 4.74, 3.56, 1.96, desc_g, size=10.1, color=C_BODY, line_spacing=1.26)
         gx += 4.15
 
     # =========================================================================
@@ -1473,11 +1646,11 @@ def build_presentation():
     gx = 0.55
     for title_g, img_g, desc_g, acc in gui_4_6:
         _add_rect(s14, gx, 1.58, 3.92, 5.26, C_WHITE, border_rgb=C_BORDER, border_pt=0.9, rounded=True)
-        _add_rect(s14, gx, 1.58, 3.92, 0.08, acc)
-        _add_pill(s14, gx + 0.16, 1.76, 2.55, 0.30, title_g, C_PRIMARY_SOFT if acc == C_PRIMARY else C_MINT_SOFT, acc if acc == C_PRIMARY else RGBColor(0x0F, 0x6A, 0x49), font_size=9.5)
+        _add_rect(s14, gx, 1.58, 3.92, 0.08, None, grad_angle=0.0)
+        _add_pill(s14, gx + 0.16, 1.76, 2.65, 0.30, title_g, None, C_WHITE, font_size=9.2, gradient=True)
         _add_rect(s14, gx + 0.14, 2.18, 3.64, 2.42, RGBColor(0x0B, 0x10, 0x1C), border_rgb=C_BORDER, border_pt=0.5)
         _add_image_fit(s14, img_g, gx + 0.16, 2.20, 3.60, 2.38)
-        _add_text(s14, gx + 0.18, 4.74, 3.56, 1.96, desc_g, size=10.2, color=C_BODY, line_spacing=1.26)
+        _add_text(s14, gx + 0.18, 4.74, 3.56, 1.96, desc_g, size=10.1, color=C_BODY, line_spacing=1.26)
         gx += 4.15
 
     # =========================================================================
@@ -1512,7 +1685,7 @@ def build_presentation():
             ("Bebas Data Leakage & Terverifikasi: ", "Normalisasi Min-Max di-fit khusus pada 480 data latih, dan seluruh implementasi from-scratch terverifikasi 100% identik terhadap scikit-learn."),
             ("GUI Interaktif Siap Demo: ", "Aplikasi Streamlit 6 halaman memudahkan simulasi manual, upload CSV, audit step-by-step white-box, dan evaluasi model secara real-time."),
         ],
-        size=10.3,
+        size=10.2,
         space_after=8,
     )
 
@@ -1528,23 +1701,22 @@ def build_presentation():
             ("Ekspansi Fitur & Optimasi Bobot: ", "Integrasi fitur tambahan (Solids, Chloramines, Conductivity) dengan pembobotan fitur (Weighted KNN) atau optimasi parameter kurva."),
             ("Integrasi Sensor IoT Real-Time: ", "Menghubungkan modul Mamdani + KNN dengan sensor pH & kekeruhan lapangan untuk pemantauan air minum berkelanjutan."),
         ],
-        size=9.8,
+        size=9.7,
         space_after=6,
     )
 
-    # Middle-Right Bottom: Closing Q&A Banner
-    _add_rect(s15, 7.22, 5.12, 5.56, 1.72, C_PRIMARY, rounded=True)
-    _add_rect(s15, 7.22, 5.12, 0.14, 1.72, C_MINT_LIGHT)
-    _add_text(s15, 7.56, 5.26, 5.0, 0.44, "TERIMA KASIH  ·  SESI TANYA JAWAB", size=17, bold=True, color=C_WHITE, font=FONT_HEAD)
+    # Middle-Right Bottom: Closing Q&A Banner (Canva #4735F3 -> #61DD99 gradient)
+    _add_rect(s15, 7.22, 5.12, 5.56, 1.72, None, rounded=True, grad_angle=0.0)
+    _add_text(s15, 7.50, 5.26, 5.05, 0.44, "TERIMA KASIH  ·  SESI TANYA JAWAB", size=16.5, bold=True, color=C_WHITE, font=FONT_HEAD)
     _add_text(
         s15,
-        7.56,
+        7.50,
         5.76,
-        5.0,
+        5.05,
         0.96,
         "Kelompok 1 · Program Studi Informatika · Universitas Udayana\nGitHub: github.com/dhikrtika/Water-Quality-Decision\nLive Demo Lokal:  streamlit run app.py  (http://localhost:8501)",
-        size=10,
-        color=C_MINT_SOFT,
+        size=9.8,
+        color=RGBColor(0xF0, 0xFB, 0xF7),
         line_spacing=1.28,
     )
 
