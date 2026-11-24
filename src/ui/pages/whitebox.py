@@ -75,7 +75,7 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
 
     render_physicochemical_strip(x1, x2, x3)
 
-    # Step 1: 4 Membership Function Charts
+    # Kurva fungsi keanggotaan input dan output
     st.subheader("Step 1: Membership Function Curves")
     g1, g2 = st.columns(2, gap="medium")
     with g1:
@@ -102,7 +102,7 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
             width="stretch",
         )
 
-    # Step 2: Fuzzification Table
+    # Tabel hasil fuzzifikasi input
     st.divider()
     st.subheader("Step 2: Input Fuzzification Table (μ)")
     fuz = fuzzy_res["fuzzified"]
@@ -160,7 +160,7 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
         ],
     )
 
-    # Step 3: 27 Rule Base Evaluation with Inline Firing-Strength Bars
+    # Evaluasi 27 aturan fuzzy dan nilai firing strength
     st.divider()
     st.subheader("Step 3: 27 Rule Base Evaluation & Firing Strength (α)")
     only_active = st.checkbox(
@@ -217,7 +217,7 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
         f"{status_badge(lbl_good, 'potable')}"
     )
 
-    # Step 4 & 5: Aggregated Curve & Analytic Integral Segments
+    # Kurva agregasi MAX dan integral segmen centroid analitik
     st.divider()
     st.subheader("Step 4 & 5: Implication (MIN), Aggregation (MAX) & Analytic Centroid")
     st.plotly_chart(plot_aggregated_centroid(fuzzy_res), width="stretch")
@@ -282,7 +282,7 @@ def render_whitebox(df_active: pd.DataFrame, df_manual: pd.DataFrame) -> None:
         rf"z^* = \frac{{\int_{{0}}^{{100}} z \cdot \mu_{{\text{{agg}}}}(z)\,dz}}{{\int_{{0}}^{{100}} \mu_{{\text{{agg}}}}(z)\,dz}} = \frac{{\sum M_i}}{{\sum A_i}} = \frac{{{tot_m:.4f}}}{{{tot_a:.4f}}} = {z_star:.4f}"
     )
 
-    # Step 6: Min-Max Normalization & Euclidean KNN Distances
+    # Normalisasi Min-Max dan perhitungan jarak Euclidean KNN
     st.divider()
     st.subheader("Step 6: Min-Max Scaling, Euclidean Distance & Majority Voting")
     scaler = sim["scaler"]

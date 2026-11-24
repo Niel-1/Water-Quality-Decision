@@ -1,13 +1,4 @@
-"""
-Konversi Laporan_Final_Project_TLF_Kelompok_1.md menjadi:
-1. Dokumen HTML akademik mandiri berstandar Universitas Udayana (Halaman Sampul resmi berlogo
-   Universitas Udayana, Times New Roman 12pt, spasi 1.5, indentasi baris pertama 1.25cm, tabel
-   header putih bergaris hitam rapi, rumus matematika HTML/Unicode bersih tanpa sintaks LaTeX
-   mentah, page break antar bab, dan seluruh gambar PNG 200 DPI tertanam).
-2. Paket potongan HTML terstruktur (gdocs_clean_chunks.json) dengan penanda page_break_before
-   untuk penempelan langsung ke Google Docs tab "Final Project" agar 100% sesuai format
-   TLF_Pertemuan12_Kelompok_Kelas_NIM.
-"""
+"""Script konversi laporan Markdown menjadi dokumen HTML dan potongan JSON untuk Google Docs."""
 
 import base64
 import html

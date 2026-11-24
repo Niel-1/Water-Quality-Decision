@@ -91,7 +91,7 @@ def render_evaluation(df_active: pd.DataFrame) -> None:
         ]
     )
 
-    # 1. Summary Table across K = 3, 5, 7, 9, 11
+    # Tabel ringkasan metrik untuk berbagai nilai K
     st.subheader("1. Metrics Comparison across K (3, 5, 7, 9, 11)")
     eval_rows = []
     for k, rk in res_by_k.items():
@@ -154,7 +154,7 @@ def render_evaluation(df_active: pd.DataFrame) -> None:
             width="stretch",
         )
 
-    # 2. Confusion Matrices & Per-Class Breakdown
+    # Matriks konfusi dan rincian metrik per kelas
     st.divider()
     st.subheader(f"2. Confusion Matrix & Per-Class Metrics (K = {k_focus})")
     cm_a = np.array(ma_sel["confusion_matrix"])
@@ -216,7 +216,7 @@ def render_evaluation(df_active: pd.DataFrame) -> None:
         rows=per_cls_rows,
     )
 
-    # 3. Analytical Synthesis
+    # Ringkasan analisis dan batasan sistem
     st.divider()
     st.subheader("3. Key Takeaways & Limitations")
     render_html(

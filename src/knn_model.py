@@ -1,8 +1,4 @@
-"""
-Modul K-Nearest Neighbor (KNN) - White-Box / From Scratch dengan NumPy & Pembanding Scikit-Learn
-Water Quality & Potability Decision Support System
-Kelompok 1 - Teknologi Logika Fuzzy, Informatika Universitas Udayana
-"""
+"""Implementasi klasifikasi K-Nearest Neighbor (KNN) dan evaluasi model."""
 
 from typing import Dict, List, Tuple, Optional, Any
 import numpy as np
@@ -23,11 +19,7 @@ CLASS_RANK = {"Not Potable": 0, "Potable": 1}
 
 
 class MinMaxScalerScratch:
-    """
-    Normalisasi Min-Max dari awal (from scratch dengan NumPy):
-      x' = (x - x_min) / (x_max - x_min)
-    PENTING: fit() hanya dipanggil pada data latih (train set) untuk mencegah data leakage!
-    """
+    """Normalisasi fitur ke rentang [0, 1] berdasarkan nilai minimum dan maksimum data latih."""
 
     def __init__(self):
         self.min_: Optional[np.ndarray] = None
@@ -54,10 +46,7 @@ class MinMaxScalerScratch:
 
 
 class ZScoreScalerScratch:
-    """
-    Normalisasi Z-Score (StandardScaler) dari awal (from scratch dengan NumPy):
-      x' = (x - mean) / std
-    """
+    """Normalisasi fitur menggunakan rata-rata dan standar deviasi data latih."""
 
     def __init__(self):
         self.mean_: Optional[np.ndarray] = None
@@ -82,11 +71,7 @@ class ZScoreScalerScratch:
 
 
 class KNNClassifierScratch:
-    """
-    Implementasi K-Nearest Neighbor (KNN) dari awal (White-Box / From Scratch dengan NumPy).
-    Mendukung perhitungan jarak Euclidean dan penelusuran langkah demi langkah (tetangga terdekat,
-    selisih tiap fitur, jarak kuadrat, jarak Euclidean, dan voting mayoritas).
-    """
+    """Implementasi KNN berbasis jarak Euclidean dengan rincian perhitungan tiap tetangga terdekat."""
 
     def __init__(self, k: int = 5):
         self.k = int(k)
@@ -118,20 +103,14 @@ class KNNClassifierScratch:
 
     @staticmethod
     def euclidean_distances(x_query: np.ndarray, X_train: np.ndarray) -> np.ndarray:
-        """
-        Rumus Jarak Euclidean:
-          d(x, y) = sqrt( sum_{j=1}^m (x_j - y_j)^2 )
-        """
+        """Menghitung jarak Euclidean antara vektor uji dan seluruh data latih."""
         diff = X_train - x_query
         return np.sqrt(np.sum(diff ** 2, axis=1))
 
     def _vote(
         self, neighbor_labels: np.ndarray, neighbor_distances: np.ndarray
     ) -> Tuple[str, Dict[str, int]]:
-        """
-        Majority voting untuk K tetangga terdekat.
-        Jika terjadi seri (tie), dipilih kelas yang memiliki rata-rata jarak terkecil.
-        """
+        """Menentukan kelas prediksi lewat voting mayoritas dengan rata-rata jarak terkecil sebagai pemecah seri."""
         vote_counts = {c: 0 for c in CLASS_ORDER}
         for lbl in neighbor_labels:
             vote_counts[str(lbl)] = vote_counts.get(str(lbl), 0) + 1
@@ -157,10 +136,7 @@ class KNNClassifierScratch:
         x_query_raw: Optional[np.ndarray] = None,
         feature_names: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
-        """
-        Menghasilkan prediksi untuk 1 sampel uji beserta rincian perhitungan jarak Euclidean
-        terhadap seluruh data latih dan K tetangga terdekat untuk tampilan White-Box GUI & Laporan.
-        """
+        """Memprediksi satu sampel uji beserta rincian jarak dan K tetangga terdekat."""
         if self.X_train is None or self.y_train is None:
             raise ValueError("Model KNN belum di-fit.")
 
@@ -217,11 +193,7 @@ class KNNClassifierScratch:
 def compute_classification_metrics(
     y_true: np.ndarray, y_pred: np.ndarray
 ) -> Dict[str, Any]:
-    """
-    Menghitung seluruh metrik evaluasi klasifikasi kelayakan air minum (Not Potable vs Potable):
-    Accuracy, Precision (Macro & Weighted), Recall (Macro & Weighted),
-    F1-Score (Macro & Weighted), metrik per kelas, dan Confusion Matrix.
-    """
+    """Menghitung metrik akurasi, precision, recall, F1-score, dan confusion matrix."""
     acc = float(accuracy_score(y_true, y_pred))
     prec_macro = float(
         precision_score(
@@ -284,13 +256,7 @@ def compute_classification_metrics(
 def split_dataset_leakage_free(
     df: pd.DataFrame, split_strategy: str = "stratified_ordered", train_ratio: float = 0.8
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Pembagian data bebas kebocoran (leakage-free):
-    1. 'stratified_ordered' (atau 'ordered'): Mengambil 80% baris awal (480 baris yang sudah
-       disusun secara berimbang 240 Not Potable + 240 Potable) sebagai Data Latih (Train)
-       dan 20% baris akhir (120 baris: 60 Not Potable + 60 Potable) sebagai Data Uji (Test).
-    2. 'stratified_class': Membagi secara eksplisit per kelas `potability_label` dengan rasio 80:20.
-    """
+    """Membagi dataset menjadi data latih dan data uji sesuai strategi split dan rasio yang dipilih."""
     if split_strategy == "stratified_class":
         train_parts = []
         test_parts = []
@@ -316,12 +282,7 @@ def run_head_to_head_evaluation(
     split_strategy: str = "stratified_ordered",
     train_ratio: float = 0.8,
 ) -> Dict[str, Any]:
-    """
-    Menjalankan evaluasi komprehensif Head-to-Head antara:
-      - Model A (Baseline KNN): 3 fitur [ph, Hardness, Turbidity]
-      - Model B (Fuzzy-Enhanced KNN): 4 fitur [ph, Hardness, Turbidity, fuzzy_quality_score]
-    Sekaligus memverifikasi kesesuaian implementasi KNN From Scratch vs Scikit-Learn.
-    """
+    """Membandingkan performa Baseline KNN (3 fitur) dan Fuzzy-Enhanced KNN (4 fitur) serta mengecek kesesuaian dengan scikit-learn."""
     train_df, test_df = split_dataset_leakage_free(
         df, split_strategy=split_strategy, train_ratio=train_ratio
     )

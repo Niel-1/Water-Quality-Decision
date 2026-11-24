@@ -1,4 +1,4 @@
-"""Cohesive CSS styling for the Bathymetric Hydrographic Atlas workbench."""
+"""Definisi stylesheet CSS untuk tampilan antarmuka Streamlit."""
 
 import streamlit as st
 
@@ -516,7 +516,7 @@ div[data-testid="stMarkdownContainer"] .page-title,
     line-height: 1.58;
 }
 
-/* Subtle notice banner (clean full border, zero pale green boxes) */
+/* Banner notifikasi */
 .atlas-notice {
     background-color: var(--bg-surface);
     border: 1px solid var(--border);
@@ -537,7 +537,7 @@ div[data-testid="stMarkdownContainer"] .page-title,
     color: var(--text-primary);
 }
 
-/* Physicochemical Compliance Strip (Signature Move) */
+/* Strip indikator rentang parameter fisikokimia */
 .spectrum-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));

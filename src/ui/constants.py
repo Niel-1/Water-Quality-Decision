@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 CLEAN_CSV_PATH = BASE_DIR / "data" / "processed" / "water_potability_clean.csv"
 MANUAL_CSV_PATH = BASE_DIR / "data" / "processed" / "manual_calc_sample.csv"
 
-# Core palette tokens (Bathymetric Hydrographic Atlas)
+# Palet warna utama antarmuka
 PALETTE = {
     "bg_canvas": "#0d111a",
     "bg_rail": "#090c14",

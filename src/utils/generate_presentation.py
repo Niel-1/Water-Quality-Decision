@@ -1,11 +1,4 @@
-"""
-Generator Presentasi Final Project Teknologi Logika Fuzzy (Kelompok 1)
-Format: 20 Slide Widescreen 16:9 (.pptx) siap edit di Canva, PowerPoint, dan Google Slides.
-- Struktur dibagi 5 bagian setara (1 pembatas bersih per bagian + slide materi) untuk 5 anggota tim.
-- Palet warna 100% mengikuti aura & gradien asli Canva (#EEF2F3, #FFFFFF, #4735F3 -> #61DD99).
-- Gaya bahasa presentasi natural & santai-rapi (tanpa narasi BAB, tanpa referensi WHO/Kemenkes).
-- Tanpa stock image: seluruh visual menggunakan diagram asli, tabel native, dan screenshot GUI Streamlit.
-"""
+"""Script pembuat slide presentasi PowerPoint (.pptx) format 16:9."""
 
 import io
 from functools import lru_cache

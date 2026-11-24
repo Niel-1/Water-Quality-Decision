@@ -1,12 +1,4 @@
-"""
-Script Ekspor Artefak & Angka Presisi untuk Laporan Tugas Akhir TLF
-Water Quality & Potability Decision Support System
-Kelompok 1 - Teknologi Logika Fuzzy, Informatika Universitas Udayana
-
-Menghasilkan:
-1. docs/experiment_results.json
-2. docs/experiment_results_for_report.md
-"""
+"""Script ekspor hasil eksperimen dan perhitungan manual ke format JSON dan Markdown."""
 
 import json
 import os
@@ -41,7 +33,7 @@ def generate_report_artifacts():
     df_clean = pd.read_csv(clean_path)
     df_manual = pd.read_csv(manual_path)
 
-    # 1. Statistik Dataset Bersih Kaggle
+    # Statistik deskriptif dataset bersih
     num_cols = [
         "ph",
         "Hardness",
@@ -54,7 +46,7 @@ def generate_report_artifacts():
     desc = df_clean[num_cols].describe().to_dict()
     class_counts = df_clean["potability_label"].value_counts().to_dict()
 
-    # 2. Perhitungan Manual Fuzzy Mamdani Langkah demi Langkah untuk 5 Sampel Referensi (S1..S5)
+    # Perhitungan Fuzzy Mamdani untuk 5 sampel referensi
     manual_fuzzy_details = []
     for _, row in df_manual.iterrows():
         f_res = compute_fuzzy_mamdani(
@@ -114,7 +106,7 @@ def generate_report_artifacts():
         ],
     )
 
-    # 3. Evaluasi Eksperimen Lengkap (600 baris: 480 Train, 120 Test)
+    # Evaluasi perbandingan Model A vs Model B pada 600 sampel
     eval_res = run_head_to_head_evaluation(
         df_clean,
         k_values=[3, 5, 7, 9, 11],
@@ -259,7 +251,7 @@ def generate_report_artifacts():
             f"| **{r['rule_id']}** | {r['ph']} | {r['Hardness']} | {r['Turbidity']} | **{r['water_quality_score']}** |"
         )
 
-    # 3. Contoh Perhitungan Manual Langkah demi Langkah (Identik 100% Selisih 0)
+    # Bagian contoh perhitungan manual
     md_lines.extend(
         [
             "",

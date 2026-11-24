@@ -1,7 +1,4 @@
-"""
-Unit Tests untuk Water Quality & Potability Decision Support System
-Kelompok 1 - Teknologi Logika Fuzzy, Informatika Universitas Udayana
-"""
+"""Unit test untuk modul Fuzzy Mamdani dan KNN."""
 
 import os
 import sys
@@ -62,28 +59,7 @@ def test_rule_base_completeness():
 
 
 def test_fuzzy_mamdani_manual_calculation_identity_s4_and_qstar():
-    r"""
-    Memastikan perhitungan Fuzzy Mamdani analitik 100% identik (selisih 0.0000)
-    dengan hitungan integral kalkulus manual per segmen:
-    1) Kasus S4: ph = 7.0, Hardness = 120.0, Turbidity = 2.25
-       - ph: Neutral = 1.0
-       - Hardness: Soft = 0.5, Moderate = 0.5
-       - Turbidity: Clear = 0.5, Moderate = 0.5
-       - 4 rule aktif: R10 (0.5 -> Good), R11 (0.5 -> Good), R13 (0.5 -> Good), R14 (0.5 -> Moderate)
-       - Agregasi MAX: Poor = 0.0, Moderate = 0.5, Good = 0.5
-       - Segmen 1 [0, 25]: A1 = 6.25, M1 = 104.16666667
-       - Segmen 2 [25, 100]: A2 = 37.50, M2 = 2343.75
-       - Total Area = 43.75, Total Moment = 2447.91666667 -> Centroid = 1175 / 21 = 55.95238095
-    2) Kasus Q*: ph = 5.25, Hardness = 150.0, Turbidity = 2.25
-       - ph: Acidic = 0.25, Neutral = 0.75
-       - Hardness: Soft = 0.25, Moderate = 0.75
-       - Turbidity: Clear = 0.50, Moderate = 0.50
-       - Agregasi MAX: Poor = 0.25, Moderate = 0.50, Good = 0.50
-       - Segmen 1 [0, 12.5]: A1 = 3.125, M1 = 19.53125
-       - Segmen 2 [12.5, 25]: A2 = 4.6875, M2 = 91.14583333
-       - Segmen 3 [25, 100]: A3 = 37.50, M3 = 2343.75
-       - Total Area = 45.3125, Total Moment = 2454.42708333 -> Centroid = 650 / 12 = 54.16666667
-    """
+    """Memastikan hasil defuzzifikasi analitik cocok dengan perhitungan manual pada sampel S4 dan Q*."""
     res_s4 = compute_fuzzy_mamdani(7.0, 120.0, 2.25, method="analytic")
     assert abs(res_s4["fuzzified"]["ph"]["Neutral"] - 1.0) < 1e-9
     assert abs(res_s4["fuzzified"]["Hardness"]["Soft"] - 0.5) < 1e-9

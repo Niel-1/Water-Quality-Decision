@@ -1,20 +1,13 @@
-"""
-Modul Fuzzy Mamdani (White-Box / From Scratch dengan NumPy)
-Water Quality & Potability Decision Support System
-Kelompok 1 - Teknologi Logika Fuzzy, Informatika Universitas Udayana
-"""
+"""Implementasi sistem inferensi Fuzzy Mamdani menggunakan NumPy."""
 
 from typing import Dict, List, Tuple, Any
 import numpy as np
 
 
 def triangular_mf(x: float, a: float, b: float, c: float) -> float:
-    """
-    Menghitung derajat keanggotaan fungsi segitiga (Triangular Membership Function).
-    Menangani kasus segitiga siku-siku kiri (a == b) dan siku-siku kanan (b == c).
-    """
+    """Menghitung derajat keanggotaan kurva segitiga dengan dukungan sisi siku-siku kiri dan kanan."""
     x = float(x)
-    # Kasus khusus titik puncak di tepi kiri (a == b)
+    # Puncak di tepi kiri (a == b)
     if a == b:
         if x <= a:
             return 1.0 if x >= a else 0.0
@@ -23,7 +16,7 @@ def triangular_mf(x: float, a: float, b: float, c: float) -> float:
         else:
             return (c - x) / (c - b)
 
-    # Kasus khusus titik puncak di tepi kanan (b == c)
+    # Puncak di tepi kanan (b == c)
     if b == c:
         if x >= c:
             return 1.0 if x <= c else 0.0
@@ -32,7 +25,7 @@ def triangular_mf(x: float, a: float, b: float, c: float) -> float:
         else:
             return (x - a) / (b - a)
 
-    # Kasus segitiga simetris / normal (a < b < c)
+    # Segitiga normal (a < b < c)
     if x <= a or x >= c:
         return 0.0
     elif x == b:
@@ -48,7 +41,7 @@ def triangular_mf_array(x_arr: np.ndarray, a: float, b: float, c: float) -> np.n
     return np.array([triangular_mf(val, a, b, c) for val in x_arr], dtype=float)
 
 
-# Definisi Parameter Fungsi Keanggotaan (Kurva Segitiga Simetris: sum(mu) = 1)
+# Parameter kurva segitiga simetris untuk setiap variabel input dan output
 MF_PARAMS = {
     "ph": {  # X1: Tingkat Keasaman Air (pH), Domain [0, 14]
         "domain": (0.0, 14.0),
@@ -86,28 +79,7 @@ MF_PARAMS = {
 
 
 def build_rule_base() -> List[Dict[str, Any]]:
-    """
-    Menyusun 27 Aturan Fuzzy Mamdani (3x3x3) berdasarkan standar fisikokimia kualitas air minum (WHO / Permenkes):
-      - Input 1 (ph): Neutral adalah kondisi ideal (penalti p1 = 0); Acidic atau Alkaline adalah kondisi ekstrem (penalti p1 = 2).
-      - Input 2 (Hardness): Soft (p2 = 0), Moderate (p2 = 1), Hard (p2 = 2).
-      - Input 3 (Turbidity): Clear (p3 = 0), Moderate (p3 = 1), Turbid (p3 = 2).
-
-    Aturan evaluasi berbasis indeks risiko kontaminasi & ketidakseimbangan fisikokimia:
-      1. Apabila pH berada pada kondisi Neutral (ideal, p1 = 0):
-         - Jika p2 + p3 <= 1 (Hardness Soft/Moderate dengan Turbidity Clear, atau Hardness Soft dengan Turbidity Moderate)
-           DAN bukan keduanya Moderate -> Output = 'Good' (Layak / Kualitas Baik).
-         - Lebih tegas: Jika p1 == 0 (Neutral):
-           * Jika p2 <= 1 dan p3 == 0 (Soft+Clear, Moderate+Clear) -> 'Good'
-           * Jika p2 == 0 dan p3 == 1 (Soft+Moderate) -> 'Good'
-           * Jika p2 == 1 dan p3 == 1 (Moderate+Moderate) -> 'Moderate'
-           * Jika p2 == 2 dan p3 == 0 (Hard+Clear) -> 'Moderate'
-           * Jika p2 == 0 dan p3 == 2 (Soft+Turbid) -> 'Moderate'
-           * Jika p2 + p3 >= 3 (Hard+Moderate, Moderate+Turbid, Hard+Turbid) -> 'Poor'
-      2. Apabila pH berada pada kondisi ekstrem Acidic atau Alkaline (p1 == 2):
-         - Jika p2 == 0 dan p3 == 0 (Soft + Clear) -> 'Moderate' (karena kesadahan & kekeruhan sangat rendah masih menoleransi deviasi pH parsial)
-         - Jika p2 + p3 == 1 (Soft+Moderate atau Moderate+Clear) -> 'Moderate'
-         - Selain itu (p2 + p3 >= 2, yaitu kombinasi pH ekstrem dengan kesadahan/kekeruhan sedang-tinggi) -> 'Poor' (Buruk).
-    """
+    """Membangun 27 aturan kombinasi fuzzy (3x3x3) berdasarkan kondisi pH, kesadahan, dan kekeruhan air."""
     x1_sets = ["Acidic", "Neutral", "Alkaline"]
     x2_sets = ["Soft", "Moderate", "Hard"]
     x3_sets = ["Clear", "Moderate", "Turbid"]
@@ -154,10 +126,7 @@ RULES_27 = build_rule_base()
 def fuzzify_inputs(
     ph: float, hardness: float, turbidity: float
 ) -> Dict[str, Dict[str, float]]:
-    """
-    Tahap 1: Fuzzifikasi input tegas (crisp) ke dalam derajat keanggotaan [0, 1].
-    Nilai di luar domain di-clamp ke batas domain.
-    """
+    """Mengubah nilai input crisp menjadi derajat keanggotaan fuzzy pada masing-masing domain."""
     x1 = float(np.clip(ph, 0.0, 14.0))
     x2 = float(np.clip(hardness, 60.0, 300.0))
     x3 = float(np.clip(turbidity, 1.0, 6.0))
@@ -185,10 +154,7 @@ def fuzzify_inputs(
 def evaluate_rules(
     fuzzified: Dict[str, Dict[str, float]],
 ) -> Tuple[List[Dict[str, Any]], Dict[str, float]]:
-    """
-    Tahap 2 & 3 & 4: Evaluasi 27 aturan menggunakan operator AND = MIN,
-    Implikasi Mamdani (clipping MIN), dan Agregasi antar-aturan menggunakan MAX.
-    """
+    """Mengevaluasi 27 aturan dengan operator MIN dan mengagregasi alpha tiap himpunan output dengan MAX."""
     evaluated_rules = []
     aggregated_alpha = {"Poor": 0.0, "Moderate": 0.0, "Good": 0.0}
 
@@ -217,14 +183,7 @@ def evaluate_rules(
 
 
 def aggregated_membership_at(z: float, aggregated_alpha: Dict[str, float]) -> float:
-    """
-    Menghitung nilai keanggotaan kurva hasil agregasi Mamdani mu_agg(z) pada titik z in [0, 100]:
-      mu_agg(z) = max(
-          min(alpha_Poor, mu_Poor(z)),
-          min(alpha_Moderate, mu_Moderate(z)),
-          min(alpha_Good, mu_Good(z))
-      )
-    """
+    """Menghitung nilai keanggotaan kurva agregasi Mamdani pada titik z dalam [0, 100]."""
     out_sets = MF_PARAMS["water_quality_score"]["sets"]
     m_poor = min(aggregated_alpha["Poor"], triangular_mf(z, *out_sets["Poor"]))
     m_mod = min(aggregated_alpha["Moderate"], triangular_mf(z, *out_sets["Moderate"]))
@@ -235,21 +194,7 @@ def aggregated_membership_at(z: float, aggregated_alpha: Dict[str, float]) -> fl
 def defuzzify_centroid_analytic(
     aggregated_alpha: Dict[str, float],
 ) -> Dict[str, Any]:
-    r"""
-    Tahap 5A: Defuzzifikasi Centroid Analitik Eksak (Piecewise Linear / Per Segmen Integral).
-    Karena output Y menggunakan 3 segitiga simetris pada [0, 100]:
-      - Poor: (0, 0, 50) -> turun linear 1 - z/50 pada [0, 50]
-      - Moderate: (0, 50, 100) -> naik linear z/50 pada [0, 50], turun linear 2 - z/50 pada [50, 100]
-      - Good: (50, 100, 100) -> naik linear z/50 - 1 pada [50, 100]
-    Kurva agregasi mu_agg(z) adalah fungsi piecewise linear (garis lurus per segmen).
-    Pada setiap sub-interval [z_i, z_{i+1}] di antara titik-titik kritis (knots) yang berurutan,
-    mu_agg(z) berbentuk garis lurus sempurna dari y_i ke y_{i+1}.
-    Sehingga integralnya 100% EKSAK secara analitik:
-      - Luas segmen A_i = \int_{z_i}^{z_{i+1}} \mu(z) dz = \frac{z_{i+1} - z_i}{2} (y_i + y_{i+1})
-      - Momen segmen M_i = \int_{z_i}^{z_{i+1}} z \cdot \mu(z) dz
-        = \frac{z_{i+1} - z_i}{6} [ y_i (2 z_i + z_{i+1}) + y_{i+1} (z_i + 2 z_{i+1}) ]
-    Hasil rumus ini 100% SAMA PERSIS (selisih 0.0000) dengan integral kalkulus manual per segmen!
-    """
+    """Menghitung centroid secara analitik melalui integral luas dan momen per segmen linear."""
     a_p = float(aggregated_alpha.get("Poor", 0.0))
     a_m = float(aggregated_alpha.get("Moderate", 0.0))
     a_g = float(aggregated_alpha.get("Good", 0.0))
@@ -357,10 +302,7 @@ def defuzzify_centroid_analytic(
 def defuzzify_centroid_discrete(
     aggregated_alpha: Dict[str, float], num_points: int = 10001
 ) -> Tuple[float, np.ndarray, np.ndarray]:
-    """
-    Tahap 5B: Defuzzifikasi Centroid Diskrit menggunakan grid Riemann.
-    Mengembalikan (centroid_discrete, z_grid, mu_grid).
-    """
+    """Menghitung centroid secara diskrit menggunakan grid titik pada domain [0, 100]."""
     z_grid = np.linspace(0.0, 100.0, num_points)
     mu_grid = np.array([aggregated_membership_at(z, aggregated_alpha) for z in z_grid])
     denom = np.sum(mu_grid)
@@ -376,10 +318,7 @@ def compute_fuzzy_mamdani(
     turbidity: float,
     method: str = "analytic",
 ) -> Dict[str, Any]:
-    """
-    Menjalankan seluruh pipeline Fuzzy Mamdani (Tahap 1 s.d. 5) untuk 1 sampel air.
-    Secara default menggunakan defuzzifikasi Centroid analitik per segmen (100% eksak dengan hitungan manual).
-    """
+    """Menjalankan inferensi Fuzzy Mamdani lengkap untuk satu sampel air."""
     fuzzified = fuzzify_inputs(ph, hardness, turbidity)
     evaluated_rules, aggregated_alpha = evaluate_rules(fuzzified)
     analytic_res = defuzzify_centroid_analytic(aggregated_alpha)
@@ -419,10 +358,7 @@ def compute_fuzzy_mamdani(
 def batch_fuzzy_quality_scores(
     X_array: np.ndarray, method: str = "analytic"
 ) -> np.ndarray:
-    """
-    Menghitung Fuzzy Water Quality Score untuk array 2D berukuran (N, 3) dengan kolom:
-    [ph, Hardness, Turbidity].
-    """
+    """Menghitung skor kualitas air fuzzy secara batch untuk array 2D [ph, Hardness, Turbidity]."""
     scores = np.zeros(X_array.shape[0], dtype=float)
     for i in range(X_array.shape[0]):
         res = compute_fuzzy_mamdani(

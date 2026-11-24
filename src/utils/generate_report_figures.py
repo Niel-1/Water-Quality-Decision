@@ -1,7 +1,4 @@
-"""
-Menghasilkan 5 gambar grafik/diagram berkualitas publikasi (200 DPI)
-untuk Laporan Resmi Final Project TLF Kelompok 1 (Water Quality & Potability).
-"""
+"""Script pembuat grafik dan diagram laporan dalam format PNG 200 DPI."""
 
 import json
 import sys

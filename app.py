@@ -1,9 +1,4 @@
-"""
-Water Quality & Potability Decision Support System
-Kelompok 1 - Teknologi Logika Fuzzy, Program Studi Informatika, FMIPA Universitas Udayana
-
-Clean modular Streamlit entrypoint routing the 6 analytical pages.
-"""
+"""Entrypoint Streamlit untuk routing halaman aplikasi Water Quality & Potability DSS."""
 
 import streamlit as st
 

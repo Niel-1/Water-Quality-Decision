@@ -1,12 +1,4 @@
-"""
-Script Pemrosesan Dataset Publik Kaggle: Water Quality and Potability (adityakadiwal/water-potability)
-Water Quality & Potability Decision Support System
-Kelompok 1 - Teknologi Logika Fuzzy, Informatika Universitas Udayana
-
-Menghasilkan:
-1. data/processed/water_potability_clean.csv (600 baris pengamatan bersih & seimbang: 300 Not Potable, 300 Potable)
-2. data/processed/manual_calc_sample.csv (5 baris sampel referensi dengan angka bulat untuk perhitungan manual 100% eksak)
-"""
+"""Script pembersihan dataset Water Potability dan pembuatan sampel referensi perhitungan manual."""
 
 import os
 import sys
@@ -23,18 +15,7 @@ PROCESSED_DIR = os.path.join(BASE_DIR, "data", "processed")
 
 
 def build_clean_water_potability_dataset(seed: int = 59) -> pd.DataFrame:
-    """
-    Membersihkan dataset Kaggle water_potability.csv (3.276 baris, 10 kolom bahasa Inggris):
-    1. Menghapus baris yang memiliki missing values (NaN) pada parameter uji.
-    2. Memfilter ke domain fisikokimia valid:
-       - ph in [0.0, 14.0]
-       - Hardness in [60.0, 300.0] mg/L
-       - Turbidity in [1.0, 6.0] NTU
-    3. Menghitung skor kualitas air Fuzzy Mamdani (fuzzy_quality_score) dengan metode Centroid Analitik.
-    4. Memilih 600 pengamatan bersih yang konsisten secara fisikokimia dan seimbang (300 Not Potable, 300 Potable),
-       disusun dengan Stratified 80:20 Train-Test ordering (480 baris pertama = 240 Not Potable + 240 Potable untuk Train Set;
-       120 baris terakhir = 60 Not Potable + 60 Potable untuk Test Set).
-    """
+    """Membersihkan dataset mentah, menghitung skor fuzzy, dan menyusun 600 sampel seimbang untuk train-test."""
     os.makedirs(PROCESSED_DIR, exist_ok=True)
     if not os.path.exists(RAW_CSV_PATH):
         raise FileNotFoundError(
@@ -118,12 +99,7 @@ def build_clean_water_potability_dataset(seed: int = 59) -> pd.DataFrame:
 
 
 def build_manual_calc_sample() -> pd.DataFrame:
-    """
-    Menyusun 5 baris data sampel referensi (data/processed/manual_calc_sample.csv)
-    dengan angka bulat/pecahan eksak (0.25, 0.50, 0.75, 1.00) agar perhitungan manual
-    Fuzzifikasi, Evaluasi Rule, Implikasi, Agregasi, Defuzzifikasi Centroid Analitik,
-    Normalisasi Min-Max, dan Jarak Euclidean KNN 100% identik (selisih 0.0000) dengan kode Python.
-    """
+    """Menyusun 5 sampel referensi dengan nilai sederhana untuk verifikasi perhitungan manual."""
     manual_rows = [
         {
             "sample_code": "S1",
