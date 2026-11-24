@@ -54,13 +54,13 @@ Air minum yang aman dikonsumsi (*potable water*) merupakan kebutuhan dasar yang 
 
 1. **Kelemahan ambang batas tegas (*crisp threshold*)**: perubahan nilai yang sangat kecil di sekitar batas transisi dapat membalik keputusan secara drastis, dan kualitas air ditentukan oleh interaksi antarparameter sehingga satu parameter yang ideal tidak menjamin air layak bila parameter lain menyimpang jauh. Logika fuzzy (Zadeh, 1965) menyatakan nilai parameter sebagai derajat keanggotaan pada himpunan linguistik, lalu sistem inferensi Mamdani (Mamdani & Assilian, 1975) mengolahnya bersama aturan pakar menjadi skor kualitas air kontinu (`fuzzy_quality_score`) pada rentang $[0,\ 100]$.
 2. **Kelemahan KNN pada fitur mentah**: KNN (Cover & Hart, 1967) mengklasifikasikan data berdasarkan kemiripan dengan data historis menggunakan jarak Euclidean. Namun, KNN yang hanya memakai fitur mentah dapat kurang optimal di dekat batas antarkelas, terutama bila kelas saling tumpang tindih pada ruang fitur.
-3. **Keunggulan Model B (4 fitur)**: Fuzzy Mamdani berperan sebagai pembentuk fitur berbasis pengetahuan pakar, dan skornya ($z^*$) ditambahkan sebagai fitur ke-4 sehingga vektor fitur menjadi $[\text{pH},\ \text{Hardness},\ \text{Turbidity},\ z^*]$ sebelum klasifikasi KNN. Pendekatan hibrida dua tahap (*two-stage feature enrichment*) ini menggabungkan transparansi pengetahuan pakar dari logika fuzzy dengan kemampuan pengenalan pola dari data historis KNN. Model B unggul pada seluruh nilai $K$ yang diuji. Pada $K = 11$, akurasi naik dari **93.33% (Model A) menjadi 97.50% (Model B)**, dan pada $K = 5$ jumlah kesalahan klasifikasi turun dari **9 menjadi 6 sampel** (pengurangan **33.33%**).
+3. **Keunggulan Model B (4 fitur)**: Fuzzy Mamdani berperan sebagai pembentuk fitur berbasis pengetahuan pakar, dan skornya ($z^{\ast}$) ditambahkan sebagai fitur ke-4 sehingga vektor fitur menjadi $[\text{pH},\ \text{Hardness},\ \text{Turbidity},\ z^{\ast}]$ sebelum klasifikasi KNN. Pendekatan hibrida dua tahap (*two-stage feature enrichment*) ini menggabungkan transparansi pengetahuan pakar dari logika fuzzy dengan kemampuan pengenalan pola dari data historis KNN. Model B unggul pada seluruh nilai $K$ yang diuji. Pada $K = 11$, akurasi naik dari **93.33% (Model A) menjadi 97.50% (Model B)**, dan pada $K = 5$ jumlah kesalahan klasifikasi turun dari **9 menjadi 6 sampel** (pengurangan **33.33%**).
 
 ### Rumusan Masalah
 
 1. Bagaimana merancang Sistem Inferensi Fuzzy Mamdani dengan fungsi keanggotaan segitiga simetris Ruspini dan 27 basis aturan untuk menghasilkan `fuzzy_quality_score` dari parameter pH, Hardness, dan Turbidity?
 2. Bagaimana mengintegrasikan `fuzzy_quality_score` ke dalam ruang fitur 4 dimensi pada algoritma KNN berbasis normalisasi Min-Max dan jarak Euclidean secara *from scratch*?
-3. Apakah keluaran program Python konsisten dengan hasil perhitungan manual langkah demi langkah pada sampel referensi **S4** dan kasus uji baru **$Q^*$**?
+3. Apakah keluaran program Python konsisten dengan hasil perhitungan manual langkah demi langkah pada sampel referensi **S4** dan kasus uji baru $Q^{\ast}$?
 4. Seberapa besar peningkatan performa klasifikasi Model B (Fuzzy-Enhanced KNN 4 fitur) dibandingkan Model A (Baseline KNN 3 fitur) pada berbagai nilai $K$?
 
 ### Tujuan Pengembangan
@@ -157,7 +157,9 @@ Sistem memiliki 3 variabel input ($\text{pH}$, $\text{Hardness}$, $\text{Turbidi
 
 **1. Fungsi keanggotaan segitiga simetris Ruspini** dengan parameter $(a, b, c)$, $a \le b \le c$, di mana $b$ adalah titik puncak ($\mu(b) = 1$):
 
-$$\mu(x; a, b, c) = \begin{cases} 0, & x \le a \text{ atau } x \ge c \\[6pt] \dfrac{x - a}{b - a}, & a < x \le b \\[8pt] \dfrac{c - x}{c - b}, & b < x < c \end{cases}$$
+$$
+\mu(x; a, b, c) = \begin{cases} 0, & x \le a \text{ atau } x \ge c \\[6pt] \dfrac{x - a}{b - a}, & a < x \le b \\[8pt] \dfrac{c - x}{c - b}, & b < x < c \end{cases}
+$$
 
 Pada partisi Ruspini (Ruspini, 1969) berlaku $\sum_{i} \mu_i(x) = 1$ di setiap titik $x$ pada domain. Himpunan tepi kiri memiliki $a = b$ (bahu kiri bernilai $1$ untuk $x \le b$) dan himpunan tepi kanan memiliki $b = c$ (bahu kanan bernilai $1$ untuk $x \ge b$).
 
@@ -170,25 +172,37 @@ Pada partisi Ruspini (Ruspini, 1969) berlaku $\sum_{i} \mu_i(x) = 1$ di setiap t
 
 **2. Evaluasi aturan dan implikasi MIN.** Setiap aturan berbentuk $\text{IF } X_1 \text{ is } A_1 \text{ AND } X_2 \text{ is } A_2 \text{ AND } X_3 \text{ is } A_3 \text{ THEN } Y \text{ is } B$. Kekuatan penyulutan (*firing strength*) dihitung dengan operator MIN:
 
-$$\alpha_r = \min\left(\mu_{A_{r1}}(x_1),\ \mu_{A_{r2}}(x_2),\ \mu_{A_{r3}}(x_3)\right)$$
+$$
+\alpha_r = \min\left(\mu_{A_{r1}}(x_1),\ \mu_{A_{r2}}(x_2),\ \mu_{A_{r3}}(x_3)\right)
+$$
 
 Kurva konsekuen kemudian dipotong setinggi $\alpha_r$:
 
-$$\mu_{B'_r}(z) = \min\left(\alpha_r,\ \mu_{B_r}(z)\right)$$
+$$
+\mu_{B'_r}(z) = \min\left(\alpha_r,\ \mu_{B_r}(z)\right)
+$$
 
 **3. Agregasi MAX** menggabungkan seluruh kurva konsekuen hasil implikasi menjadi satu kurva:
 
-$$\mu_{\text{agg}}(z) = \max_{r}\ \mu_{B'_r}(z)$$
+$$
+\mu_{\text{agg}}(z) = \max_{r}\ \mu_{B'_r}(z)
+$$
 
 **4. Defuzzifikasi Centroid (Center of Area)** pada domain output $[0,\ 100]$:
 
-$$z^* = \frac{\displaystyle\int_{0}^{100} z \cdot \mu_{\text{agg}}(z)\, dz}{\displaystyle\int_{0}^{100} \mu_{\text{agg}}(z)\, dz}$$
+$$
+z^{\ast} = \frac{\displaystyle\int_{0}^{100} z \cdot \mu_{\text{agg}}(z)\, dz}{\displaystyle\int_{0}^{100} \mu_{\text{agg}}(z)\, dz}
+$$
 
 Karena kurva agregasi linear per segmen (*piecewise linear*), luas ($A_i$) dan momen ($M_i$) diintegrasikan secara **analitik eksak** pada setiap segmen $[z_0, z_1]$ dengan $\Delta z = z_1 - z_0$ tanpa galat diskretisasi numerik:
 
-$$A_i = \frac{1}{2}\, \Delta z\, (y_0 + y_1), \qquad M_i = \frac{\Delta z}{6} \left[ y_0 (2 z_0 + z_1) + y_1 (z_0 + 2 z_1) \right]$$
+$$
+A_i = \frac{1}{2}\, \Delta z\, (y_0 + y_1), \qquad M_i = \frac{\Delta z}{6} \left[ y_0 (2 z_0 + z_1) + y_1 (z_0 + 2 z_1) \right]
+$$
 
-$$z^* = \frac{\sum_i M_i}{\sum_i A_i}$$
+$$
+z^{\ast} = \frac{\sum_i M_i}{\sum_i A_i}
+$$
 
 ### Basis Aturan Lengkap (27 Aturan)
 
@@ -225,11 +239,15 @@ Skor kualitas air fuzzy digabungkan dengan ketiga fitur fisik-kimia asli menjadi
 
 **Min-Max scaling bebas kebocoran data (*leakage-free*)**: setiap fitur ke-$j$ dinormalisasi ke rentang $[0,\ 1]$ karena skala fitur sangat berbeda (misalnya pH $0\text{–}14$ sedangkan Hardness hingga $300\ \text{mg/L}$). Parameter $x_{\min, j}$ dan $x_{\max, j}$ dihitung hanya dari data latih, lalu diterapkan pada data uji:
 
-$$x'_{ij} = \frac{x_{ij} - x_{\min, j}}{x_{\max, j} - x_{\min, j}}$$
+$$
+x'_{ij} = \frac{x_{ij} - x_{\min, j}}{x_{\max, j} - x_{\min, j}}
+$$
 
 **Jarak Euclidean** antara vektor data uji ternormalisasi $\mathbf{x}'_q$ dan data latih $\mathbf{x}'_i$ pada ruang berdimensi $d$:
 
-$$d(\mathbf{x}'_q, \mathbf{x}'_i) = \sqrt{\sum_{j=1}^{d} \left(x'_{qj} - x'_{ij}\right)^2}$$
+$$
+d(\mathbf{x}'_q, \mathbf{x}'_i) = \sqrt{\sum_{j=1}^{d} \left(x'_{qj} - x'_{ij}\right)^2}
+$$
 
 **Voting mayoritas**: seluruh jarak diurutkan dari terkecil ke terbesar, diambil $K$ tetangga terdekat, dan kelas prediksi ditetapkan dari mayoritas kelas pada $K$ tetangga tersebut. Nilai $K$ dipilih ganjil untuk mencegah hasil seri pada klasifikasi biner.
 
@@ -247,12 +265,12 @@ Untuk memverifikasi kebenaran implementasi, disiapkan 5 sampel referensi sinteti
 | S4 | WQP-M04 | 7.00 | 120.0 | 2.250 | 55.9524 | Potable (1) |
 | S5 | WQP-M05 | 7.00 | 90.0 | 1.625 | 64.6739 | Potable (1) |
 
-Perhitungan manual langkah demi langkah dilakukan pada dua kasus: sampel referensi **S4** dan kasus uji baru **$Q^*$**. Keluaran program dibandingkan dengan hasil manual dan seluruhnya identik (selisih $0.0000$).
+Perhitungan manual langkah demi langkah dilakukan pada dua kasus: sampel referensi **S4** dan kasus uji baru $Q^{\ast}$. Keluaran program dibandingkan dengan hasil manual dan seluruhnya identik (selisih $0.0000$).
 
-| Kasus | Input $(\text{pH},\ \text{Hardness},\ \text{Turbidity})$ | Aturan Aktif | $[\alpha_{\text{Poor}},\ \alpha_{\text{Mod}},\ \alpha_{\text{Good}}]$ | $\sum A$ | $\sum M$ | $z^*$ |
+| Kasus | Input $(\text{pH},\ \text{Hardness},\ \text{Turbidity})$ | Aturan Aktif | $[\alpha_{\text{Poor}},\ \alpha_{\text{Mod}},\ \alpha_{\text{Good}}]$ | $\sum A$ | $\sum M$ | $z^{\ast}$ |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **S4** (sampel referensi) | $(7.00,\ 120.0,\ 2.25)$ | 4 aturan | $[0.0000,\ 0.5000,\ 0.5000]$ | 43.7500 | 2447.9167 | **55.9524** |
-| **$Q^*$** (kasus uji baru) | $(5.25,\ 150.0,\ 2.25)$ | 8 aturan | $[0.2500,\ 0.5000,\ 0.5000]$ | 45.3125 | 2454.4271 | **54.1667** |
+| $Q^{\ast}$ (kasus uji baru) | $(5.25,\ 150.0,\ 2.25)$ | 8 aturan | $[0.2500,\ 0.5000,\ 0.5000]$ | 45.3125 | 2454.4271 | **54.1667** |
 
 **Contoh S4**: kurva agregasi terdiri atas dua segmen, yaitu garis naik $\mu(z) = 0.02z$ pada $[0,\ 25]$ dan garis mendatar $\mu(z) = 0.50$ pada $[25,\ 100]$.
 
@@ -262,9 +280,11 @@ Perhitungan manual langkah demi langkah dilakukan pada dua kasus: sampel referen
 | Segmen 2 | $[25,\ 100]$ | $0.50$ | 37.5000 | 2343.7500 |
 | **Total** | $[0,\ 100]$ | | **43.7500** | **2447.9167** |
 
-$$z^*_{S4} = \frac{2447.9167}{43.7500} = 55.9524$$
+$$
+z^{\ast}_{\text{S4}} = \frac{2447.9167}{43.7500} = 55.9524
+$$
 
-**Contoh $Q^*$**: kurva agregasi terdiri atas tiga segmen.
+**Contoh** $Q^{\ast}$: kurva agregasi terdiri atas tiga segmen.
 
 | Segmen | Interval $z$ | $\mu_{\text{agg}}(z)$ | Luas $A_i$ | Momen $M_i$ |
 | :--- | :---: | :---: | :---: | :---: |
@@ -273,9 +293,11 @@ $$z^*_{S4} = \frac{2447.9167}{43.7500} = 55.9524$$
 | Segmen 3 | $[25,\ 100]$ | $0.50$ | 37.5000 | 2343.7500 |
 | **Total** | $[0,\ 100]$ | | **45.3125** | **2454.4271** |
 
-$$z^*_{Q^*} = \frac{2454.4271}{45.3125} = 54.1667$$
+$$
+z^{\ast}_{Q^{\ast}} = \frac{2454.4271}{45.3125} = 54.1667
+$$
 
-**Ilustrasi klasifikasi KNN ($K = 3$) untuk $Q^*$** pada 5 sampel referensi manual (sementara evaluasi performa sistem utama menggunakan 480 data latih dan 120 data uji terstratifikasi). Parameter Min-Max pada 5 sampel referensi tersebut:
+**Ilustrasi klasifikasi KNN (**$K = 3$**) untuk** $Q^{\ast}$ pada 5 sampel referensi manual (sementara evaluasi performa sistem utama menggunakan 480 data latih dan 120 data uji terstratifikasi). Parameter Min-Max pada 5 sampel referensi tersebut:
 
 | Parameter | pH ($X_1$) | Hardness ($X_2$) | Turbidity ($X_3$) | `fuzzy_quality_score` ($Y$) |
 | :--- | :---: | :---: | :---: | :---: |
@@ -283,17 +305,17 @@ $$z^*_{Q^*} = \frac{2454.4271}{45.3125} = 54.1667$$
 | Maksimum | 10.5000 | 240.0000 | 4.7500 | 64.6739 |
 | Rentang | 7.0000 | 150.0000 | 3.1250 | 20.6263 |
 
-Vektor $Q^* = [5.25,\ 150.0,\ 2.25,\ 54.1667]$ menjadi $\mathbf{x}'_{Q^*} = [0.2500,\ 0.4000,\ 0.2000,\ 0.4906]$. Hasil jarak Euclidean 4 dimensi dan peringkat tetangga:
+Vektor $Q^{\ast} = [5.25,\ 150.0,\ 2.25,\ 54.1667]$ menjadi $\mathbf{x}'_{Q^{\ast}} = [0.2500,\ 0.4000,\ 0.2000,\ 0.4906]$. Hasil jarak Euclidean 4 dimensi dan peringkat tetangga:
 
 | Peringkat | Sampel | Vektor Ternormalisasi | $\sum \Delta^2$ | Jarak | Kelas Aktual | Status ($K=3$) |
-| :---: | :---: | :--- | :---: | :---: | :---: | :--- |
+| :---: | :---: | :--- | :---: | :---: | :---: | :---: |
 | 1 | S4 | $[0.5000,\ 0.2000,\ 0.2000,\ 0.5772]$ | 0.1100 | 0.3317 | Potable | Tetangga #1 |
 | 2 | S3 | $[0.5000,\ 0.6000,\ 0.6000,\ 0.2886]$ | 0.3033 | 0.5507 | Not Potable | Tetangga #2 |
 | 3 | S5 | $[0.5000,\ 0.0000,\ 0.0000,\ 1.0000]$ | 0.5220 | 0.7225 | Potable | Tetangga #3 |
 | 4 | S1 | $[0.0000,\ 1.0000,\ 1.0000,\ 0.0000]$ | 1.3032 | 1.1416 | Not Potable | Di luar $K=3$ |
 | 5 | S2 | $[1.0000,\ 1.0000,\ 1.0000,\ 0.0000]$ | 1.8032 | 1.3428 | Not Potable | Di luar $K=3$ |
 
-Dari 3 tetangga terdekat (**S4**, **S3**, **S5**) diperoleh suara **2 Potable** berbanding **1 Not Potable**, sehingga $Q^*$ diprediksi **Potable (Layak Minum)**.
+Dari 3 tetangga terdekat (**S4**, **S3**, **S5**) diperoleh suara **2 Potable** berbanding **1 Not Potable**, sehingga $Q^{\ast}$ diprediksi **Potable (Layak Minum)**.
 
 ---
 
@@ -309,7 +331,7 @@ Evaluasi dilakukan pada **120 data uji terstratifikasi** (60 *Potable*, 60 *Not 
 | $K = 9$ | 91.67% (110/120) | 95.83% (115/120) | +4.17% | 91.66% | 95.83% | 5 / 120 |
 | $K = 11$ | 93.33% (112/120) | 97.50% (117/120) | +4.17% | 93.33% | 97.50% | 3 / 120 |
 
-**Metrik per kelas pada $K = 5$:**
+**Metrik per kelas pada** $K = 5$**:**
 
 | Kelas Kelayakan | Support | Precision A | Precision B | Recall A | Recall B | F1-Score A | F1-Score B |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -317,7 +339,7 @@ Evaluasi dilakukan pada **120 data uji terstratifikasi** (60 *Potable*, 60 *Not 
 | Potable (1) | 60 | 94.74% | 96.55% | 90.00% | 93.33% | 92.31% | 94.92% |
 | Rata-rata | 120 | 92.61% | 95.05% | 92.50% | 95.00% | 92.50% | 95.00% |
 
-**Matriks konfusi pada $K = 5$:**
+**Matriks konfusi pada** $K = 5$**:**
 
 | Model | TN | FP | FN | TP | Total Kesalahan | Akurasi |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -335,8 +357,8 @@ Aplikasi web interaktif dengan tema *dark-mode* dan navigasi sidebar. Pemisahan 
 | Halaman | Judul Menu | Fitur Utama |
 | :---: | :--- | :--- |
 | **01** | **Ringkasan Sistem** | Gambaran permasalahan, alur arsitektur dua tahap (Fuzzy Mamdani + KNN), metrik utama, distribusi 600 sampel seimbang, dan profil Kelompok 1. |
-| **02** | **Simulasi & Data** | Simulasi 1 sampel (preset $Q^*$ / S1–S5 atau input manual pH, Hardness, Turbidity dengan validasi batas), pemilihan data referensi KNN, dan unggah CSV kustom. |
-| **03** | **Bedah Perhitungan** | Penelusuran matematis 4 desimal dalam 3 tab: kurva keanggotaan, substitusi fuzzifikasi dan 27 aturan; kurva agregasi MAX dan integral Centroid ($z^*$); serta normalisasi dan jarak Euclidean KNN. |
+| **02** | **Simulasi & Data** | Simulasi 1 sampel (preset $Q^{\ast}$ / S1–S5 atau input manual pH, Hardness, Turbidity dengan validasi batas), pemilihan data referensi KNN, dan unggah CSV kustom. |
+| **03** | **Bedah Perhitungan** | Penelusuran matematis 4 desimal dalam 3 tab: kurva keanggotaan, substitusi fuzzifikasi dan 27 aturan; kurva agregasi MAX dan integral Centroid ($z^{\ast}$); serta normalisasi dan jarak Euclidean KNN. |
 | **04** | **Hasil & Ranking** | Klasifikasi dan pemeringkatan seluruh 600 sampel, interpretasi otomatis, sorotan Top 5 terbaik vs 5 paling berisiko, filter kelas/skor, grafik sebaran, dan ekspor CSV. |
 | **05** | **Evaluasi Model A vs B** | Perbandingan performa Model A (3 fitur) vs Model B (4 fitur + skor Fuzzy) lintas $K \in \{3, 5, 7, 9, 11\}$, pilihan normalisasi Min-Max/Z-Score, matriks konfusi, metrik per kelas, dan analisis batasan. |
 | **06** | **Referensi & Panduan** | Spesifikasi variabel dan titik kurva $[a, b, c]$, rumus matematis Mamdani dan KNN, filter 27 basis aturan, peran pustaka Python, dan panduan penggunaan 6 halaman. |
@@ -452,12 +474,12 @@ Hasil verifikasi manual vs program (selisih $0.0000$ pada seluruh tahap):
 | :---: | :--- | :---: | :---: | :---: |
 | S4 | Agregasi $[\alpha_{\text{Poor}},\ \alpha_{\text{Mod}},\ \alpha_{\text{Good}}]$ | $[0.0000,\ 0.5000,\ 0.5000]$ | $[0.0000,\ 0.5000,\ 0.5000]$ | ✅ Identik |
 | S4 | Total luas $\sum A$ dan momen $\sum M$ | $43.7500$ & $2447.9167$ | $43.7500$ & $2447.9167$ | ✅ Identik |
-| S4 | `fuzzy_quality_score` ($z^*$) | $55.9524$ | $55.9524$ | ✅ Identik |
-| $Q^*$ | Agregasi $[\alpha_{\text{Poor}},\ \alpha_{\text{Mod}},\ \alpha_{\text{Good}}]$ | $[0.2500,\ 0.5000,\ 0.5000]$ | $[0.2500,\ 0.5000,\ 0.5000]$ | ✅ Identik |
-| $Q^*$ | Total luas $\sum A$ dan momen $\sum M$ | $45.3125$ & $2454.4271$ | $45.3125$ & $2454.4271$ | ✅ Identik |
-| $Q^*$ | `fuzzy_quality_score` ($z^*$) | $54.1667$ | $54.1667$ | ✅ Identik |
-| $Q^*$ | Jarak 3 tetangga terdekat (S4, S3, S5) | $0.3317,\ 0.5507,\ 0.7225$ | $0.3317,\ 0.5507,\ 0.7225$ | ✅ Identik |
-| $Q^*$ | Prediksi KNN ($K = 3$) | Potable ($2 : 1$) | Potable ($2 : 1$) | ✅ Identik |
+| S4 | `fuzzy_quality_score` ($z^{\ast}$) | $55.9524$ | $55.9524$ | ✅ Identik |
+| $Q^{\ast}$ | Agregasi $[\alpha_{\text{Poor}},\ \alpha_{\text{Mod}},\ \alpha_{\text{Good}}]$ | $[0.2500,\ 0.5000,\ 0.5000]$ | $[0.2500,\ 0.5000,\ 0.5000]$ | ✅ Identik |
+| $Q^{\ast}$ | Total luas $\sum A$ dan momen $\sum M$ | $45.3125$ & $2454.4271$ | $45.3125$ & $2454.4271$ | ✅ Identik |
+| $Q^{\ast}$ | `fuzzy_quality_score` ($z^{\ast}$) | $54.1667$ | $54.1667$ | ✅ Identik |
+| $Q^{\ast}$ | Jarak 3 tetangga terdekat (S4, S3, S5) | $0.3317,\ 0.5507,\ 0.7225$ | $0.3317,\ 0.5507,\ 0.7225$ | ✅ Identik |
+| $Q^{\ast}$ | Prediksi KNN ($K = 3$) | Potable ($2 : 1$) | Potable ($2 : 1$) | ✅ Identik |
 
 ---
 
@@ -485,7 +507,7 @@ Hasil verifikasi manual vs program (selisih $0.0000$ pada seluruh tahap):
 **Kesimpulan**
 
 1. Sistem Pendukung Keputusan penentuan kualitas dan kelayakan air minum berbasis integrasi Fuzzy Mamdani (3 input, partisi segitiga simetris Ruspini, 27 aturan, Centroid analitik) dan KNN telah berhasil dibangun *from scratch* menggunakan Python dan antarmuka Streamlit 6 halaman.
-2. Verifikasi antara perhitungan manual dan keluaran program pada sampel referensi **S4** ($z^* = 55.9524$) maupun kasus uji baru **$Q^*$** ($z^* = 54.1667$, prediksi *Potable* pada $K = 3$) menghasilkan selisih absolut $0.0000$, dan seluruh 5 pengujian unit otomatis (`pytest`) lulus 100%.
+2. Verifikasi antara perhitungan manual dan keluaran program pada sampel referensi **S4** ($z^{\ast} = 55.9524$) maupun kasus uji baru $Q^{\ast}$ ($z^{\ast} = 54.1667$, prediksi *Potable* pada $K = 3$) menghasilkan selisih absolut $0.0000$, dan seluruh 5 pengujian unit otomatis (`pytest`) lulus 100%.
 3. Integrasi fitur `fuzzy_quality_score` pada Model B (4 fitur) secara konsisten mengungguli Model A (Baseline KNN 3 fitur) di seluruh nilai $K \in \{3, 5, 7, 9, 11\}$, dengan peningkatan akurasi +2.50% hingga +4.17% dan akurasi tertinggi **97.50%** pada $K = 11$ (**95.00%** pada $K = 5$).
 4. Pengurangan kesalahan klasifikasi dari **9 sampel** menjadi **6 sampel** pada $K = 5$ menunjukkan bahwa fitur hasil inferensi pakar Fuzzy Mamdani efektif memperkuat pemisahan kelas KNN di area perbatasan.
 
